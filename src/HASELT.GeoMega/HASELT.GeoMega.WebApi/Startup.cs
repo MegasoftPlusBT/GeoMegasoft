@@ -21,7 +21,7 @@ namespace HASELT.GeoMega.WebApi
 
         public void Configuration(IAppBuilder app)
         {
-            var httpConfig = new HttpConfiguration();
+            var httpConfig = GlobalConfiguration.Configuration;
 
             // Web API configuration and services
             httpConfig.Filters.Add(new ExceptionFilterWrapperAttribute());

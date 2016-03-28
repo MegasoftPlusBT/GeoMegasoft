@@ -34,7 +34,8 @@ namespace HASELT.GeoMega.AppServices.Features.Users
 //").AsList();
 
                 //Connection.Execute("INSERT INTO Users VALUES(...)"
-                throw new NotImplementedException();
+                //throw new NotImplementedException();
+                return new Response();
             }
         }
     }
