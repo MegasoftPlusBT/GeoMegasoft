@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/CodeSnippet">
+    <CodeSnippet Format="1.0.0">
+
+        <!-- The header contains information describing the snippet. -->
+        <Header>
+
+            <!-- The Title of the snippet, this will be shown in the snippets manager. -->
+            <Title>Insert UseCase</Title>
+
+            <!-- The description of the snippet. -->
+            <Description>Insert Usecase - HASELT.Arc flavoured class.</Description>
+
+            <!-- The author of the snippet. -->
+            <Author>Bojan Veljanovski</Author>
+
+            <!-- The set of characters that must be keyed in to insert the snippet. -->
+            <Shortcut>tajmero</Shortcut>
+
+            <!-- A URL for more help. -->
+            <HelpUrl></HelpUrl>
+
+            <!-- The set of snippet types we're dealing with - either Expansion or -->
+            <SnippetTypes>
+                <SnippetType>Expansion</SnippetType>
+            </SnippetTypes>
+
+        </Header>
+
+        <!-- Now we have the snippet itself. -->
+        <Snippet>
+
+            <!-- Create any declarations that we use in the snippet. -->
+            <Declarations>
+                <Literal>
+                    <ID>UseCase</ID>
+                    <ToolTip>The UseCase name</ToolTip>
+                    <Default>UseCase</Default>
+                </Literal>
+            </Declarations>
+
+            <Imports>
+                <Import>
+                    <Namespace>FluentValidation</Namespace>
+                    <Namespace>HASELT.Arc.Persistence.ArcMarten</Namespace>
+                </Import>
+            </Imports>
+
+            <!-- Sepecify the code language and the actual snippet content. -->
+            <Code Language="CSharp" Kind="any">
+                              <![CDATA[ public class $UseCase$
+                    {
+                        public class Request : BaseRequest<Response>
+                        {
+                        }
+
+                        public class Response : BaseResponse
+                        {
+                        }
+                        
+                        public class Validator : AbstractValidator<Request>
+                        {
+                            public Validator()
+                            {
+                            }
+                        }
+                        
+                        public class Handler : BaseHandler<Request, Response>
+                        {
+                            public Handler(ArcMartenSession session) : base(session)
+                            {
+                            }
+
+                            public override async Task<Response> Handle(Request request)
+                            {
+                                // var entity = await Session.LoadAsync<Entity>(request.EntityId);
+                                // do something with the entity
+                                // Session.Store(entity);
+                                return new Response();
+                            }
+                        }                    
+                    }]]>
+            </Code>
+        </Snippet>
+    </CodeSnippet>
+</CodeSnippets>
