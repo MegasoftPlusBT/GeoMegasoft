@@ -16,5 +16,13 @@ namespace HASELT.GeoMega.WebApi.Controllers
         [Route("edit")]
         public Task<EditUser.Response> Edit(EditUser.Request request)
             => Handle(request ?? new EditUser.Request());
+
+        [HttpPost]
+        [Route("login")]
+        public Task<LoginUser.Response> Login(LoginUser.Request request)
+          => Handle(request ?? new LoginUser.Request());
+
+
+
     }
 }

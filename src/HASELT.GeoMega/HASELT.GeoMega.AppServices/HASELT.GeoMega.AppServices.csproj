@@ -88,8 +88,13 @@
     <Compile Include="BaseHandler.cs" />
     <Compile Include="BaseRequests.cs" />
     <Compile Include="BaseResponses.cs" />
+    <Compile Include="Features\Reons\GetReons.cs" />
     <Compile Include="Features\Users\EditUser.cs" />
     <Compile Include="Features\Users\GetUserByEmail.cs" />
+    <Compile Include="Features\Users\LoginUser.cs" />
+    <Compile Include="Features\WaterCounters\GetCustomerInfoByWatterCounter.cs" />
+    <Compile Include="Features\WaterCounters\InsertNewStateForWaterCounter.cs" />
+    <Compile Include="Features\WaterCounters\SearchWaterCounters.cs" />
     <Compile Include="IBootstrapperConfiguration.cs" />
     <Compile Include="ISmtpClientConfiguration.cs" />
     <Compile Include="IFileClientConfiguration.cs" />

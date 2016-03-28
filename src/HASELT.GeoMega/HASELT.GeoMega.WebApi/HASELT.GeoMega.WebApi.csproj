@@ -215,7 +215,9 @@
   <ItemGroup>
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="BaseApiController.cs" />
+    <Compile Include="Controllers\ReonsController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
+    <Compile Include="Controllers\WaterCountersController.cs" />
     <Compile Include="DependencyResolution\StructureMapDependencyResolver .cs" />
     <Compile Include="DependencyResolution\StructureMapScope.cs" />
     <Compile Include="ExceptionFilterWrapperAttribute.cs" />
@@ -225,6 +227,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\CustomJwtFormat.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="UserAuthorizationServerProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -238,7 +241,9 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Views\" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HASELT.GeoMega.AppServices\HASELT.GeoMega.AppServices.csproj">
       <Project>{48f3bb7f-0a46-42ab-9955-6ac4b09d4836}</Project>
