@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace HASELT.GeoMega.WebApi.Controllers
 {
+    [Authorize]
     [RoutePrefix("api/v1/reons")]
     public class ReonsController : BaseApiController
     {

@@ -90,7 +90,7 @@
     <Compile Include="BaseResponses.cs" />
     <Compile Include="Features\Reons\GetReons.cs" />
     <Compile Include="Features\Users\EditUser.cs" />
-    <Compile Include="Features\Users\GetUserByEmail.cs" />
+    <Compile Include="Features\Users\GetUserByUserName.cs" />
     <Compile Include="Features\Users\LoginUser.cs" />
     <Compile Include="Features\WaterCounters\GetCustomerInfoByWatterCounterId.cs" />
     <Compile Include="Features\WaterCounters\GetLastStateOfWaterCounter.cs" />

@@ -11,6 +11,7 @@ using Owin;
 using HASELT.GeoMega.WebApi.Security;
 using HASELT.GeoMega.Framework;
 using HASELT.GeoMega.WebApi.DependencyResolution;
+using HASELT.Arc.Messaging;
 
 namespace HASELT.GeoMega.WebApi
 {
@@ -43,7 +44,7 @@ namespace HASELT.GeoMega.WebApi
                 AllowInsecureHttp = true,
                 TokenEndpointPath = new PathString("/token"),
                 AccessTokenExpireTimeSpan = TimeSpan.FromDays(1),
-                Provider = new UserAuthorizationServerProvider()
+                Provider = new UserAuthorizationServerProvider(_bootstrapper.Container.GetInstance<IRequestDispatcher>())
             };
             app.UseOAuthAuthorizationServer(OAuthServerOptions);
             app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());

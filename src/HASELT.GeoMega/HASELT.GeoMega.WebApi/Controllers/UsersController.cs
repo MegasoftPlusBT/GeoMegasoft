@@ -8,9 +8,9 @@ namespace HASELT.GeoMega.WebApi.Controllers
     public class UsersController : BaseApiController
     {
         [HttpGet]
-        [Route("{email?}")]
-        public Task<GetUserByEmail.Response> Get(string email = "")
-            => Handle(new GetUserByEmail.Request { Email = email });
+        [Route("{username?}")]
+        public Task<GetUserByUserName.Response> Get(string userName = "")
+            => Handle(new GetUserByUserName.Request { UserName = userName });
 
         [HttpPost]
         [Route("edit")]

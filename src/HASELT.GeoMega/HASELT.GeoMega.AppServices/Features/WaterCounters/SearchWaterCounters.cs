@@ -39,6 +39,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 
                 public int CustomerId { get; set; }
 
+                public int LocationId { get; set; }
+
             }
         }
 

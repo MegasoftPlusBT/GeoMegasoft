@@ -227,7 +227,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\CustomJwtFormat.cs" />
     <Compile Include="Startup.cs" />
-    <Compile Include="UserAuthorizationServerProvider.cs" />
+    <Compile Include="Security\UserAuthorizationServerProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
