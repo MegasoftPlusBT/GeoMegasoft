@@ -4,42 +4,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dapper;
 
 namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 {
-    public class SearchWaterCounters
+    public class GetCustomerInfoByWatterCounterId
     {
         public class Request : BaseRequest<Response>
         {
-            public string FirstLastName { get; set; }
+            public int WaterCounterId { get; set; }
 
-            public string Location { get; set; }
+            public int LocationId { get; set; }
 
-            public int? Radius { get; set; }
+            public int CustomerId { get; set; }
         }
 
         public class Response : BaseResponse
         {
-            public Response()
-            {
-                Items = new List<Item>();
-            }
+            public int WaterCounterId { get; set; }
 
-            public List<Item> Items { get; set; }
-
-            public class Item
-            {
-                public string FirstName { get; set; }
-
-                public string LastName { get; set; }
-
-                public string Address { get; set; }
-
-                public int WaterCounterId { get; set; } //TOOD: Check WaterCounterId
-
-                public int CustomerId { get; set; }
-
-            }
         }
 
         public class Validator : AbstractValidator<Request>
@@ -56,11 +39,28 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 // this is just an example
                 //                var response = Connection.Query<Response>(@"
                 //SELECT *
-                //FROM Users
-                //").AsList();
+                //FROM Korisnici
+                //WHERE KorisnikId=@KorisnikId
+                //",request.CustomerId).AsList();
+                //KorisnikId from KorisnikBroilo
+
+
+                //TODO: Get info data for Korisnik
+                /*
+                1. Тип на Корисник
+                2. Шифра на корисник
+                3. Име / назив
+                4. Шифра на улица
+                5. Куќен број
+                6. Влез
+                7. Стан
+                8. Град                
+                */
 
                 //Connection.Execute("INSERT INTO Users VALUES(...)"
-                throw new NotImplementedException();
+
+
+                return new Response();
             }
         }
     }

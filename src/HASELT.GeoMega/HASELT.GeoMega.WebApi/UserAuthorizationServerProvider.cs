@@ -18,7 +18,7 @@ namespace HASELT.GeoMega.WebApi
 
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
-
+            
             var identity = new ClaimsIdentity(context.Options.AuthenticationType);
             identity.AddClaim(new Claim(ClaimTypes.Name, "oliver"));
             identity.AddClaim(new Claim(ClaimTypes.Role, "admin"));

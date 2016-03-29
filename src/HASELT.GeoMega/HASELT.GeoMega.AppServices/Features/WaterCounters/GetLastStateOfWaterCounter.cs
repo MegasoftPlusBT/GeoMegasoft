@@ -4,18 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dapper;
 
 namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 {
-    public class GetCustomerInfoByWatterCounter
+    public class GetLastStateOfWaterCounter
     {
         public class Request : BaseRequest<Response>
         {
-            public string WaterCounter { get; set; }
+            public int WaterCounterId { get; set; }
         }
 
         public class Response : BaseResponse
         {
+            public int State { get; set; }
         }
 
         public class Validator : AbstractValidator<Request>
@@ -29,14 +31,12 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
         {
             public override async Task<Response> Handle(Request request)
             {
-                // this is just an example
-                //                var response = Connection.Query<Response>(@"
-                //SELECT *
-                //FROM Users
-                //").AsList();
+                int? state = Connection.Query<int>(@"SELECT Vrednost FROM Sostojba WHERE BroiloId = @BroiloId ORDER BY Kreirano DESC", new { BroiloId = request.WaterCounterId }).FirstOrDefault();
 
-                //Connection.Execute("INSERT INTO Users VALUES(...)"
-                throw new NotImplementedException();
+                return new Response
+                {
+                    State = state == null ? 0 : (int)state
+                };
             }
         }
     }

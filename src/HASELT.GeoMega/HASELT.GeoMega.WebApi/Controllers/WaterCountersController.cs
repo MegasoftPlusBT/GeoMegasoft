@@ -19,12 +19,17 @@ namespace HASELT.GeoMega.WebApi.Controllers
 
         [HttpGet]
         [Route("customerinfo")]
-        public Task<GetCustomerInfoByWatterCounter.Response> CustomerInfoByWaterCounter(string waterCounter = "")
-          => Handle(new GetCustomerInfoByWatterCounter.Request { WaterCounter = waterCounter });
+        public Task<GetCustomerInfoByWatterCounterId.Response> CustomerInfoByWaterCounter(int waterCounterId)
+          => Handle(new GetCustomerInfoByWatterCounterId.Request { WaterCounterId = waterCounterId });
 
         [HttpPost]
         [Route("newstate")]
         public Task<InsertNewStateForWaterCounter.Response> InsertNewState(InsertNewStateForWaterCounter.Request request)
          => Handle(request ?? new InsertNewStateForWaterCounter.Request());
+
+        [HttpGet]
+        [Route("laststate")]
+        public Task<GetLastStateOfWaterCounter.Response> GetLastState(int waterCounterId)
+        => Handle(new GetLastStateOfWaterCounter.Request { WaterCounterId = waterCounterId });
     }
 }

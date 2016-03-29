@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dapper;
 
 namespace HASELT.GeoMega.AppServices.Features.Reons
 {
@@ -15,6 +16,20 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
 
         public class Response : BaseResponse
         {
+
+            public Response()
+            {
+                Items = new List<Item>();
+            }
+
+            public List<Item> Items { get; set; }
+
+            public class Item
+            {
+                public int ReonID { get; set; }
+
+                public string Zabeleska { get; set; }
+            }
         }
 
         public class Validator : AbstractValidator<Request>
@@ -28,15 +43,11 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
         {
             public override async Task<Response> Handle(Request request)
             {
-                // this is just an example
-                //                var response = Connection.Query<Response>(@"
-                //SELECT *
-                //FROM Reons
-                //").AsList();
-
-                //Connection.Execute("INSERT INTO Reons VALUES(...)"
-                //throw new NotImplementedException();
-                return new Response();
+                var items = Connection.Query<Response.Item>(@"SELECT * FROM Reoni").AsList();
+                return new Response
+                {
+                    Items = items
+                };
             }
         }
     }
