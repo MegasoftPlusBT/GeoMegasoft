@@ -38,6 +38,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 
                 public int LokacijaID { get; set; }
 
+                public int? UlicaID { get; set; }
+
                 public int ReonID { get; set; }
 
                 public string Broilo { get; set; }
@@ -64,7 +66,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 StringBuilder sbSqlFizicki = new StringBuilder(@"Select  
                                     bfl.VidKorID as VidKorID, 
                                     bfl.KorisnikID as KorisnikID, 
-                                    bfl.LokacijaID as LokacijaID, 
+                                    bfl.LokacijaID as LokacijaID,
+                                    bfl.UlicaID as UlicaID,
                                     bfl.ReonID as ReonID, 
                                     bfl.Broilo as Broilo,
                                     lfl.Aktiven as Aktive,
