@@ -9,7 +9,7 @@ using System.Web.Http;
 
 namespace HASELT.GeoMega.WebApi.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [RoutePrefix("api/v1/watercounters")]
     public class WaterCountersController : BaseApiController
     {
