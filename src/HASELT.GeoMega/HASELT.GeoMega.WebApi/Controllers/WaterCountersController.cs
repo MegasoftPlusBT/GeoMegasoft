@@ -30,7 +30,7 @@ namespace HASELT.GeoMega.WebApi.Controllers
 
         [HttpGet]
         [Route("laststate")]
-        public Task<GetLastStateOfWaterCounter.Response> GetLastState(int waterCounterId)
-        => Handle(new GetLastStateOfWaterCounter.Request { WaterCounterId = waterCounterId });
+        public Task<GetLastStateOfWaterCounter.Response> GetLastState(int vidkorid, int lokacijaID, int korisnikID, int reonID, string broilo)
+        => Handle(new GetLastStateOfWaterCounter.Request { Broilo = broilo, KorisnikID = korisnikID, LokacijaID = lokacijaID, ReonID = reonID, Vidkorid = vidkorid });
     }
 }

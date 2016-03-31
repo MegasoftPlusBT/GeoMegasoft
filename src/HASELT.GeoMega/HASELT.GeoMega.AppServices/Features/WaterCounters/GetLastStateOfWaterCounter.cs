@@ -12,12 +12,24 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
     {
         public class Request : BaseRequest<Response>
         {
-            public int WaterCounterId { get; set; }
+            public int Vidkorid { get; set; }
+
+            public int LokacijaID { get; set; }
+
+            public int KorisnikID { get; set; }
+
+            public int ReonID { get; set; }
+
+            public string Broilo { get; set; }
         }
 
         public class Response : BaseResponse
         {
-            public int State { get; set; }
+            public string SostojbaStara { get; set; }
+
+            public string SostojbaNova { get; set; }
+
+            public string Mesec { get; set; }
         }
 
         public class Validator : AbstractValidator<Request>
@@ -31,12 +43,16 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
         {
             public override async Task<Response> Handle(Request request)
             {
-                int? state = Connection.Query<int>(@"SELECT Vrednost FROM Sostojba WHERE BroiloId = @BroiloId ORDER BY Kreirano DESC", new { BroiloId = request.WaterCounterId }).FirstOrDefault();
-
-                return new Response
-                {
-                    State = state == null ? 0 : (int)state
-                };
+                var response = Connection.Query<Response>(@"
+                                                    SELECT SostojbaStara,
+                                                           SostojbaNova, 
+                                                           Mesec
+                                                          FROM SostojbaFizicki
+                                                          WHERE Vidkorid=@Vidkorid and LokacijaID=@LokacijaID and KorisnikID=@KorisnikID and ReonID=@ReonID and Broilo=@Broilo
+                                                          ORDER BY Broilo, Mesec, Datum",
+                                                          new { Vidkorid = request.Vidkorid, LokacijaID = request.LokacijaID, KorisnikID = request.KorisnikID, ReonID = request.ReonID, Broilo = request.Broilo }).LastOrDefault();
+                
+                return response;
             }
         }
     }

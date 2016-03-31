@@ -17,6 +17,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
             public int LocationId { get; set; }
 
             public int CustomerId { get; set; }
+
         }
 
         public class Response : BaseResponse

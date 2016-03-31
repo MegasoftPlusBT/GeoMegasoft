@@ -81,7 +81,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                     lfl.KorisnikID=bfl.KorisnikID AND
                                     lfl.ReonID=bfl.ReonID
                                     inner join Korisnici k on bfl.KorisnikID=k.KorisnikID
-                                    where lfl.Aktiven=1 ");
+                                    where lfl.Aktiven=1 AND bfl.Status=1 ");
                 StringBuilder sbSqlPravni = new StringBuilder(@"Select 
                                     lpl.VidKorID as VidKorID, 
                                     bpl.KorisnikID as KorisnikID,
