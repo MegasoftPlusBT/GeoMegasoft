@@ -27,6 +27,17 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
             public string SostojbaNova { get; set; }
 
             public string Mesec { get; set; }
+
+            public class Shifrnik
+            {
+                public int UlicaID { get; set; }
+
+                public int Broj { get; set; }
+
+                public string Stan { get; set; }
+
+                public string Vlez { get; set; }
+            }
         }
 
         public class Response : BaseResponse
@@ -40,43 +51,6 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
             {
             }
         }
-
-        /*
-        
-INSERT INTO [dbo].[SostojbaFizicki]
-           ([Vidkorid]
-           ,[KorisnikID]
-           ,[LokacijaID]
-           ,[Broilo]
-           ,[Mesec]
-           ,[SostojbaStara]
-           ,[SostojbaNova]
-           ,[Razlika]
-           ,[ReonID]
-           ,[UlicaID]
-           ,[Broj]
-           ,[Vlez]
-           ,[stan]
-           ,[BrClenovi]
-           ,[Datum])
-     VALUES
-           (<Vidkorid, int,>
-           ,<KorisnikID, int,>
-           ,<LokacijaID, int,>
-           ,<Broilo, nvarchar(20),>
-           ,<Mesec, varchar(15),>
-           ,<SostojbaStara, varchar(20),>
-           ,<SostojbaNova, varchar(20),>
-           ,<Razlika, varchar(20),>
-           ,<ReonID, int,>
-           ,<UlicaID, int,>
-           ,<Broj, nvarchar(15),>
-           ,<Vlez, nvarchar(10),>
-           ,<stan, nvarchar(10),>
-           ,<BrClenovi, tinyint,>
-           ,<Datum, datetime,>)
-            
-            */
 
         public class Handler : BaseHandler<Request, Response>
         {
@@ -102,6 +76,8 @@ INSERT INTO [dbo].[SostojbaFizicki]
                                                            From LokacijaFizickiLica 
                                                            where Vidkorid=@Vidkorid and LokacijaID=@LokacijaID and KorisnikID=@KorisnikID and ReonID=@ReonID",
                                                            new { Vidkorid = request.Vidkorid, LokacijaID = request.LokacijaID, KorisnikID = request.KorisnikID, ReonID = request.ReonID }).FirstOrDefault();
+
+                //TODO: Query from shifrarnik for all data.
 
                 var result = Connection.Execute(@"INSERT INTO [dbo].[SostojbaFizicki]
            ([Vidkorid]

@@ -20,8 +20,8 @@ namespace HASELT.GeoMega.WebApi.Controllers
 
         [HttpGet]
         [Route("customerinfo")]
-        public Task<GetCustomerInfoByWatterCounterId.Response> CustomerInfoByWaterCounter(int waterCounterId)
-          => Handle(new GetCustomerInfoByWatterCounterId.Request { WaterCounterId = waterCounterId });
+        public Task<GetCustomerInfoByWatterCounterId.Response> CustomerInfoByWaterCounter(int vidkorid, int lokacijaID, int korisnikID, int reonID, string broilo)
+          => Handle(new GetCustomerInfoByWatterCounterId.Request { Broilo = broilo, KorisnikID = korisnikID, LokacijaID = lokacijaID, ReonID = reonID, Vidkorid = vidkorid });
 
         [HttpPost]
         [Route("newstate")]

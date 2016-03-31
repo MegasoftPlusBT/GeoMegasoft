@@ -12,11 +12,15 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
     {
         public class Request : BaseRequest<Response>
         {
-            public int WaterCounterId { get; set; }
+            public int Vidkorid { get; set; }
 
-            public int LocationId { get; set; }
+            public int LokacijaID { get; set; }
 
-            public int CustomerId { get; set; }
+            public int KorisnikID { get; set; }
+
+            public int ReonID { get; set; }
+
+            public string Broilo { get; set; }
 
         }
 
