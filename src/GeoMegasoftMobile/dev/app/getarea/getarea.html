@@ -4,12 +4,19 @@
     <div class="col">
     <div class="list">
 
-        <select class="form-control incheck">
+        <!--<select class="form-control incheck">
           <option>Реон...</option>
           <option>Реон1</option>
           <option>Реон2</option>
           <option>Реон3</option>
-        </select>
+        </select>-->
+
+        <select name="selectArea" id="selectArea" ng-model="data.selectArea" class="form-control incheck">
+            <option value="">Реон...</option> <!-- not selected / blank option -->
+            
+            <option ng-repeat="option in data.items" value="{{option.reonID}}">{{option.zabeleska}}</option>
+        </select><br>
+        {{jsonData}}
 </div>
 </div>
 </div>

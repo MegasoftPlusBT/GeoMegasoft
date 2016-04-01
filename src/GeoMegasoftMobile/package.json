@@ -31,10 +31,6 @@
     "cordova-plugin-statusbar",
     "ionic-plugin-keyboard",
     "cordova-plugin-network-information",
-    {
-      "locator": "https://github.com/brodysoft/Cordova-SQLitePlugin.git",
-      "id": "cordova-sqlite-storage"
-    },
     "cordova-plugin-file",
     "cordova-plugin-file-transfer"
   ],

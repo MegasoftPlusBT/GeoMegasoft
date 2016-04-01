@@ -19,9 +19,9 @@
     $logProvider.debugEnabled(true);
   }
 
-  starterRun.$inject = ['$ionicPlatform', '$cordovaSQLite', '$window'];
+  starterRun.$inject = ['$ionicPlatform', '$window'];
 
-  function starterRun($ionicPlatform, $cordovaSQLite, $window) {
+  function starterRun($ionicPlatform, $window) {
     $ionicPlatform.ready(function() {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -33,13 +33,7 @@
         // org.apache.cordova.statusbar required
         StatusBar.styleLightContent();
       }
-      $window.dbname = "app.db.0.0.1.db";
-      //$cordovaSQLite.deleteDB($window.dbname); // use this line to delete the DB
-
-      $window.db = $cordovaSQLite.openDB($window.dbname);
-      // $cordovaSQLite.execute($window.db, "CREATE TABLE IF NOT EXISTS content (id integer primary key, data text)");
-      // $cordovaSQLite.execute($window.db, "CREATE TABLE IF NOT EXISTS localFiles (id integer primary key, data text)");
-
+     
       // $ionicPlatform.registerBackButtonAction(function(e) {
       //   e.preventDefault();
       //   return false;

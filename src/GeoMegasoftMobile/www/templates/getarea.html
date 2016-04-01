@@ -1,0 +1,6 @@
+<ion-view class="hs-view-home has-header bar-calm" title="ПРЕЗЕМИ ПОДАТОЦИ ЗА РЕОН" overflow-scroll=false><ion-content class=has-header style=padding-top:20%; content="" scroll=false><div class="row row-center" style=max-height:70%;><div class=col><div class=list><!--<select class="form-control incheck">
+ <option>Реон...</option>
+ <option>Реон1</option>
+ <option>Реон2</option>
+ <option>Реон3</option>
+ </select>--><select name=selectArea id=selectArea ng-model=data.selectArea class="form-control incheck"><option value="">Реон...</option><!--not selected / blank option--><option ng-repeat="option in data.items" value={{option.reonID}}>{{option.zabeleska}}</option></select><br>{{jsonData}}</div></div></div><div class=row><button class="submitButton button button-calm" ui-sref=main.search>ПРЕЗЕМИ</button></div></ion-content></ion-view>
