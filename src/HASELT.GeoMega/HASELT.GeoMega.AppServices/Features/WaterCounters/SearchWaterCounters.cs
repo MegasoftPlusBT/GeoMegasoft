@@ -48,6 +48,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 
                 public string Naziv { get; set; }
 
+                public string Ulica { get; set; }
+
                 public string Broj { get; set; }
             }
         }
@@ -62,7 +64,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
         public class Handler : BaseHandler<Request, Response>
         {
             public override async Task<Response> Handle(Request request)
-            {
+             {
                 StringBuilder sbSqlFizicki = new StringBuilder(@"Select  
                                     bfl.VidKorID as VidKorID, 
                                     bfl.KorisnikID as KorisnikID, 

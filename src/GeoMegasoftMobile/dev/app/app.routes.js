@@ -45,7 +45,7 @@
         }
       })
       .state('main.search', {
-        url: '/search',
+          url: '/search/:selecetedArea',
         cache: false,
         views: {
           'subview': {
@@ -55,7 +55,7 @@
         }
       })
       .state('main.results', {
-        url: '/results',
+          url: '/results/:vidkorid&:selectedRegion&:inputImePrezime&:inputLokacija',
         cache: false,
         views: {
           'subview': {
@@ -65,7 +65,7 @@
         }
       })
       .state('main.userdetails', {
-        url: '/userdetails',
+          url: '/userdetails/:vidkorid&:lokacijaID&:korisnikID&:reonID&:broilo',
         cache: false,
         views: {
           'subview': {
@@ -75,7 +75,7 @@
         }
       })
       .state('main.editstate', {
-        url: '/editstate',
+          url: '/editstate/:vidkorid&:lokacijaID&:korisnikID&:reonID&:broilo',
         cache: false,
         views: {
           'subview': {

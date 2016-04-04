@@ -3,9 +3,9 @@
   angular.module('starter')
     .controller('ResultsCtrl', ResultsController);
 
-  ResultsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope'];
+  ResultsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
 
-  function ResultsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope) {
+  function ResultsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
     var vm = this;
     initVariables();
 
@@ -17,7 +17,21 @@
     $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
     $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
-    function OnViewLoad() {}
+    function OnViewLoad() {
+        $scope.regionId = $stateParams.selectedRegion;
+        $scope.imePrezime = $stateParams.inputImePrezime;
+        $scope.lokacija = $stateParams.inputLokacija;
+        var searchParameters = {
+            "firstLastName": $stateParams.inputImePrezime,
+            "location": $stateParams.inputLokacija,
+            "radius": 0,
+            "reionId": parseInt($stateParams.selectedRegion)
+        };
+        $http.post('http://localhost:16952/api/v1/watercounters/search', searchParameters).then(function (resp) {            
+            $scope.items = resp.data.items;
+        }, function (err) {
+        })
+    }
 
     function OnBeforeEnter() {}
 

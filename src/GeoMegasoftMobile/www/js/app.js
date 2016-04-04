@@ -63,7 +63,7 @@
         }
       })
       .state('main.search', {
-        url: '/search',
+          url: '/search/:selecetedArea',
         cache: false,
         views: {
           'subview': {
@@ -73,7 +73,7 @@
         }
       })
       .state('main.results', {
-        url: '/results',
+          url: '/results/:vidkorid&:selectedRegion&:inputImePrezime&:inputLokacija',
         cache: false,
         views: {
           'subview': {
@@ -83,7 +83,7 @@
         }
       })
       .state('main.userdetails', {
-        url: '/userdetails',
+          url: '/userdetails/:vidkorid&:lokacijaID&:korisnikID&:reonID&:broilo',
         cache: false,
         views: {
           'subview': {
@@ -93,7 +93,7 @@
         }
       })
       .state('main.editstate', {
-        url: '/editstate',
+          url: '/editstate/:vidkorid&:lokacijaID&:korisnikID&:reonID&:broilo',
         cache: false,
         views: {
           'subview': {
@@ -393,73 +393,87 @@ angular.module('starter.shared')
 
 })();
 
-(function() {
-  'use strict';
-  angular.module('starter')
-    .controller('editStateCtrl', editStateController);
+(function () {
+    'use strict';
+    angular.module('starter')
+      .controller('editStateCtrl', editStateController);
 
-  editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope','$cordovaCamera'];
+    editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http'];
 
-  function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope,$cordovaCamera) {
-    var vm = this;
-    initVariables();
+    function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http) {
+        var vm = this;
+        initVariables();
 
-    function initVariables() {
-      vm.someArray = [];
-    }
+        function initVariables() {
+            vm.someArray = [];
+        }
 
-    $scope.$on('$ionicView.loaded', OnViewLoad);
-    $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
-    $scope.$on('$ionicView.afterLeave', onAfterLeave);
+        $scope.$on('$ionicView.loaded', OnViewLoad);
+        $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
+        $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
-    function OnViewLoad() {}
-
-    function OnBeforeEnter() {}
-
-    function onAfterLeave() {}
-
-    vm.takePhoto = function () {
-                  var options = {
-                    quality: 75,
-                    destinationType: Camera.DestinationType.DATA_URL,
-                    sourceType: Camera.PictureSourceType.CAMERA,
-                    allowEdit: true,
-                    encodingType: Camera.EncodingType.JPEG,
-                    targetWidth: 300,
-                    targetHeight: 300,
-                    popoverOptions: CameraPopoverOptions,
-                    saveToPhotoAlbum: false
+        function OnViewLoad() {
+            $scope.vidkorid = $stateParams.vidkorid;
+            $scope.lokacijaID = $stateParams.lokacijaID;
+            $scope.korisnikID = $stateParams.korisnikID;
+            $scope.reonID = $stateParams.reonID;
+            $scope.broilo = $stateParams.broilo;
+            $http.get('http://localhost:16952/api/v1/watercounters/laststate', {
+                params: { vidkorid: $stateParams.vidkorid, lokacijaID: $stateParams.lokacijaID, korisnikID: $stateParams.korisnikID, reonID: $stateParams.reonID, broilo: $stateParams.broilo }
+            }).then(function (resp) {
+                $scope.state = {
+                    before: resp.data.sostojbaNova
                 };
+            }, function (err) {
+            })
+        }
 
-                    $cordovaCamera.getPicture(options).then(function (imageData) {
-                        $scope.imgURI = "data:image/jpeg;base64," + imageData;
-                    }, function (err) {
-                      console.log("error taking photo", err);
-                        // An error occured. Show a message to the user
-                    });
-                }
-                vm.choosePhoto = function () {
-                          var options = {
-                            quality: 75,
-                            destinationType: Camera.DestinationType.DATA_URL,
-                            sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-                            allowEdit: true,
-                            encodingType: Camera.EncodingType.JPEG,
-                            targetWidth: 300,
-                            targetHeight: 300,
-                            popoverOptions: CameraPopoverOptions,
-                            saveToPhotoAlbum: false
-                        };
+        function OnBeforeEnter() { }
 
-                            $cordovaCamera.getPicture(options).then(function (imageData) {
-                                $scope.imgURI = "data:image/jpeg;base64," + imageData;
-                            }, function (err) {
-                              console.log("error choosing photo", err);
-                                // An error occured. Show a message to the user
-                            });
-                        }
+        function onAfterLeave() { }
 
-  }
+        vm.takePhoto = function () {
+            var options = {
+                quality: 75,
+                destinationType: Camera.DestinationType.DATA_URL,
+                sourceType: Camera.PictureSourceType.CAMERA,
+                allowEdit: true,
+                encodingType: Camera.EncodingType.JPEG,
+                targetWidth: 300,
+                targetHeight: 300,
+                popoverOptions: CameraPopoverOptions,
+                saveToPhotoAlbum: false
+            };
+
+            $cordovaCamera.getPicture(options).then(function (imageData) {
+                $scope.imgURI = "data:image/jpeg;base64," + imageData;
+            }, function (err) {
+                console.log("error taking photo", err);
+                // An error occured. Show a message to the user
+            });
+        }
+        vm.choosePhoto = function () {
+            var options = {
+                quality: 75,
+                destinationType: Camera.DestinationType.DATA_URL,
+                sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+                allowEdit: true,
+                encodingType: Camera.EncodingType.JPEG,
+                targetWidth: 300,
+                targetHeight: 300,
+                popoverOptions: CameraPopoverOptions,
+                saveToPhotoAlbum: false
+            };
+
+            $cordovaCamera.getPicture(options).then(function (imageData) {
+                $scope.imgURI = "data:image/jpeg;base64," + imageData;
+            }, function (err) {
+                console.log("error choosing photo", err);
+                // An error occured. Show a message to the user
+            });
+        }
+
+    }
 
 
 
@@ -487,21 +501,23 @@ angular.module('starter.shared')
         $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
         function OnViewLoad() {
-            $http.get('http://localhost:16952/api/v1/Reons').then(function (resp) {
-                //console.log('Success', resp);
-                $scope.data =
+            $scope.data =
                     {
                         selectArea: null,
-                        items: resp.data.items
+                        items: []
                     };
+            $http.get('http://localhost:16952/api/v1/Reons').then(function (resp) {
+                //console.log('Success', resp);
+                $scope.data.items = resp.data.items;
                 // For JSON responses, resp.data contains the result
             }, function (err) {
                 //console.error('ERR', err);
                 $scope.jsonData = err;
                 // err.status will contain the status code
             })
+            $stateParams.selecetedArea = $scope.data.selectArea;
         }
-
+       
         function OnBeforeEnter() {
 
         }
@@ -639,9 +655,9 @@ angular.module('starter.shared')
   angular.module('starter')
     .controller('ResultsCtrl', ResultsController);
 
-  ResultsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope'];
+  ResultsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
 
-  function ResultsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope) {
+  function ResultsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
     var vm = this;
     initVariables();
 
@@ -653,13 +669,85 @@ angular.module('starter.shared')
     $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
     $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
-    function OnViewLoad() {}
+    function OnViewLoad() {
+        $scope.regionId = $stateParams.selectedRegion;
+        $scope.imePrezime = $stateParams.inputImePrezime;
+        $scope.lokacija = $stateParams.inputLokacija;
+        var searchParameters = {
+            "firstLastName": $stateParams.inputImePrezime,
+            "location": $stateParams.inputLokacija,
+            "radius": 0,
+            "reionId": parseInt($stateParams.selectedRegion)
+        };
+        $http.post('http://localhost:16952/api/v1/watercounters/search', searchParameters).then(function (resp) {            
+            $scope.items = resp.data.items;
+        }, function (err) {
+        })
+    }
 
     function OnBeforeEnter() {}
 
     function onAfterLeave() {}
 
   }
+
+
+
+})();
+
+(function () {
+    'use strict';
+    angular.module('starter')
+      .controller('userDetailsCtrl', userDetailsController);
+
+    userDetailsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
+
+    function userDetailsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
+        var vm = this;
+        initVariables();
+
+        function initVariables() {
+            vm.someArray = [];
+        }
+
+        $scope.$on('$ionicView.loaded', OnViewLoad);
+        $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
+        $scope.$on('$ionicView.afterLeave', onAfterLeave);
+
+        function OnViewLoad() {
+            $scope.vidkorID = $stateParams.vidkorid;
+            $scope.lokacijaID = $stateParams.lokacijaID;
+            $scope.korisnikID = $stateParams.korisnikID;
+            $scope.reonID = $stateParams.reonID;
+            $scope.broilo = $stateParams.broilo;
+
+            var data =
+                {
+
+                }
+            $http.get('http://localhost:16952/api/v1/customers/customerinfo',{
+                params: { korisnikID: $stateParams.korisnikID }}).then(function (resp) {
+                    $scope.tipNaKorisnik = resp.data.tipNaKorisnik;
+                    $scope.shifraNaKorisnik = resp.data.shifraNaKorisnik;
+                    $scope.imeNaziv = resp.data.imeNaziv;
+                    $scope.shifraNaUlica = resp.data.shifraNaUlica;
+                    $scope.kukenBroj = resp.data.kukenBroj;
+                    $scope.vlez = resp.data.vlez;
+                    $scope.stan = resp.data.stan;
+                    $scope.grad = resp.data.grad;
+            }, function (err) {
+            })
+            $scope.go = function () {
+                //$location.path(path);
+                console.log("Tuka sum");
+            };
+        }
+       
+        function OnBeforeEnter() { }
+
+        function onAfterLeave() { }
+
+    }
 
 
 
@@ -684,39 +772,11 @@ angular.module('starter.shared')
     $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
     $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
-    function OnViewLoad() {}
-
-    function OnBeforeEnter() {}
-
-    function onAfterLeave() {}
-
-  }
-
-
-
-})();
-
-(function() {
-  'use strict';
-  angular.module('starter')
-    .controller('userDetailsCtrl', userDetailsController);
-
-  userDetailsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope'];
-
-  function userDetailsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope) {
-    var vm = this;
-    initVariables();
-
-    function initVariables() {
-      vm.someArray = [];
+    function OnViewLoad() {
+        $scope.region = $stateParams.selecetedArea;
+        console.log($stateParams);
     }
 
-    $scope.$on('$ionicView.loaded', OnViewLoad);
-    $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
-    $scope.$on('$ionicView.afterLeave', onAfterLeave);
-
-    function OnViewLoad() {}
-
     function OnBeforeEnter() {}
 
     function onAfterLeave() {}
@@ -727,11 +787,11 @@ angular.module('starter.shared')
 
 })();
 
-angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=\"ВНЕСИ СОСТОЈБА НА БРОИЛО\" content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=true><div class=\"row row-center\" style=height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input type=text placeholder=\"Претходна состојба\"></div><div class=\"item item-input inputElement\"><input type=text placeholder=\"Нова состојба\"></div><!--<ion-item class=\"item\">\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Направи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ></i>\r\n</div>\r\n </div>\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Прикачи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ng-click=\"vm.choosePhoto()\"></i>\r\n </div>\r\n </div>\r\n </ion-item>--><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button> <img ng-show=\"imgURI !== undefined\" ng-src={{imgURI}} style=\"text-align: center;max-height: 10%;max-width: 50%;margin-left: 30%;\"></div></div></div><div class=row><button class=\"submitButton button button-balanced\" ui-sref=main.results>ВНЕСИ</button></div></ion-content></ion-view>");
-$templateCache.put("./templates/getarea.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕЗЕМИ ПОДАТОЦИ ЗА РЕОН\" overflow-scroll=false><ion-content class=has-header style=padding-top:20%; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><!--<select class=\"form-control incheck\">\r\n <option>Реон...</option>\r\n <option>Реон1</option>\r\n <option>Реон2</option>\r\n <option>Реон3</option>\r\n </select>--><select name=selectArea id=selectArea ng-model=data.selectArea class=\"form-control incheck\"><option value=\"\">Реон...</option><!--not selected / blank option--><option ng-repeat=\"option in data.items\" value={{option.reonID}}>{{option.zabeleska}}</option></select><br>{{jsonData}}</div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=main.search>ПРЕЗЕМИ</button></div></ion-content></ion-view>");
+angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=\"ВНЕСИ СОСТОЈБА НА БРОИЛО\" content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=true><div class=\"row row-center\" style=height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=state.before type=text placeholder=\"Претходна состојба\"></div><div class=\"item item-input inputElement\"><input ng-model=state.new type=text placeholder=\"Нова состојба\"></div>{{vidkorid}} {{lokacijaID}} {{korisnikID}} {{reonID}} {{broilo}}<!--<ion-item class=\"item\">\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Направи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ></i>\r\n </div>\r\n </div>\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Прикачи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ng-click=\"vm.choosePhoto()\"></i>\r\n </div>\r\n </div>\r\n </ion-item>--><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button> <img ng-show=\"imgURI !== undefined\" ng-src={{imgURI}} style=\"text-align: center;max-height: 10%;max-width: 50%;margin-left: 30%;\"></div></div></div><div class=row><button class=\"submitButton button button-balanced\" ng-click=go()><!--ui-sref=\"main.results\">-->ВНЕСИ</button></div></ion-content></ion-view>");
+$templateCache.put("./templates/getarea.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕЗЕМИ ПОДАТОЦИ ЗА РЕОН\" overflow-scroll=false><ion-content class=has-header style=padding-top:20%; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><!--<select class=\"form-control incheck\">\r\n <option>Реон...</option>\r\n <option>Реон1</option>\r\n <option>Реон2</option>\r\n <option>Реон3</option>\r\n </select>--><select name=selectArea id=selectArea ng-model=data.selectArea class=\"form-control incheck\"><option value=\"\">Реон...</option><!--not selected / blank option--><option ng-repeat=\"option in data.items\" value={{option.reonID}}>{{option.zabeleska}}</option></select><br></div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=\"main.search({selecetedArea: data.selectArea})\">ПРЕЗЕМИ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/home.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=ЛОГИН content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\"><div class=col><div class=list><label class=\"item item-input inputElement\"><input type=text placeholder=\"Корисничко Име\"></label> <label class=\"item item-input inputElement\"><input type=password placeholder=Лозинка></label></div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=main.getarea>ЛОГИРАЈ СЕ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/internetConnection.html","<ion-view view-title=\"\" class=hs-view-internetConnection><ion-content scroll=false class=white-bg><div class=card><div class=\"item item-text-wrap\">{{vm.message}}</div></div></ion-content></ion-view>");
 $templateCache.put("./templates/menu.html","<ion-side-menus enable-menu-with-back-views=false><ion-side-menu-content><ion-nav-bar align-title=center class=\"bar-calm bar-header-with-logo never-hide-inline\"><ion-nav-back-button class=button-clear><i class=ion-android-arrow-back></i></ion-nav-back-button><ion-nav-title ng-click=\"mainVm.navigateToState(\'main.home\',{})\"><div class=page-title></div></ion-nav-title><ion-nav-buttons side=left><button class=\"button button-icon button-clear ion-navicon\" menu-toggle=left></button></ion-nav-buttons><ion-nav-buttons side=right></ion-nav-buttons></ion-nav-bar><ion-nav-view name=subview></ion-nav-view></ion-side-menu-content><ion-side-menu side=left><ion-header-bar class=bar-calm><h1 class=title></h1></ion-header-bar><ion-content class=side-menu-content><ion-list class=side-menu-list><ion-item menu-close=\"\" ui-sref=main.home>Home</ion-item><ion-item menu-close=\"\" ui-sref=main.home>Other</ion-item></ion-list></ion-content></ion-side-menu></ion-side-menus>");
-$templateCache.put("./templates/results.html","<ion-view class=\"hs-view-home has-header\" view-title=\"РЕЗУЛТАТИ ОД ПРЕБАРУВАЊЕ\" overflow-scroll=true><ion-content scroll=true padding=false><ion-list><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">Име/Презиме/Адреса</div><div class=\"colFull col-20\" ui-sref=main.userdetails>БРОИЛО</div></div></ion-item></ion-list></ion-content></ion-view>");
-$templateCache.put("./templates/search.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕБАРАЈ БРОИЛО\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input type=text placeholder=\"Корисник (Име/Презиме)\"></div><div class=\"item item-input inputElement\"><input type=text placeholder=\"Локација (Улица, Број ...)\"></div><select class=\"form-control incheck\"><option>Радиус од ...</option><option>Радиус 1</option><option>Радиус 2</option><option>Радиус 3</option></select></div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=main.results>БАРАЈ</button></div></ion-content></ion-view>");
-$templateCache.put("./templates/userDetails.html","<ion-view class=\"hs-view-home has-header\" view-title=\"ПРИКАЖИ КОРИСНИК\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><ion-item class=item-stable style=max-height:70%><div class=rowFull>Тип на корисник</div><div class=rowFull>Шифра на корисник</div><div class=rowFull>Име/назив</div><div class=rowFull>Шифра на улица</div><div class=rowFull>Куќен број</div><div class=rowFull>Влез</div><div class=rowFull>Стан</div><div class=rowFull>Град</div></ion-item></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=main.editstate>Внеси нова состојба</button></div><!--<button class=\"submitButton button button-calm\" ui-sref=\"main.editstate\">--></ion-content></ion-view>");}]);
+$templateCache.put("./templates/results.html","<ion-view class=\"hs-view-home has-header\" view-title=\"РЕЗУЛТАТИ ОД ПРЕБАРУВАЊЕ\" overflow-scroll=true><ion-content scroll=true padding=false>{{regionId}} {{imePrezime}} {{lokacija}}<ion-list ng-repeat=\"item in items\"><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">{{item.naziv}} {{item.ulica}} {{item.broj}} {{item.broilo}}</div><div class=\"colFull col-20\" ui-sref=\"main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})\">БРОИЛО</div></div></ion-item></ion-list></ion-content></ion-view>");
+$templateCache.put("./templates/search.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕБАРАЈ БРОИЛО\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=search.imeprezime type=text placeholder=\"Корисник (Име/Презиме)\"></div><div class=\"item item-input inputElement\"><input ng-model=search.lokacija type=text placeholder=\"Локација (Улица, Број ...)\"></div><select class=\"form-control incheck\"><option>Радиус од ...</option><option>Радиус 1</option><option>Радиус 2</option><option>Радиус 3</option></select>{{region}} {{search.imeprezime}} {{search.lokacija}}</div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=main.results({selectedRegion:region,inputImePrezime:search.imeprezime,inputLokacija:search.lokacija})>БАРАЈ</button></div></ion-content></ion-view>");
+$templateCache.put("./templates/userDetails.html","<ion-view class=\"hs-view-home has-header\" view-title=\"ПРИКАЖИ КОРИСНИК\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><ion-item class=item-stable style=max-height:70%><div class=rowFull>{{tipNaKorisnik}}</div><div class=rowFull>{{shifraNaKorisnik}}</div><div class=rowFull>{{imeNaziv}}</div><div class=rowFull>{{shifraNaUlica}}</div><div class=rowFull>{{kukenBroj}}</div><div class=rowFull>{{vlez}}</div><div class=rowFull>{{stan}}</div><div class=rowFull>{{grad}}</div></ion-item></div></div>{{vidkorID}} {{lokacijaID}} {{korisnikID}} {{reonID}} {{broilo}}<div class=row><button class=\"submitButton button button-calm\" ui-sref=\"main.editstate({vidkorid: vidkorID, lokacijaID: lokacijaID, korisnikID: korisnikID, reonID: reonID, broilo: broilo})\">Внеси нова состојба</button></div><!--<button class=\"submitButton button button-calm\" ui-sref=\"main.editstate\">--></ion-content></ion-view>");}]);

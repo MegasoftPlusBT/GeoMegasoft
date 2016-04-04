@@ -17,7 +17,10 @@
     $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
     $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
-    function OnViewLoad() {}
+    function OnViewLoad() {
+        $scope.region = $stateParams.selecetedArea;
+        console.log($stateParams);
+    }
 
     function OnBeforeEnter() {}
 
