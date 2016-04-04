@@ -45,6 +45,8 @@
             ionic build ios
 
   And continue with xCode.
+  
+  ionic serve
 -----
 
 # Development flow
