@@ -3,9 +3,9 @@
     angular.module('starter')
       .controller('editStateCtrl', editStateController);
 
-    editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http'];
+    editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location'];
 
-    function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http) {
+    function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location) {
         var vm = this;
         initVariables();
 
@@ -18,18 +18,19 @@
         $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
         function OnViewLoad() {
-            $scope.vidkorid = $stateParams.vidkorid;
-            $scope.lokacijaID = $stateParams.lokacijaID;
-            $scope.korisnikID = $stateParams.korisnikID;
-            $scope.reonID = $stateParams.reonID;
-            $scope.broilo = $stateParams.broilo;
+            vm.vidkorid = $stateParams.vidkorid;
+            vm.lokacijaID = $stateParams.lokacijaID;
+            vm.korisnikID = $stateParams.korisnikID;
+            vm.reonID = $stateParams.reonID;
+            vm.broilo = $stateParams.broilo;
             $http.get('http://localhost:16952/api/v1/watercounters/laststate', {
                 params: { vidkorid: $stateParams.vidkorid, lokacijaID: $stateParams.lokacijaID, korisnikID: $stateParams.korisnikID, reonID: $stateParams.reonID, broilo: $stateParams.broilo }
             }).then(function (resp) {
-                $scope.state = {
-                    before: resp.data.sostojbaNova
+                vm.state = {
+                    before: parseInt(resp.data.sostojbaNova)
                 };
             }, function (err) {
+                console.log(err);
             })
         }
 
@@ -37,6 +38,35 @@
 
         function onAfterLeave() { }
 
+
+        vm.saveNewState = function () {
+            console.log(vm.state.before + " " + vm.state.new);
+            var data = {
+                "vidkorid": $stateParams.vidkorid,
+                "lokacijaID": $stateParams.lokacijaID,
+                "korisnikID": $stateParams.korisnikID,
+                "reonID": $stateParams.reonID,
+                "broilo": $stateParams.broilo,
+                "sostojbaStara": parseInt(vm.state.before),
+                "sostojbaNova": parseInt(vm.state.new)
+            };
+            var newValue = parseInt(vm.state.new);
+            if (newValue != undefined && !isNaN(newValue)) {
+                $http.post('http://localhost:16952/api/v1/watercounters/newstate', data).then(function (resp) {
+                  
+                    if (resp.data.isSucces === true)
+                    {
+                        $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
+                    }
+                }, function (err) {
+                    console.log(err);
+                })
+            }
+            else
+            {
+
+            }
+        };
         vm.takePhoto = function () {
             var options = {
                 quality: 75,

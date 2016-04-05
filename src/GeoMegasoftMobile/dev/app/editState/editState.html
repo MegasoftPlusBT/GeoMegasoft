@@ -4,12 +4,12 @@
             <div class="col">
                 <div class="list">
                     <div class="item item-input inputElement">
-                        <input ng-model="state.before" type="text" placeholder="Претходна состојба">
+                        <input ng-model="vm.state.before" type="number" min="1" placeholder="Претходна состојба" readonly>
                     </div>
                     <div class="item item-input inputElement">
-                        <input ng-model="state.new" type="text" placeholder="Нова состојба">
+                        <input ng-model="vm.state.new" type="number" min="1" placeholder="Нова состојба" required="">
                     </div>
-                    {{vidkorid}} {{lokacijaID}} {{korisnikID}} {{reonID}} {{broilo}}
+                    {{vm.vidkorid}} {{vm.lokacijaID}} {{vm.korisnikID}} {{vm.reonID}} {{vm.broilo}}
                     <!-- <ion-item class="item">
                           <div class="rowFull">
                             <div class="colFull col-80">
@@ -40,7 +40,7 @@
             </div>
         </div>
         <div class="row">
-            <button class="submitButton button button-balanced"  ng-click="go()"><!--ui-sref="main.results">-->
+            <button class="submitButton button button-balanced"  ng-click="vm.saveNewState()"><!--ui-sref="main.results">-->
                 ВНЕСИ
             </button>
         </div>

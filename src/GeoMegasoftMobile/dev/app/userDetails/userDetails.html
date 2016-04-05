@@ -4,36 +4,36 @@
             <div class="col">
                 <ion-item class="item-stable" style="max-height:70%">
                     <div class="rowFull">
-                        {{tipNaKorisnik}}
+                        {{vm.tipNaKorisnik}}
                     </div>
                     <div class="rowFull">
-                        {{shifraNaKorisnik}}
+                        {{vm.shifraNaKorisnik}}
                     </div>
                     <div class="rowFull">
-                        {{imeNaziv}}
+                        {{vm.imeNaziv}}
                     </div>
                     <div class="rowFull">
-                        {{shifraNaUlica}}
+                        {{vm.shifraNaUlica}}
                     </div>
                     <div class="rowFull">
-                        {{kukenBroj}}
+                        {{vm.kukenBroj}}
                     </div>
                     <div class="rowFull">
-                        {{vlez}}
+                        {{vm.vlez}}
                     </div>
                     <div class="rowFull">
-                        {{stan}}
+                        {{vm.stan}}
                     </div>
                     <div class="rowFull">
-                        {{grad}}
+                        {{vm.grad}}
                     </div>
 
                 </ion-item>
             </div>
         </div>
-        {{vidkorID}} {{lokacijaID}} {{korisnikID}} {{reonID}} {{broilo}}
+        {{vm.vidkorID}} {{vm.lokacijaID}} {{vm.korisnikID}} {{vm.reonID}} {{vm.broilo}}
         <div class="row">
-            <button class="submitButton button button-calm" ui-sref="main.editstate({vidkorid: vidkorID, lokacijaID: lokacijaID, korisnikID: korisnikID, reonID: reonID, broilo: broilo})">
+            <button class="submitButton button button-calm" ui-sref="main.editstate({vidkorid: vm.vidkorID, lokacijaID: vm.lokacijaID, korisnikID: vm.korisnikID, reonID: vm.reonID, broilo: vm.broilo})">
                 Внеси нова состојба
             </button>
         </div>

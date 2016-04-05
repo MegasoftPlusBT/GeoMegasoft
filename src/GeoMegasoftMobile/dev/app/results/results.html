@@ -3,15 +3,15 @@
         {{regionId}}
         {{imePrezime}}
         {{lokacija}}
-        <ion-list ng-repeat="item in items">
+        <ion-list ng-repeat="item in vm.items">
             <ion-item class="item-stable">
                 <div class="rowFull">
                     <div class="colFull col-80">
 
-                        {{item.naziv}} {{item.ulica}} {{item.broj}} {{item.broilo}}
+                        {{item.naziv}}/ {{item.ulica}}/ {{item.broj}} 
                     </div>
                     <div class="colFull col-20" ui-sref="main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})">
-                        БРОИЛО
+                        {{item.broilo}}
                     </div>
                 </div>
             </ion-item>

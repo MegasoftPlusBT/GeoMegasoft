@@ -73,7 +73,7 @@
         }
       })
       .state('main.results', {
-          url: '/results/:vidkorid&:selectedRegion&:inputImePrezime&:inputLokacija',
+          url: '/results/:selectedRegion&:inputImePrezime&:inputLokacija',
         cache: false,
         views: {
           'subview': {
@@ -398,9 +398,9 @@ angular.module('starter.shared')
     angular.module('starter')
       .controller('editStateCtrl', editStateController);
 
-    editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http'];
+    editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location'];
 
-    function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http) {
+    function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location) {
         var vm = this;
         initVariables();
 
@@ -413,18 +413,19 @@ angular.module('starter.shared')
         $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
         function OnViewLoad() {
-            $scope.vidkorid = $stateParams.vidkorid;
-            $scope.lokacijaID = $stateParams.lokacijaID;
-            $scope.korisnikID = $stateParams.korisnikID;
-            $scope.reonID = $stateParams.reonID;
-            $scope.broilo = $stateParams.broilo;
+            vm.vidkorid = $stateParams.vidkorid;
+            vm.lokacijaID = $stateParams.lokacijaID;
+            vm.korisnikID = $stateParams.korisnikID;
+            vm.reonID = $stateParams.reonID;
+            vm.broilo = $stateParams.broilo;
             $http.get('http://localhost:16952/api/v1/watercounters/laststate', {
                 params: { vidkorid: $stateParams.vidkorid, lokacijaID: $stateParams.lokacijaID, korisnikID: $stateParams.korisnikID, reonID: $stateParams.reonID, broilo: $stateParams.broilo }
             }).then(function (resp) {
-                $scope.state = {
-                    before: resp.data.sostojbaNova
+                vm.state = {
+                    before: parseInt(resp.data.sostojbaNova)
                 };
             }, function (err) {
+                console.log(err);
             })
         }
 
@@ -432,6 +433,35 @@ angular.module('starter.shared')
 
         function onAfterLeave() { }
 
+
+        vm.saveNewState = function () {
+            console.log(vm.state.before + " " + vm.state.new);
+            var data = {
+                "vidkorid": $stateParams.vidkorid,
+                "lokacijaID": $stateParams.lokacijaID,
+                "korisnikID": $stateParams.korisnikID,
+                "reonID": $stateParams.reonID,
+                "broilo": $stateParams.broilo,
+                "sostojbaStara": parseInt(vm.state.before),
+                "sostojbaNova": parseInt(vm.state.new)
+            };
+            var newValue = parseInt(vm.state.new);
+            if (newValue != undefined && !isNaN(newValue)) {
+                $http.post('http://localhost:16952/api/v1/watercounters/newstate', data).then(function (resp) {
+                  
+                    if (resp.data.isSucces === true)
+                    {
+                        $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
+                    }
+                }, function (err) {
+                    console.log(err);
+                })
+            }
+            else
+            {
+
+            }
+        };
         vm.takePhoto = function () {
             var options = {
                 quality: 75,
@@ -680,7 +710,7 @@ angular.module('starter.shared')
             "reionId": parseInt($stateParams.selectedRegion)
         };
         $http.post('http://localhost:16952/api/v1/watercounters/search', searchParameters).then(function (resp) {            
-            $scope.items = resp.data.items;
+            vm.items = resp.data.items;
         }, function (err) {
         })
     }
@@ -690,64 +720,6 @@ angular.module('starter.shared')
     function onAfterLeave() {}
 
   }
-
-
-
-})();
-
-(function () {
-    'use strict';
-    angular.module('starter')
-      .controller('userDetailsCtrl', userDetailsController);
-
-    userDetailsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
-
-    function userDetailsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
-        var vm = this;
-        initVariables();
-
-        function initVariables() {
-            vm.someArray = [];
-        }
-
-        $scope.$on('$ionicView.loaded', OnViewLoad);
-        $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
-        $scope.$on('$ionicView.afterLeave', onAfterLeave);
-
-        function OnViewLoad() {
-            $scope.vidkorID = $stateParams.vidkorid;
-            $scope.lokacijaID = $stateParams.lokacijaID;
-            $scope.korisnikID = $stateParams.korisnikID;
-            $scope.reonID = $stateParams.reonID;
-            $scope.broilo = $stateParams.broilo;
-
-            var data =
-                {
-
-                }
-            $http.get('http://localhost:16952/api/v1/customers/customerinfo',{
-                params: { korisnikID: $stateParams.korisnikID }}).then(function (resp) {
-                    $scope.tipNaKorisnik = resp.data.tipNaKorisnik;
-                    $scope.shifraNaKorisnik = resp.data.shifraNaKorisnik;
-                    $scope.imeNaziv = resp.data.imeNaziv;
-                    $scope.shifraNaUlica = resp.data.shifraNaUlica;
-                    $scope.kukenBroj = resp.data.kukenBroj;
-                    $scope.vlez = resp.data.vlez;
-                    $scope.stan = resp.data.stan;
-                    $scope.grad = resp.data.grad;
-            }, function (err) {
-            })
-            $scope.go = function () {
-                //$location.path(path);
-                console.log("Tuka sum");
-            };
-        }
-       
-        function OnBeforeEnter() { }
-
-        function onAfterLeave() { }
-
-    }
 
 
 
@@ -787,11 +759,62 @@ angular.module('starter.shared')
 
 })();
 
-angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=\"ВНЕСИ СОСТОЈБА НА БРОИЛО\" content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=true><div class=\"row row-center\" style=height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=state.before type=text placeholder=\"Претходна состојба\"></div><div class=\"item item-input inputElement\"><input ng-model=state.new type=text placeholder=\"Нова состојба\"></div>{{vidkorid}} {{lokacijaID}} {{korisnikID}} {{reonID}} {{broilo}}<!--<ion-item class=\"item\">\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Направи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ></i>\r\n </div>\r\n </div>\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Прикачи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ng-click=\"vm.choosePhoto()\"></i>\r\n </div>\r\n </div>\r\n </ion-item>--><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button> <img ng-show=\"imgURI !== undefined\" ng-src={{imgURI}} style=\"text-align: center;max-height: 10%;max-width: 50%;margin-left: 30%;\"></div></div></div><div class=row><button class=\"submitButton button button-balanced\" ng-click=go()><!--ui-sref=\"main.results\">-->ВНЕСИ</button></div></ion-content></ion-view>");
+(function () {
+    'use strict';
+    angular.module('starter')
+      .controller('userDetailsCtrl', userDetailsController);
+
+    userDetailsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
+
+    function userDetailsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
+        var vm = this;
+        initVariables();
+
+        function initVariables() {
+            vm.someArray = [];
+        }
+
+        $scope.$on('$ionicView.loaded', OnViewLoad);
+        $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
+        $scope.$on('$ionicView.afterLeave', onAfterLeave);
+     
+        function OnViewLoad() {
+            vm.vidkorID = $stateParams.vidkorid;
+            vm.lokacijaID = $stateParams.lokacijaID;
+            vm.korisnikID = $stateParams.korisnikID;
+            vm.reonID = $stateParams.reonID;
+            vm.broilo = $stateParams.broilo;
+
+            $http.get('http://localhost:16952/api/v1/customers/customerinfo', {
+                params: { korisnikID: $stateParams.korisnikID }
+            }).then(function (resp) {
+                vm.tipNaKorisnik = resp.data.tipNaKorisnik;
+                vm.shifraNaKorisnik = resp.data.shifraNaKorisnik;
+                vm.imeNaziv = resp.data.imeNaziv;
+                vm.shifraNaUlica = resp.data.shifraNaUlica;
+                vm.kukenBroj = resp.data.kukenBroj;
+                vm.vlez = resp.data.vlez;
+                vm.stan = resp.data.stan;
+                vm.grad = resp.data.grad;
+            }, function (err) {
+            })
+        }
+
+        function OnBeforeEnter() { }
+
+        function onAfterLeave() { }
+
+    }
+
+
+
+})();
+
+angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=\"ВНЕСИ СОСТОЈБА НА БРОИЛО\" content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=true><div class=\"row row-center\" style=height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=vm.state.before type=number min=1 placeholder=\"Претходна состојба\" readonly=\"\"></div><div class=\"item item-input inputElement\"><input ng-model=vm.state.new type=number min=1 placeholder=\"Нова состојба\" required=\"\"></div>{{vm.vidkorid}} {{vm.lokacijaID}} {{vm.korisnikID}} {{vm.reonID}} {{vm.broilo}}<!--<ion-item class=\"item\">\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Направи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ></i>\r\n </div>\r\n </div>\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Прикачи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ng-click=\"vm.choosePhoto()\"></i>\r\n </div>\r\n </div>\r\n </ion-item>--><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button> <img ng-show=\"imgURI !== undefined\" ng-src={{imgURI}} style=\"text-align: center;max-height: 10%;max-width: 50%;margin-left: 30%;\"></div></div></div><div class=row><button class=\"submitButton button button-balanced\" ng-click=vm.saveNewState()><!--ui-sref=\"main.results\">-->ВНЕСИ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/getarea.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕЗЕМИ ПОДАТОЦИ ЗА РЕОН\" overflow-scroll=false><ion-content class=has-header style=padding-top:20%; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><!--<select class=\"form-control incheck\">\r\n <option>Реон...</option>\r\n <option>Реон1</option>\r\n <option>Реон2</option>\r\n <option>Реон3</option>\r\n </select>--><select name=selectArea id=selectArea ng-model=data.selectArea class=\"form-control incheck\"><option value=\"\">Реон...</option><!--not selected / blank option--><option ng-repeat=\"option in data.items\" value={{option.reonID}}>{{option.zabeleska}}</option></select><br></div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=\"main.search({selecetedArea: data.selectArea})\">ПРЕЗЕМИ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/home.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=ЛОГИН content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\"><div class=col><div class=list><label class=\"item item-input inputElement\"><input type=text placeholder=\"Корисничко Име\"></label> <label class=\"item item-input inputElement\"><input type=password placeholder=Лозинка></label></div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=main.getarea>ЛОГИРАЈ СЕ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/internetConnection.html","<ion-view view-title=\"\" class=hs-view-internetConnection><ion-content scroll=false class=white-bg><div class=card><div class=\"item item-text-wrap\">{{vm.message}}</div></div></ion-content></ion-view>");
 $templateCache.put("./templates/menu.html","<ion-side-menus enable-menu-with-back-views=false><ion-side-menu-content><ion-nav-bar align-title=center class=\"bar-calm bar-header-with-logo never-hide-inline\"><ion-nav-back-button class=button-clear><i class=ion-android-arrow-back></i></ion-nav-back-button><ion-nav-title ng-click=\"mainVm.navigateToState(\'main.home\',{})\"><div class=page-title></div></ion-nav-title><ion-nav-buttons side=left><button class=\"button button-icon button-clear ion-navicon\" menu-toggle=left></button></ion-nav-buttons><ion-nav-buttons side=right></ion-nav-buttons></ion-nav-bar><ion-nav-view name=subview></ion-nav-view></ion-side-menu-content><ion-side-menu side=left><ion-header-bar class=bar-calm><h1 class=title></h1></ion-header-bar><ion-content class=side-menu-content><ion-list class=side-menu-list><ion-item menu-close=\"\" ui-sref=main.home>Home</ion-item><ion-item menu-close=\"\" ui-sref=main.home>Other</ion-item></ion-list></ion-content></ion-side-menu></ion-side-menus>");
-$templateCache.put("./templates/results.html","<ion-view class=\"hs-view-home has-header\" view-title=\"РЕЗУЛТАТИ ОД ПРЕБАРУВАЊЕ\" overflow-scroll=true><ion-content scroll=true padding=false>{{regionId}} {{imePrezime}} {{lokacija}}<ion-list ng-repeat=\"item in items\"><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">{{item.naziv}} {{item.ulica}} {{item.broj}} {{item.broilo}}</div><div class=\"colFull col-20\" ui-sref=\"main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})\">БРОИЛО</div></div></ion-item></ion-list></ion-content></ion-view>");
+$templateCache.put("./templates/results.html","<ion-view class=\"hs-view-home has-header\" view-title=\"РЕЗУЛТАТИ ОД ПРЕБАРУВАЊЕ\" overflow-scroll=true><ion-content scroll=true padding=false>{{regionId}} {{imePrezime}} {{lokacija}}<ion-list ng-repeat=\"item in vm.items\"><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">{{item.naziv}}/ {{item.ulica}}/ {{item.broj}}</div><div class=\"colFull col-20\" ui-sref=\"main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})\">{{item.broilo}}</div></div></ion-item></ion-list></ion-content></ion-view>");
 $templateCache.put("./templates/search.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕБАРАЈ БРОИЛО\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=search.imeprezime type=text placeholder=\"Корисник (Име/Презиме)\"></div><div class=\"item item-input inputElement\"><input ng-model=search.lokacija type=text placeholder=\"Локација (Улица, Број ...)\"></div><select class=\"form-control incheck\"><option>Радиус од ...</option><option>Радиус 1</option><option>Радиус 2</option><option>Радиус 3</option></select>{{region}} {{search.imeprezime}} {{search.lokacija}}</div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=main.results({selectedRegion:region,inputImePrezime:search.imeprezime,inputLokacija:search.lokacija})>БАРАЈ</button></div></ion-content></ion-view>");
-$templateCache.put("./templates/userDetails.html","<ion-view class=\"hs-view-home has-header\" view-title=\"ПРИКАЖИ КОРИСНИК\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><ion-item class=item-stable style=max-height:70%><div class=rowFull>{{tipNaKorisnik}}</div><div class=rowFull>{{shifraNaKorisnik}}</div><div class=rowFull>{{imeNaziv}}</div><div class=rowFull>{{shifraNaUlica}}</div><div class=rowFull>{{kukenBroj}}</div><div class=rowFull>{{vlez}}</div><div class=rowFull>{{stan}}</div><div class=rowFull>{{grad}}</div></ion-item></div></div>{{vidkorID}} {{lokacijaID}} {{korisnikID}} {{reonID}} {{broilo}}<div class=row><button class=\"submitButton button button-calm\" ui-sref=\"main.editstate({vidkorid: vidkorID, lokacijaID: lokacijaID, korisnikID: korisnikID, reonID: reonID, broilo: broilo})\">Внеси нова состојба</button></div><!--<button class=\"submitButton button button-calm\" ui-sref=\"main.editstate\">--></ion-content></ion-view>");}]);
+$templateCache.put("./templates/userDetails.html","<ion-view class=\"hs-view-home has-header\" view-title=\"ПРИКАЖИ КОРИСНИК\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><ion-item class=item-stable style=max-height:70%><div class=rowFull>{{vm.tipNaKorisnik}}</div><div class=rowFull>{{vm.shifraNaKorisnik}}</div><div class=rowFull>{{vm.imeNaziv}}</div><div class=rowFull>{{vm.shifraNaUlica}}</div><div class=rowFull>{{vm.kukenBroj}}</div><div class=rowFull>{{vm.vlez}}</div><div class=rowFull>{{vm.stan}}</div><div class=rowFull>{{vm.grad}}</div></ion-item></div></div>{{vm.vidkorID}} {{vm.lokacijaID}} {{vm.korisnikID}} {{vm.reonID}} {{vm.broilo}}<div class=row><button class=\"submitButton button button-calm\" ui-sref=\"main.editstate({vidkorid: vm.vidkorID, lokacijaID: vm.lokacijaID, korisnikID: vm.korisnikID, reonID: vm.reonID, broilo: vm.broilo})\">Внеси нова состојба</button></div><!--<button class=\"submitButton button button-calm\" ui-sref=\"main.editstate\">--></ion-content></ion-view>");}]);

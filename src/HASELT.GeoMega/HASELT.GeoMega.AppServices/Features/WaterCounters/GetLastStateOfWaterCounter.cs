@@ -25,6 +25,11 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 
         public class Response : BaseResponse
         {
+            public Response()
+            {
+                SostojbaNova = "0";
+                SostojbaNova = "0";
+            }
             public string SostojbaStara { get; set; }
 
             public string SostojbaNova { get; set; }
@@ -51,7 +56,9 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                           WHERE Vidkorid=@Vidkorid and LokacijaID=@LokacijaID and KorisnikID=@KorisnikID and ReonID=@ReonID and Broilo=@Broilo
                                                           ORDER BY Broilo, Mesec, Datum",
                                                           new { Vidkorid = request.Vidkorid, LokacijaID = request.LokacijaID, KorisnikID = request.KorisnikID, ReonID = request.ReonID, Broilo = request.Broilo }).LastOrDefault();
-                
+                if (response == null)
+                    response = new Response();
+
                 return response;
             }
         }

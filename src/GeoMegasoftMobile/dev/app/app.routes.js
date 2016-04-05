@@ -55,7 +55,7 @@
         }
       })
       .state('main.results', {
-          url: '/results/:vidkorid&:selectedRegion&:inputImePrezime&:inputLokacija',
+          url: '/results/:selectedRegion&:inputImePrezime&:inputLokacija',
         cache: false,
         views: {
           'subview': {

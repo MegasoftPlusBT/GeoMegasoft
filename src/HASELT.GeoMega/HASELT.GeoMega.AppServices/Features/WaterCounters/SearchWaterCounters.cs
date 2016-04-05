@@ -107,20 +107,20 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 
                 if (!string.IsNullOrEmpty(request.Location))
                 {
-                    sbSqlFizicki.Append(@" OR (k.Ulica like '%@Location%' or k.Broj like '%@Location%' or (k.Ulica+' '+k.Broj) like '%@Location%')");
-                    sbSqlPravni.Append(@" OR (k.Ulica like '%@Location%' or k.Broj like '%@Location%' or (k.Ulica+' '+k.Broj) like '%@Location%')");
+                    sbSqlFizicki.Append(@" AND (k.Ulica like @Location or k.Broj like @Location or (k.Ulica+' '+k.Broj) like @Location)");
+                    sbSqlPravni.Append(@" AND (k.Ulica like @Location or k.Broj like @Location or (k.Ulica+' '+k.Broj) like @Location)");
                 }
 
                 if (!string.IsNullOrEmpty(request.FirstLastName))
                 {
-                    sbSqlFizicki.Append(@" OR (k.Naziv like '%@Naziv%')");
-                    sbSqlPravni.Append(@" OR (k.Naziv like '%@Naziv%')");
+                    sbSqlFizicki.Append(@" AND (k.Naziv like @Naziv)");
+                    sbSqlPravni.Append(@" AND (k.Naziv like @Naziv)");
                 }
 
                 StringBuilder query = new StringBuilder();
                 query.AppendLine(sbSqlFizicki.ToString());
                 query.AppendLine(sbSqlPravni.ToString());
-                var multi = Connection.QueryMultiple(query.ToString(), new { ReonId = request.ReionId, Location = request.Location, Naziv = request.FirstLastName });
+                var multi = Connection.QueryMultiple(query.ToString(), new { ReonId = request.ReionId, Location =$"%{request.Location}%", Naziv = $"%{request.FirstLastName}%" });
                 var fizickiLica = multi.Read<Response.Item>().ToList();
                 var pravniLica = multi.Read<Response.Item>().ToList();
                 var result = new List<Response.Item>();

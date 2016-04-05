@@ -28,7 +28,7 @@
             "reionId": parseInt($stateParams.selectedRegion)
         };
         $http.post('http://localhost:16952/api/v1/watercounters/search', searchParameters).then(function (resp) {            
-            $scope.items = resp.data.items;
+            vm.items = resp.data.items;
         }, function (err) {
         })
     }

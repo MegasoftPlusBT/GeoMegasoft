@@ -16,36 +16,29 @@
         $scope.$on('$ionicView.loaded', OnViewLoad);
         $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
         $scope.$on('$ionicView.afterLeave', onAfterLeave);
-
+     
         function OnViewLoad() {
-            $scope.vidkorID = $stateParams.vidkorid;
-            $scope.lokacijaID = $stateParams.lokacijaID;
-            $scope.korisnikID = $stateParams.korisnikID;
-            $scope.reonID = $stateParams.reonID;
-            $scope.broilo = $stateParams.broilo;
+            vm.vidkorID = $stateParams.vidkorid;
+            vm.lokacijaID = $stateParams.lokacijaID;
+            vm.korisnikID = $stateParams.korisnikID;
+            vm.reonID = $stateParams.reonID;
+            vm.broilo = $stateParams.broilo;
 
-            var data =
-                {
-
-                }
-            $http.get('http://localhost:16952/api/v1/customers/customerinfo',{
-                params: { korisnikID: $stateParams.korisnikID }}).then(function (resp) {
-                    $scope.tipNaKorisnik = resp.data.tipNaKorisnik;
-                    $scope.shifraNaKorisnik = resp.data.shifraNaKorisnik;
-                    $scope.imeNaziv = resp.data.imeNaziv;
-                    $scope.shifraNaUlica = resp.data.shifraNaUlica;
-                    $scope.kukenBroj = resp.data.kukenBroj;
-                    $scope.vlez = resp.data.vlez;
-                    $scope.stan = resp.data.stan;
-                    $scope.grad = resp.data.grad;
+            $http.get('http://localhost:16952/api/v1/customers/customerinfo', {
+                params: { korisnikID: $stateParams.korisnikID }
+            }).then(function (resp) {
+                vm.tipNaKorisnik = resp.data.tipNaKorisnik;
+                vm.shifraNaKorisnik = resp.data.shifraNaKorisnik;
+                vm.imeNaziv = resp.data.imeNaziv;
+                vm.shifraNaUlica = resp.data.shifraNaUlica;
+                vm.kukenBroj = resp.data.kukenBroj;
+                vm.vlez = resp.data.vlez;
+                vm.stan = resp.data.stan;
+                vm.grad = resp.data.grad;
             }, function (err) {
             })
-            $scope.go = function () {
-                //$location.path(path);
-                console.log("Tuka sum");
-            };
         }
-       
+
         function OnBeforeEnter() { }
 
         function onAfterLeave() { }
