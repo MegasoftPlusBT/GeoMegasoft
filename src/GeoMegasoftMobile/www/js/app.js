@@ -573,32 +573,44 @@ angular.module('starter.shared')
 
 })();
 
-(function() {
-  'use strict';
-  angular.module('starter')
-    .controller('HomeCtrl', HomeController);
+(function () {
+    'use strict';
+    angular.module('starter')
+      .controller('HomeCtrl', HomeController);
 
-  HomeController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope'];
+    HomeController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope'];
 
-  function HomeController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope) {
-    var vm = this;
-    initVariables();
+    function HomeController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope) {
+        var vm = this;
+        initVariables();
 
-    function initVariables() {
-      vm.someArray = [];
+        function initVariables() {
+            vm.someArray = [];
+            vm.user = {};
+        }
+
+        $scope.$on('$ionicView.loaded', OnViewLoad);
+        $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
+        $scope.$on('$ionicView.afterLeave', onAfterLeave);
+
+       
+        function OnViewLoad() {
+           
+        }
+        vm.login = function () {
+            var user = vm.user.username;
+            var pass = vm.user.password;
+            if (user != null && user != undefined && pass != null && pass != undefined) {
+
+                $state.go("main.getarea");
+            }
+        }
+
+        function OnBeforeEnter() { }
+
+        function onAfterLeave() { }
+
     }
-
-    $scope.$on('$ionicView.loaded', OnViewLoad);
-    $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
-    $scope.$on('$ionicView.afterLeave', onAfterLeave);
-
-    function OnViewLoad() {}
-
-    function OnBeforeEnter() {}
-
-    function onAfterLeave() {}
-
-  }
 
 
 
@@ -825,7 +837,7 @@ angular.module('starter.shared')
 
 angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=\"ВНЕСИ СОСТОЈБА НА БРОИЛО\" content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=true><div class=\"row row-center\" style=height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=vm.state.before type=number min=1 placeholder=\"Претходна состојба\" readonly=\"\"></div><div class=\"item item-input inputElement\"><input ng-model=vm.state.new type=number min=1 placeholder=\"Нова состојба\" required=\"\"></div><div style=\"margin-left: 10%;\"><p>{{vm.errors.required}}</p></div>{{vm.vidkorid}} {{vm.lokacijaID}} {{vm.korisnikID}} {{vm.reonID}} {{vm.broilo}}<!--<ion-item class=\"item\">\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Направи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ></i>\r\n </div>\r\n </div>\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Прикачи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ng-click=\"vm.choosePhoto()\"></i>\r\n </div>\r\n </div>\r\n </ion-item>--><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button> <img ng-show=\"imgURI !== undefined\" ng-src={{imgURI}} style=\"text-align: center;max-height: 10%;max-width: 50%;margin-left: 30%;\"></div></div></div><div class=row><button class=\"submitButton button button-balanced\" ng-click=vm.saveNewState()><!--ui-sref=\"main.results\">-->ВНЕСИ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/getarea.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕЗЕМИ ПОДАТОЦИ ЗА РЕОН\" overflow-scroll=false><ion-content class=has-header style=padding-top:20%; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><!--<select class=\"form-control incheck\">\r\n <option>Реон...</option>\r\n <option>Реон1</option>\r\n <option>Реон2</option>\r\n <option>Реон3</option>\r\n </select>--><select name=selectArea id=selectArea ng-model=vm.data.selectArea class=\"form-control incheck\"><option value=\"\">Реон...</option><!--not selected / blank option--><option ng-repeat=\"option in vm.data.items\" value={{option.reonID}}>{{option.zabeleska}}</option></select><br><div style=\"margin-left: 10%;\"><p>{{vm.errors.required}}</p></div></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.goToSearch()>ПРЕЗЕМИ</button></div></ion-content></ion-view>");
-$templateCache.put("./templates/home.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=ЛОГИН content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\"><div class=col><div class=list><label class=\"item item-input inputElement\"><input type=text placeholder=\"Корисничко Име\"></label> <label class=\"item item-input inputElement\"><input type=password placeholder=Лозинка></label></div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=main.getarea>ЛОГИРАЈ СЕ</button></div></ion-content></ion-view>");
+$templateCache.put("./templates/home.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=ЛОГИН content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\"><div class=col><div class=list><label class=\"item item-input inputElement\"><input type=text ng-model=vm.user.username placeholder=\"Корисничко Име\"></label> <label class=\"item item-input inputElement\"><input type=password ng-model=vm.user.password placeholder=Лозинка></label></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.login()>ЛОГИРАЈ СЕ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/internetConnection.html","<ion-view view-title=\"\" class=hs-view-internetConnection><ion-content scroll=false class=white-bg><div class=card><div class=\"item item-text-wrap\">{{vm.message}}</div></div></ion-content></ion-view>");
 $templateCache.put("./templates/menu.html","<ion-side-menus enable-menu-with-back-views=false><ion-side-menu-content><ion-nav-bar align-title=center class=\"bar-calm bar-header-with-logo never-hide-inline\"><ion-nav-back-button class=button-clear><i class=ion-android-arrow-back></i></ion-nav-back-button><ion-nav-title ng-click=\"mainVm.navigateToState(\'main.home\',{})\"><div class=page-title></div></ion-nav-title><ion-nav-buttons side=left><button class=\"button button-icon button-clear ion-navicon\" menu-toggle=left></button></ion-nav-buttons><ion-nav-buttons side=right></ion-nav-buttons></ion-nav-bar><ion-nav-view name=subview></ion-nav-view></ion-side-menu-content><ion-side-menu side=left><ion-header-bar class=bar-calm><h1 class=title></h1></ion-header-bar><ion-content class=side-menu-content><ion-list class=side-menu-list><ion-item menu-close=\"\" ui-sref=main.home>Home</ion-item><ion-item menu-close=\"\" ui-sref=main.home>Other</ion-item></ion-list></ion-content></ion-side-menu></ion-side-menus>");
 $templateCache.put("./templates/results.html","<ion-view class=\"hs-view-home has-header\" view-title=\"РЕЗУЛТАТИ ОД ПРЕБАРУВАЊЕ\" overflow-scroll=true><ion-content scroll=true padding=false>{{regionId}} {{imePrezime}} {{lokacija}}<ion-list ng-repeat=\"item in vm.items\"><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">{{item.naziv}}/ {{item.ulica}}/ {{item.broj}}</div><div class=\"colFull col-20\" ui-sref=\"main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})\">{{item.broilo}}</div></div></ion-item></ion-list></ion-content></ion-view>");
