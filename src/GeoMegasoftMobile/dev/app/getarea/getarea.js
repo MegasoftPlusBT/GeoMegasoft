@@ -19,30 +19,39 @@
         $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
         $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
+        vm.goToSearch = function () {
+
+            if (vm.data.selectArea == null || vm.data.selectArea == undefined) {
+                vm.errors = {
+                    required: "Izberete reon"
+                };
+            }
+            else
+            {
+                $state.go("main.search", { 'selecetedArea': vm.data.selectArea });
+            }
+        };
         function OnViewLoad() {
-            $scope.data =
+            vm.data =
                     {
                         selectArea: null,
                         items: []
                     };
             $http.get('http://localhost:16952/api/v1/Reons').then(function (resp) {
                 //console.log('Success', resp);
-                $scope.data.items = resp.data.items;
+                vm.data.items = resp.data.items;
                 // For JSON responses, resp.data contains the result
             }, function (err) {
-                //console.error('ERR', err);
-                $scope.jsonData = err;
-                // err.status will contain the status code
             })
-            $stateParams.selecetedArea = $scope.data.selectArea;
+            $stateParams.selecetedArea = vm.data.selectArea;
         }
-       
+
         function OnBeforeEnter() {
 
         }
 
         function onAfterLeave() { }
-        
+
     }
 
 

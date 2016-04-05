@@ -3,4 +3,4 @@
  <option>Реон1</option>
  <option>Реон2</option>
  <option>Реон3</option>
- </select>--><select name=selectArea id=selectArea ng-model=data.selectArea class="form-control incheck"><option value="">Реон...</option><!--not selected / blank option--><option ng-repeat="option in data.items" value={{option.reonID}}>{{option.zabeleska}}</option></select><br></div></div></div><div class=row><button class="submitButton button button-calm" ui-sref="main.search({selecetedArea: data.selectArea})">ПРЕЗЕМИ</button></div></ion-content></ion-view>
+ </select>--><select name=selectArea id=selectArea ng-model=vm.data.selectArea class="form-control incheck"><option value="">Реон...</option><!--not selected / blank option--><option ng-repeat="option in vm.data.items" value={{option.reonID}}>{{option.zabeleska}}</option></select><br><div style="margin-left: 10%;"><p>{{vm.errors.required}}</p></div></div></div></div><div class=row><button class="submitButton button button-calm" ng-click=vm.goToSearch()>ПРЕЗЕМИ</button></div></ion-content></ion-view>

@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
     'use strict';
     angular.module('starter')
       .controller('editStateCtrl', editStateController);
@@ -59,12 +59,16 @@
                         $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
                     }
                 }, function (err) {
-                    console.log(err);
+                    vm.errors = {
+                        required: "Nastana greska obidete se povtorno"
+                    };
                 })
             }
             else
             {
-
+                vm.errors = {
+                    required: "Poleto nova sostojba e zadolzitelno"
+                };
             }
         };
         vm.takePhoto = function () {

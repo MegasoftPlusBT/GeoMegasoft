@@ -7,7 +7,10 @@
                         <input ng-model="vm.state.before" type="number" min="1" placeholder="Претходна состојба" readonly>
                     </div>
                     <div class="item item-input inputElement">
-                        <input ng-model="vm.state.new" type="number" min="1" placeholder="Нова состојба" required="">
+                        <input ng-model="vm.state.new" type="number" min="1" placeholder="Нова состојба" required>
+                    </div>
+                    <div style="margin-left: 10%;">
+                        <p>{{vm.errors.required}}</p>
                     </div>
                     {{vm.vidkorid}} {{vm.lokacijaID}} {{vm.korisnikID}} {{vm.reonID}} {{vm.broilo}}
                     <!-- <ion-item class="item">
@@ -40,7 +43,8 @@
             </div>
         </div>
         <div class="row">
-            <button class="submitButton button button-balanced"  ng-click="vm.saveNewState()"><!--ui-sref="main.results">-->
+            <button class="submitButton button button-balanced" ng-click="vm.saveNewState()">
+                <!--ui-sref="main.results">-->
                 ВНЕСИ
             </button>
         </div>
