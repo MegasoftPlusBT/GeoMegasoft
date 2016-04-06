@@ -3,9 +3,9 @@
     angular.module('starter')
       .controller('GetAreaCtrl', GetAreaController);
 
-    GetAreaController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
+    GetAreaController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
 
-    function GetAreaController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
+    function GetAreaController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
         var vm = this;
         initVariables();
 
@@ -31,12 +31,13 @@
             }
         };
         function OnViewLoad() {
+            var url = WebAPIurl + 'api/v1/Reons';
             vm.data =
                     {
                         selectArea: null,
                         items: []
                     };
-            $http.get('http://localhost:16952/api/v1/Reons', {
+            $http.get(url, {
                 headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] }
             }).then(function (resp) {
                 //console.log('Success', resp);

@@ -175,9 +175,17 @@
 (function() {
     'use strict';
   angular.module('starter.constants', [])
-    .constant('WebAPIurl','http://DOMAIN/api/')
+    .constant('WebAPIurl', 'http://localhost:16952/')
     ;
 })();
+
+//(function () {
+//    'use strict';
+//    angular.module('starter.constants', [])
+//      .constant('WebAPIurl', 'http://localhost:16952/api/v1/')
+//    ;
+//})();
+
 
 (function() {
     'use strict';
@@ -396,11 +404,80 @@ angular.module('starter.shared')
 (function () {
     'use strict';
     angular.module('starter')
+      .controller('GetAreaCtrl', GetAreaController);
+
+    GetAreaController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
+
+    function GetAreaController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
+        var vm = this;
+        initVariables();
+
+        function initVariables() {
+            vm.someArray = [];
+        }
+
+
+
+        $scope.$on('$ionicView.loaded', OnViewLoad);
+        $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
+        $scope.$on('$ionicView.afterLeave', onAfterLeave);
+
+        vm.goToSearch = function () {
+
+            if (vm.data.selectArea == null || vm.data.selectArea == undefined) {
+                vm.errors = {
+                    required: "Izberete reon"
+                };
+            }
+            else {
+                $state.go("main.search", { 'selecetedArea': vm.data.selectArea });
+            }
+        };
+        function OnViewLoad() {
+            var url = WebAPIurl + 'api/v1/Reons';
+            vm.data =
+                    {
+                        selectArea: null,
+                        items: []
+                    };
+            $http.get(url, {
+                headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] }
+            }).then(function (resp) {
+                //console.log('Success', resp);
+                vm.data.items = resp.data.items;
+                // For JSON responses, resp.data contains the result
+            }, function (err) {
+                //err = Object {data: Object, status: 401, config: Object, statusText: "Unauthorized"
+                if (err.status == 401) {
+                    $window.localStorage.clear();
+                } else {
+                    conso.log(err.data.message);
+                }
+                $state.go("main.home");
+            })
+            $stateParams.selecetedArea = vm.data.selectArea;
+        }
+
+        function OnBeforeEnter() {
+
+        }
+
+        function onAfterLeave() { }
+
+    }
+
+
+
+})();
+
+(function () {
+    'use strict';
+    angular.module('starter')
       .controller('editStateCtrl', editStateController);
 
-    editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location'];
+    editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location', 'WebAPIurl'];
 
-    function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location) {
+    function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location, WebAPIurl) {
         var vm = this;
         initVariables();
 
@@ -418,7 +495,8 @@ angular.module('starter.shared')
             vm.korisnikID = $stateParams.korisnikID;
             vm.reonID = $stateParams.reonID;
             vm.broilo = $stateParams.broilo;
-            $http.get('http://localhost:16952/api/v1/watercounters/laststate', {
+            var url = WebAPIurl + 'api/v1/watercounters/laststate';
+            $http.get(url, {
                 headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] },
                 params: { vidkorid: $stateParams.vidkorid, lokacijaID: $stateParams.lokacijaID, korisnikID: $stateParams.korisnikID, reonID: $stateParams.reonID, broilo: $stateParams.broilo }
             }).then(function (resp) {
@@ -453,8 +531,9 @@ angular.module('starter.shared')
             };
             var newValue = parseInt(vm.state.new);
             if (newValue != undefined && !isNaN(newValue)) {
+                var url = WebAPIurl + 'api/v1/watercounters/newstate';
                 $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-                $http.post('http://localhost:16952/api/v1/watercounters/newstate', data).then(function (resp) {
+                $http.post(url, data).then(function (resp) {
                   
                     if (resp.data.isSucces === true)
                     {
@@ -528,79 +607,11 @@ angular.module('starter.shared')
 (function () {
     'use strict';
     angular.module('starter')
-      .controller('GetAreaCtrl', GetAreaController);
-
-    GetAreaController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
-
-    function GetAreaController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
-        var vm = this;
-        initVariables();
-
-        function initVariables() {
-            vm.someArray = [];
-        }
-
-
-
-        $scope.$on('$ionicView.loaded', OnViewLoad);
-        $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
-        $scope.$on('$ionicView.afterLeave', onAfterLeave);
-
-        vm.goToSearch = function () {
-
-            if (vm.data.selectArea == null || vm.data.selectArea == undefined) {
-                vm.errors = {
-                    required: "Izberete reon"
-                };
-            }
-            else {
-                $state.go("main.search", { 'selecetedArea': vm.data.selectArea });
-            }
-        };
-        function OnViewLoad() {
-            vm.data =
-                    {
-                        selectArea: null,
-                        items: []
-                    };
-            $http.get('http://localhost:16952/api/v1/Reons', {
-                headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] }
-            }).then(function (resp) {
-                //console.log('Success', resp);
-                vm.data.items = resp.data.items;
-                // For JSON responses, resp.data contains the result
-            }, function (err) {
-                //err = Object {data: Object, status: 401, config: Object, statusText: "Unauthorized"
-                if (err.status == 401) {
-                    $window.localStorage.clear();
-                } else {
-                    conso.log(err.data.message);
-                }
-                $state.go("main.home");
-            })
-            $stateParams.selecetedArea = vm.data.selectArea;
-        }
-
-        function OnBeforeEnter() {
-
-        }
-
-        function onAfterLeave() { }
-
-    }
-
-
-
-})();
-
-(function () {
-    'use strict';
-    angular.module('starter')
       .controller('HomeCtrl', HomeController);
 
-    HomeController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
+    HomeController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
 
-    function HomeController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
+    function HomeController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
         var vm = this;
         initVariables();
 
@@ -622,8 +633,8 @@ angular.module('starter.shared')
             var pass = vm.user.password;
             if (user != null && user != undefined && pass != null && pass != undefined) {
                 var data = "grant_type=password&username=" + user + "&password=" + pass;
-                 
-                $http.post('http://localhost:16952/token', data, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).success(function (response) {                    
+                var url = WebAPIurl + 'token';
+                $http.post(url, data, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).success(function (response) {                    
                    
                     $window.localStorage['access_token'] = response.access_token;
                     $window.localStorage['token_type'] = response.token_type;
@@ -633,7 +644,7 @@ angular.module('starter.shared')
                     vm.errors = {
                         required: err.error
                     };
-                });               
+                });
             }
         }
 
@@ -741,9 +752,9 @@ angular.module('starter.shared')
     angular.module('starter')
       .controller('ResultsCtrl', ResultsController);
 
-    ResultsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
+    ResultsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
 
-    function ResultsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
+    function ResultsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
         var vm = this;
         initVariables();
 
@@ -765,8 +776,10 @@ angular.module('starter.shared')
                 "radius": 0,
                 "reionId": parseInt($stateParams.selectedRegion)
             };
+
+            var url = WebAPIurl + 'api/v1/watercounters/search';
             $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-            $http.post('http://localhost:16952/api/v1/watercounters/search', searchParameters).then(function (resp) {
+            $http.post(url, searchParameters).then(function (resp) {
                 vm.items = resp.data.items;
             }, function (err) {
                 if (err.status == 401) {
@@ -830,9 +843,9 @@ angular.module('starter.shared')
     angular.module('starter')
       .controller('userDetailsCtrl', userDetailsController);
 
-    userDetailsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
+    userDetailsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
 
-    function userDetailsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
+    function userDetailsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
         var vm = this;
         initVariables();
 
@@ -850,8 +863,8 @@ angular.module('starter.shared')
             vm.korisnikID = $stateParams.korisnikID;
             vm.reonID = $stateParams.reonID;
             vm.broilo = $stateParams.broilo;
-
-            $http.get('http://localhost:16952/api/v1/customers/customerinfo', {
+            var url = WebAPIurl + 'api/v1/customers/customerinfo';
+            $http.get(url, {
                 headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] },
                 params: { korisnikID: $stateParams.korisnikID }
             }).then(function (resp) {
@@ -881,11 +894,11 @@ angular.module('starter.shared')
 
 })();
 
-angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=\"ВНЕСИ СОСТОЈБА НА БРОИЛО\" content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=true><div class=\"row row-center\" style=height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=vm.state.before type=number min=1 placeholder=\"Претходна состојба\" readonly=\"\"></div><div class=\"item item-input inputElement\"><input ng-model=vm.state.new type=number min=1 placeholder=\"Нова состојба\" required=\"\"></div><div style=\"margin-left: 10%;\"><p>{{vm.errors.required}}</p></div>{{vm.vidkorid}} {{vm.lokacijaID}} {{vm.korisnikID}} {{vm.reonID}} {{vm.broilo}}<!--<ion-item class=\"item\">\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Направи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ></i>\r\n </div>\r\n </div>\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Прикачи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ng-click=\"vm.choosePhoto()\"></i>\r\n </div>\r\n </div>\r\n </ion-item>--><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button> <img ng-show=\"imgURI !== undefined\" ng-src={{imgURI}} style=\"text-align: center;max-height: 10%;max-width: 50%;margin-left: 30%;\"></div></div></div><div class=row><button class=\"submitButton button button-balanced\" ng-click=vm.saveNewState()><!--ui-sref=\"main.results\">-->ВНЕСИ</button></div></ion-content></ion-view>");
+angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=\"ВНЕСИ СОСТОЈБА НА БРОИЛО\" content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=true><div class=\"row row-center\" style=height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=vm.state.before type=number min=1 placeholder=\"Претходна состојба\" readonly=\"\"></div><div class=\"item item-input inputElement\"><input ng-model=vm.state.new type=number min=1 placeholder=\"Нова состојба\" required=\"\"></div><div style=\"margin-left: 10%;\"><p>{{vm.errors.required}}</p></div><!--<ion-item class=\"item\">\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Направи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ></i>\r\n </div>\r\n </div>\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Прикачи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ng-click=\"vm.choosePhoto()\"></i>\r\n </div>\r\n </div>\r\n </ion-item>--><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button> <img ng-show=\"imgURI !== undefined\" ng-src={{imgURI}} style=\"text-align: center;max-height: 10%;max-width: 50%;margin-left: 30%;\"></div></div></div><div class=row><button class=\"submitButton button button-balanced\" ng-click=vm.saveNewState()><!--ui-sref=\"main.results\">-->ВНЕСИ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/getarea.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕЗЕМИ ПОДАТОЦИ ЗА РЕОН\" overflow-scroll=false><ion-content class=has-header style=padding-top:20%; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><!--<select class=\"form-control incheck\">\r\n <option>Реон...</option>\r\n <option>Реон1</option>\r\n <option>Реон2</option>\r\n <option>Реон3</option>\r\n </select>--><select name=selectArea id=selectArea ng-model=vm.data.selectArea class=\"form-control incheck\"><option value=\"\">Реон...</option><!--not selected / blank option--><option ng-repeat=\"option in vm.data.items\" value={{option.reonID}}>{{option.zabeleska}}</option></select><br><div style=\"margin-left: 10%;\"><p>{{vm.errors.required}}</p></div></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.goToSearch()>ПРЕЗЕМИ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/home.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=ЛОГИН content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\"><div class=col><div class=list><label class=\"item item-input inputElement\"><input type=text ng-model=vm.user.username placeholder=\"Корисничко Име\"></label> <label class=\"item item-input inputElement\"><input type=password ng-model=vm.user.password placeholder=Лозинка></label><div style=\"margin-left: 10%;\"><p>{{vm.errors.required}}</p></div></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.login()>ЛОГИРАЈ СЕ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/internetConnection.html","<ion-view view-title=\"\" class=hs-view-internetConnection><ion-content scroll=false class=white-bg><div class=card><div class=\"item item-text-wrap\">{{vm.message}}</div></div></ion-content></ion-view>");
 $templateCache.put("./templates/menu.html","<ion-side-menus enable-menu-with-back-views=false><ion-side-menu-content><ion-nav-bar align-title=center class=\"bar-calm bar-header-with-logo never-hide-inline\"><ion-nav-back-button class=button-clear><i class=ion-android-arrow-back></i></ion-nav-back-button><ion-nav-title ng-click=\"mainVm.navigateToState(\'main.home\',{})\"><div class=page-title></div></ion-nav-title><ion-nav-buttons side=left><button class=\"button button-icon button-clear ion-navicon\" menu-toggle=left></button></ion-nav-buttons><ion-nav-buttons side=right></ion-nav-buttons></ion-nav-bar><ion-nav-view name=subview></ion-nav-view></ion-side-menu-content><ion-side-menu side=left><ion-header-bar class=bar-calm><h1 class=title></h1></ion-header-bar><ion-content class=side-menu-content><ion-list class=side-menu-list><ion-item menu-close=\"\" ui-sref=main.home>Home</ion-item><ion-item menu-close=\"\" ui-sref=main.home>Other</ion-item></ion-list></ion-content></ion-side-menu></ion-side-menus>");
 $templateCache.put("./templates/results.html","<ion-view class=\"hs-view-home has-header\" view-title=\"РЕЗУЛТАТИ ОД ПРЕБАРУВАЊЕ\" overflow-scroll=true><ion-content scroll=true padding=false>{{regionId}} {{imePrezime}} {{lokacija}}<ion-list ng-repeat=\"item in vm.items\"><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">{{item.naziv}}/ {{item.ulica}}/ {{item.broj}}</div><div class=\"colFull col-20\" ui-sref=\"main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})\">{{item.broilo}}</div></div></ion-item></ion-list></ion-content></ion-view>");
-$templateCache.put("./templates/search.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕБАРАЈ БРОИЛО\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=search.imeprezime type=text placeholder=\"Корисник (Име/Презиме)\"></div><div class=\"item item-input inputElement\"><input ng-model=search.lokacija type=text placeholder=\"Локација (Улица, Број ...)\"></div><select class=\"form-control incheck\"><option>Радиус од ...</option><option>Радиус 1</option><option>Радиус 2</option><option>Радиус 3</option></select>{{region}} {{search.imeprezime}} {{search.lokacija}}</div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=main.results({selectedRegion:region,inputImePrezime:search.imeprezime,inputLokacija:search.lokacija})>БАРАЈ</button></div></ion-content></ion-view>");
-$templateCache.put("./templates/userDetails.html","<ion-view class=\"hs-view-home has-header\" view-title=\"ПРИКАЖИ КОРИСНИК\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><ion-item class=item-stable style=max-height:70%><div class=rowFull>{{vm.tipNaKorisnik}}</div><div class=rowFull>{{vm.shifraNaKorisnik}}</div><div class=rowFull>{{vm.imeNaziv}}</div><div class=rowFull>{{vm.shifraNaUlica}}</div><div class=rowFull>{{vm.kukenBroj}}</div><div class=rowFull>{{vm.vlez}}</div><div class=rowFull>{{vm.stan}}</div><div class=rowFull>{{vm.grad}}</div></ion-item></div></div>{{vm.vidkorID}} {{vm.lokacijaID}} {{vm.korisnikID}} {{vm.reonID}} {{vm.broilo}}<div class=row><button class=\"submitButton button button-calm\" ui-sref=\"main.editstate({vidkorid: vm.vidkorID, lokacijaID: vm.lokacijaID, korisnikID: vm.korisnikID, reonID: vm.reonID, broilo: vm.broilo})\">Внеси нова состојба</button></div><!--<button class=\"submitButton button button-calm\" ui-sref=\"main.editstate\">--></ion-content></ion-view>");}]);
+$templateCache.put("./templates/search.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕБАРАЈ БРОИЛО\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=search.imeprezime type=text placeholder=\"Корисник (Име/Презиме)\"></div><div class=\"item item-input inputElement\"><input ng-model=search.lokacija type=text placeholder=\"Локација (Улица, Број ...)\"></div><select class=\"form-control incheck\"><option>Радиус од ...</option><option>Радиус 1</option><option>Радиус 2</option><option>Радиус 3</option></select></div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=main.results({selectedRegion:region,inputImePrezime:search.imeprezime,inputLokacija:search.lokacija})>БАРАЈ</button></div></ion-content></ion-view>");
+$templateCache.put("./templates/userDetails.html","<ion-view class=\"hs-view-home has-header\" view-title=\"ПРИКАЖИ КОРИСНИК\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><ion-item class=item-stable style=max-height:70%><div class=rowFull>{{vm.tipNaKorisnik}}</div><div class=rowFull>{{vm.shifraNaKorisnik}}</div><div class=rowFull>{{vm.imeNaziv}}</div><div class=rowFull>{{vm.shifraNaUlica}}</div><div class=rowFull>{{vm.kukenBroj}}</div><div class=rowFull>{{vm.vlez}}</div><div class=rowFull>{{vm.stan}}</div><div class=rowFull>{{vm.grad}}</div></ion-item></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=\"main.editstate({vidkorid: vm.vidkorID, lokacijaID: vm.lokacijaID, korisnikID: vm.korisnikID, reonID: vm.reonID, broilo: vm.broilo})\">Внеси нова состојба</button></div><!--<button class=\"submitButton button button-calm\" ui-sref=\"main.editstate\">--></ion-content></ion-view>");}]);

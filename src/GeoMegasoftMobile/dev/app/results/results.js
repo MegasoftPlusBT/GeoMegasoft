@@ -3,9 +3,9 @@
     angular.module('starter')
       .controller('ResultsCtrl', ResultsController);
 
-    ResultsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
+    ResultsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
 
-    function ResultsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
+    function ResultsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
         var vm = this;
         initVariables();
 
@@ -27,8 +27,10 @@
                 "radius": 0,
                 "reionId": parseInt($stateParams.selectedRegion)
             };
+
+            var url = WebAPIurl + 'api/v1/watercounters/search';
             $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-            $http.post('http://localhost:16952/api/v1/watercounters/search', searchParameters).then(function (resp) {
+            $http.post(url, searchParameters).then(function (resp) {
                 vm.items = resp.data.items;
             }, function (err) {
                 if (err.status == 401) {

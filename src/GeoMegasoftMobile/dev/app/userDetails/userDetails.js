@@ -3,9 +3,9 @@
     angular.module('starter')
       .controller('userDetailsCtrl', userDetailsController);
 
-    userDetailsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
+    userDetailsController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
 
-    function userDetailsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
+    function userDetailsController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
         var vm = this;
         initVariables();
 
@@ -23,8 +23,8 @@
             vm.korisnikID = $stateParams.korisnikID;
             vm.reonID = $stateParams.reonID;
             vm.broilo = $stateParams.broilo;
-
-            $http.get('http://localhost:16952/api/v1/customers/customerinfo', {
+            var url = WebAPIurl + 'api/v1/customers/customerinfo';
+            $http.get(url, {
                 headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] },
                 params: { korisnikID: $stateParams.korisnikID }
             }).then(function (resp) {

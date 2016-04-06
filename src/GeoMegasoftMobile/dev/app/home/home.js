@@ -3,9 +3,9 @@
     angular.module('starter')
       .controller('HomeCtrl', HomeController);
 
-    HomeController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http'];
+    HomeController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
 
-    function HomeController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http) {
+    function HomeController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
         var vm = this;
         initVariables();
 
@@ -27,8 +27,8 @@
             var pass = vm.user.password;
             if (user != null && user != undefined && pass != null && pass != undefined) {
                 var data = "grant_type=password&username=" + user + "&password=" + pass;
-                 
-                $http.post('http://localhost:16952/token', data, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).success(function (response) {                    
+                var url = WebAPIurl + 'token';
+                $http.post(url, data, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).success(function (response) {                    
                    
                     $window.localStorage['access_token'] = response.access_token;
                     $window.localStorage['token_type'] = response.token_type;
@@ -38,7 +38,7 @@
                     vm.errors = {
                         required: err.error
                     };
-                });               
+                });
             }
         }
 

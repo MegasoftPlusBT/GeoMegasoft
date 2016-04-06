@@ -3,9 +3,9 @@
     angular.module('starter')
       .controller('editStateCtrl', editStateController);
 
-    editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location'];
+    editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location', 'WebAPIurl'];
 
-    function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location) {
+    function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location, WebAPIurl) {
         var vm = this;
         initVariables();
 
@@ -23,7 +23,8 @@
             vm.korisnikID = $stateParams.korisnikID;
             vm.reonID = $stateParams.reonID;
             vm.broilo = $stateParams.broilo;
-            $http.get('http://localhost:16952/api/v1/watercounters/laststate', {
+            var url = WebAPIurl + 'api/v1/watercounters/laststate';
+            $http.get(url, {
                 headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] },
                 params: { vidkorid: $stateParams.vidkorid, lokacijaID: $stateParams.lokacijaID, korisnikID: $stateParams.korisnikID, reonID: $stateParams.reonID, broilo: $stateParams.broilo }
             }).then(function (resp) {
@@ -58,8 +59,9 @@
             };
             var newValue = parseInt(vm.state.new);
             if (newValue != undefined && !isNaN(newValue)) {
+                var url = WebAPIurl + 'api/v1/watercounters/newstate';
                 $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-                $http.post('http://localhost:16952/api/v1/watercounters/newstate', data).then(function (resp) {
+                $http.post(url, data).then(function (resp) {
                   
                     if (resp.data.isSucces === true)
                     {
