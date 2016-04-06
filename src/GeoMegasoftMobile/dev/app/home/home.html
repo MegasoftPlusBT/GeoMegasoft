@@ -10,7 +10,9 @@
                     <label class="item item-input inputElement">
                         <input type="password" ng-model="vm.user.password" placeholder="Лозинка">
                     </label>
-
+                    <div style="margin-left: 10%;">
+                        <p>{{vm.errors.required}}</p>
+                    </div>
                 </div>
             </div>
         </div>

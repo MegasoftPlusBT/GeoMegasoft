@@ -38,7 +38,7 @@ namespace HASELT.GeoMega.WebApi
             _bootstrapper.Start(_settings);
 
             httpConfig.DependencyResolver = new StructureMapDependencyResolver(_bootstrapper.Container);
-
+            //httpConfig.EnableCors();
             OAuthAuthorizationServerOptions OAuthServerOptions = new OAuthAuthorizationServerOptions()
             {
                 AllowInsecureHttp = true,

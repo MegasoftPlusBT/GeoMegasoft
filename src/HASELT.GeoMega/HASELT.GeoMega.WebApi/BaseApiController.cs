@@ -6,6 +6,7 @@ using HASELT.GeoMega.AppServices.Features;
 
 namespace HASELT.GeoMega.WebApi
 {
+    [Authorize]
     [ExceptionFilterWrapper]
     public abstract class BaseApiController : ApiController
     {

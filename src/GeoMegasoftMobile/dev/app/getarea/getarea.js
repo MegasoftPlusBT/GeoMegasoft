@@ -26,8 +26,7 @@
                     required: "Izberete reon"
                 };
             }
-            else
-            {
+            else {
                 $state.go("main.search", { 'selecetedArea': vm.data.selectArea });
             }
         };
@@ -37,11 +36,20 @@
                         selectArea: null,
                         items: []
                     };
-            $http.get('http://localhost:16952/api/v1/Reons').then(function (resp) {
+            $http.get('http://localhost:16952/api/v1/Reons', {
+                headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] }
+            }).then(function (resp) {
                 //console.log('Success', resp);
                 vm.data.items = resp.data.items;
                 // For JSON responses, resp.data contains the result
             }, function (err) {
+                //err = Object {data: Object, status: 401, config: Object, statusText: "Unauthorized"
+                if (err.status == 401) {
+                    $window.localStorage.clear();
+                } else {
+                    conso.log(err.data.message);
+                }
+                $state.go("main.home");
             })
             $stateParams.selecetedArea = vm.data.selectArea;
         }

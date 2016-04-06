@@ -24,13 +24,19 @@
             vm.reonID = $stateParams.reonID;
             vm.broilo = $stateParams.broilo;
             $http.get('http://localhost:16952/api/v1/watercounters/laststate', {
+                headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] },
                 params: { vidkorid: $stateParams.vidkorid, lokacijaID: $stateParams.lokacijaID, korisnikID: $stateParams.korisnikID, reonID: $stateParams.reonID, broilo: $stateParams.broilo }
             }).then(function (resp) {
                 vm.state = {
                     before: parseInt(resp.data.sostojbaNova)
                 };
             }, function (err) {
-                console.log(err);
+                if (err.status == 401) {
+                    $window.localStorage.clear();
+                    $state.go("main.home");
+                } else {
+                    conso.log(err.data.message);
+                }
             })
         }
 
@@ -52,6 +58,7 @@
             };
             var newValue = parseInt(vm.state.new);
             if (newValue != undefined && !isNaN(newValue)) {
+                $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
                 $http.post('http://localhost:16952/api/v1/watercounters/newstate', data).then(function (resp) {
                   
                     if (resp.data.isSucces === true)
@@ -59,9 +66,14 @@
                         $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
                     }
                 }, function (err) {
-                    vm.errors = {
-                        required: "Nastana greska obidete se povtorno"
-                    };
+                    if (err.status == 401) {
+                        $window.localStorage.clear();
+                        $state.go("main.home");
+                    } else {
+                        vm.errors = {
+                            required: "Nastana greska obidete se povtorno"
+                        };
+                    }                   
                 })
             }
             else

@@ -29,7 +29,8 @@ namespace HASELT.GeoMega.WebApi.Security
             string errorMessage = "Invalid username or password";
             var user = await _requestDispatcher.DispatchAsync(new GetUserByUserName.Request
             {
-                UserName = context.UserName
+                UserName = context.UserName,
+                Password = context.Password
             });
             if (user.Response == null || user.HasErrors)
                 context.SetError(errorMessage);
@@ -38,9 +39,9 @@ namespace HASELT.GeoMega.WebApi.Security
                 if (user.Response.Lozinka == context.Password)
                 {
                     var identity = new ClaimsIdentity(context.Options.AuthenticationType);
-                    identity.AddClaim(new Claim(ClaimTypes.Name, user.Response.user));
+                    identity.AddClaim(new Claim(ClaimTypes.Name, user.Response.UserName));
                     identity.AddClaim(new Claim(ClaimTypes.Role, "admin"));
-                    identity.AddClaim(new Claim("username", user.Response.user));
+                    identity.AddClaim(new Claim("username", user.Response.UserName));
                     identity.AddClaim(new Claim("userId", user.Response.ID.ToString()));
                     var props = new AuthenticationProperties(new Dictionary<string, string>
                     {

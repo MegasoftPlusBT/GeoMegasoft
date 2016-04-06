@@ -14,6 +14,7 @@ namespace HASELT.GeoMega.AppServices.Features.Users
         public class Request : BaseRequest<Response>
         {
             public string UserName { get; set; }
+            public string Password { get; set; }
         }
 
         public class Response : BaseResponse
@@ -32,7 +33,7 @@ namespace HASELT.GeoMega.AppServices.Features.Users
 
             public int Nivo { get; set; }
 
-            public string Korisnik { get; set; }
+            public string UserName { get; set; }
         }
 
         public class Validator : AbstractValidator<Request>
@@ -46,7 +47,7 @@ namespace HASELT.GeoMega.AppServices.Features.Users
         {
             public override async Task<Response> Handle(Request request)
             {
-                var response = Connection.Query<Response>(@"SELECT * FROM [geomegaDb].[dbo].[Users] WHERE [user] = @user", new { user = request.UserName }).FirstOrDefault();
+                var response = Connection.Query<Response>(@"SELECT * FROM [dbo].[Users] WHERE UserName = @user and Lozinka=@lozinka", new { user = request.UserName, lozinka=request.Password }).FirstOrDefault();
                 return response;
             }
         }

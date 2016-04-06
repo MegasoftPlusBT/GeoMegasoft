@@ -25,6 +25,7 @@
             vm.broilo = $stateParams.broilo;
 
             $http.get('http://localhost:16952/api/v1/customers/customerinfo', {
+                headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] },
                 params: { korisnikID: $stateParams.korisnikID }
             }).then(function (resp) {
                 vm.tipNaKorisnik = resp.data.tipNaKorisnik;
@@ -36,6 +37,10 @@
                 vm.stan = resp.data.stan;
                 vm.grad = resp.data.grad;
             }, function (err) {
+                if (err.status == 401) {
+                    $window.localStorage.clear();
+                }
+                $state.go("main.home");
             })
         }
 
