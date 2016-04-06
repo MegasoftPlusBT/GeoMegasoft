@@ -404,75 +404,6 @@ angular.module('starter.shared')
 (function () {
     'use strict';
     angular.module('starter')
-      .controller('GetAreaCtrl', GetAreaController);
-
-    GetAreaController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
-
-    function GetAreaController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
-        var vm = this;
-        initVariables();
-
-        function initVariables() {
-            vm.someArray = [];
-        }
-
-
-
-        $scope.$on('$ionicView.loaded', OnViewLoad);
-        $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
-        $scope.$on('$ionicView.afterLeave', onAfterLeave);
-
-        vm.goToSearch = function () {
-
-            if (vm.data.selectArea == null || vm.data.selectArea == undefined) {
-                vm.errors = {
-                    required: "Izberete reon"
-                };
-            }
-            else {
-                $state.go("main.search", { 'selecetedArea': vm.data.selectArea });
-            }
-        };
-        function OnViewLoad() {
-            var url = WebAPIurl + 'api/v1/Reons';
-            vm.data =
-                    {
-                        selectArea: null,
-                        items: []
-                    };
-            $http.get(url, {
-                headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] }
-            }).then(function (resp) {
-                //console.log('Success', resp);
-                vm.data.items = resp.data.items;
-                // For JSON responses, resp.data contains the result
-            }, function (err) {
-                //err = Object {data: Object, status: 401, config: Object, statusText: "Unauthorized"
-                if (err.status == 401) {
-                    $window.localStorage.clear();
-                } else {
-                    conso.log(err.data.message);
-                }
-                $state.go("main.home");
-            })
-            $stateParams.selecetedArea = vm.data.selectArea;
-        }
-
-        function OnBeforeEnter() {
-
-        }
-
-        function onAfterLeave() { }
-
-    }
-
-
-
-})();
-
-(function () {
-    'use strict';
-    angular.module('starter')
       .controller('editStateCtrl', editStateController);
 
     editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location', 'WebAPIurl'];
@@ -545,7 +476,7 @@ angular.module('starter.shared')
                         $state.go("main.home");
                     } else {
                         vm.errors = {
-                            required: "Nastana greska obidete se povtorno"
+                            required: "Имате внесено за моменталниот месец"
                         };
                     }                   
                 })
@@ -553,7 +484,7 @@ angular.module('starter.shared')
             else
             {
                 vm.errors = {
-                    required: "Poleto nova sostojba e zadolzitelno"
+                    required: "Полето нова состојба е задолжително"
                 };
             }
         };
@@ -597,6 +528,75 @@ angular.module('starter.shared')
                 // An error occured. Show a message to the user
             });
         }
+
+    }
+
+
+
+})();
+
+(function () {
+    'use strict';
+    angular.module('starter')
+      .controller('GetAreaCtrl', GetAreaController);
+
+    GetAreaController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
+
+    function GetAreaController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
+        var vm = this;
+        initVariables();
+
+        function initVariables() {
+            vm.someArray = [];
+        }
+
+
+
+        $scope.$on('$ionicView.loaded', OnViewLoad);
+        $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
+        $scope.$on('$ionicView.afterLeave', onAfterLeave);
+
+        vm.goToSearch = function () {
+
+            if (vm.data.selectArea == null || vm.data.selectArea == undefined) {
+                vm.errors = {
+                    required: "Izberete reon"
+                };
+            }
+            else {
+                $state.go("main.search", { 'selecetedArea': vm.data.selectArea });
+            }
+        };
+        function OnViewLoad() {
+            var url = WebAPIurl + 'api/v1/Reons';
+            vm.data =
+                    {
+                        selectArea: null,
+                        items: []
+                    };
+            $http.get(url, {
+                headers: { 'Authorization': 'Bearer ' + $window.localStorage['access_token'] }
+            }).then(function (resp) {
+                //console.log('Success', resp);
+                vm.data.items = resp.data.items;
+                // For JSON responses, resp.data contains the result
+            }, function (err) {
+                //err = Object {data: Object, status: 401, config: Object, statusText: "Unauthorized"
+                if (err.status == 401) {
+                    $window.localStorage.clear();
+                } else {
+                    conso.log(err.data.message);
+                }
+                $state.go("main.home");
+            })
+            $stateParams.selecetedArea = vm.data.selectArea;
+        }
+
+        function OnBeforeEnter() {
+
+        }
+
+        function onAfterLeave() { }
 
     }
 
@@ -876,6 +876,7 @@ angular.module('starter.shared')
                 vm.vlez = resp.data.vlez;
                 vm.stan = resp.data.stan;
                 vm.grad = resp.data.grad;
+                vm.adresa=resp.data.adresa;
             }, function (err) {
                 if (err.status == 401) {
                     $window.localStorage.clear();
@@ -899,6 +900,6 @@ $templateCache.put("./templates/getarea.html","<ion-view class=\"hs-view-home ha
 $templateCache.put("./templates/home.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=ЛОГИН content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\"><div class=col><div class=list><label class=\"item item-input inputElement\"><input type=text ng-model=vm.user.username placeholder=\"Корисничко Име\"></label> <label class=\"item item-input inputElement\"><input type=password ng-model=vm.user.password placeholder=Лозинка></label><div style=\"margin-left: 10%;\"><p>{{vm.errors.required}}</p></div></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.login()>ЛОГИРАЈ СЕ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/internetConnection.html","<ion-view view-title=\"\" class=hs-view-internetConnection><ion-content scroll=false class=white-bg><div class=card><div class=\"item item-text-wrap\">{{vm.message}}</div></div></ion-content></ion-view>");
 $templateCache.put("./templates/menu.html","<ion-side-menus enable-menu-with-back-views=false><ion-side-menu-content><ion-nav-bar align-title=center class=\"bar-calm bar-header-with-logo never-hide-inline\"><ion-nav-back-button class=button-clear><i class=ion-android-arrow-back></i></ion-nav-back-button><ion-nav-title ng-click=\"mainVm.navigateToState(\'main.home\',{})\"><div class=page-title></div></ion-nav-title><ion-nav-buttons side=left><button class=\"button button-icon button-clear ion-navicon\" menu-toggle=left></button></ion-nav-buttons><ion-nav-buttons side=right></ion-nav-buttons></ion-nav-bar><ion-nav-view name=subview></ion-nav-view></ion-side-menu-content><ion-side-menu side=left><ion-header-bar class=bar-calm><h1 class=title></h1></ion-header-bar><ion-content class=side-menu-content><ion-list class=side-menu-list><ion-item menu-close=\"\" ui-sref=main.home>Home</ion-item><ion-item menu-close=\"\" ui-sref=main.home>Other</ion-item></ion-list></ion-content></ion-side-menu></ion-side-menus>");
-$templateCache.put("./templates/results.html","<ion-view class=\"hs-view-home has-header\" view-title=\"РЕЗУЛТАТИ ОД ПРЕБАРУВАЊЕ\" overflow-scroll=true><ion-content scroll=true padding=false>{{regionId}} {{imePrezime}} {{lokacija}}<ion-list ng-repeat=\"item in vm.items\"><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\">{{item.naziv}}/ {{item.ulica}}/ {{item.broj}}</div><div class=\"colFull col-20\" ui-sref=\"main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})\">{{item.broilo}}</div></div></ion-item></ion-list></ion-content></ion-view>");
+$templateCache.put("./templates/results.html","<ion-view class=\"hs-view-home has-header\" view-title=\"РЕЗУЛТАТИ ОД ПРЕБАРУВАЊЕ\" overflow-scroll=true><ion-content scroll=true padding=false><ion-list ng-repeat=\"item in vm.items\"><ion-item class=item-stable><div class=rowFull><div class=\"colFull col-80\" ui-sref=\"main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})\">{{item.naziv}}/ {{item.ulica}}/ {{item.broj}}</div><div class=\"colFull col-20\" ui-sref=\"main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})\">{{item.broilo}}</div></div></ion-item></ion-list></ion-content></ion-view>");
 $templateCache.put("./templates/search.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕБАРАЈ БРОИЛО\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=search.imeprezime type=text placeholder=\"Корисник (Име/Презиме)\"></div><div class=\"item item-input inputElement\"><input ng-model=search.lokacija type=text placeholder=\"Локација (Улица, Број ...)\"></div><select class=\"form-control incheck\"><option>Радиус од ...</option><option>Радиус 1</option><option>Радиус 2</option><option>Радиус 3</option></select></div></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=main.results({selectedRegion:region,inputImePrezime:search.imeprezime,inputLokacija:search.lokacija})>БАРАЈ</button></div></ion-content></ion-view>");
-$templateCache.put("./templates/userDetails.html","<ion-view class=\"hs-view-home has-header\" view-title=\"ПРИКАЖИ КОРИСНИК\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><ion-item class=item-stable style=max-height:70%><div class=rowFull>{{vm.tipNaKorisnik}}</div><div class=rowFull>{{vm.shifraNaKorisnik}}</div><div class=rowFull>{{vm.imeNaziv}}</div><div class=rowFull>{{vm.shifraNaUlica}}</div><div class=rowFull>{{vm.kukenBroj}}</div><div class=rowFull>{{vm.vlez}}</div><div class=rowFull>{{vm.stan}}</div><div class=rowFull>{{vm.grad}}</div></ion-item></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=\"main.editstate({vidkorid: vm.vidkorID, lokacijaID: vm.lokacijaID, korisnikID: vm.korisnikID, reonID: vm.reonID, broilo: vm.broilo})\">Внеси нова состојба</button></div><!--<button class=\"submitButton button button-calm\" ui-sref=\"main.editstate\">--></ion-content></ion-view>");}]);
+$templateCache.put("./templates/userDetails.html","<ion-view class=\"hs-view-home has-header\" view-title=\"ПРИКАЖИ КОРИСНИК\" overflow-scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><ion-item class=item-stable style=max-height:70%><div class=rowFull>Тип на Корисник: {{vm.tipNaKorisnik}}</div><div class=rowFull>Шифра на корисник: {{vm.shifraNaKorisnik}}</div><div class=rowFull>Име/назив: {{vm.imeNaziv}}</div><div class=rowFull>Шифра на улица: {{vm.shifraNaUlica}}</div><div class=rowFull>Куќен број: {{vm.kukenBroj}}</div><div class=rowFull>Влез: {{vm.vlez}}</div><div class=rowFull>Стан: {{vm.stan}}</div><div class=rowFull>Град: {{vm.grad}}</div></ion-item></div></div><div class=row><button class=\"submitButton button button-calm\" ui-sref=\"main.editstate({vidkorid: vm.vidkorID, lokacijaID: vm.lokacijaID, korisnikID: vm.korisnikID, reonID: vm.reonID, broilo: vm.broilo})\">Внеси нова состојба</button></div><!--<button class=\"submitButton button button-calm\" ui-sref=\"main.editstate\">--></ion-content></ion-view>");}]);

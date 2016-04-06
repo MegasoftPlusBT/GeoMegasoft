@@ -26,7 +26,7 @@ namespace HASELT.GeoMega.WebApi.Security
 
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
-            string errorMessage = "Invalid username or password";
+            string errorMessage = "Погрешена лозинка или корисничко име";
             var user = await _requestDispatcher.DispatchAsync(new GetUserByUserName.Request
             {
                 UserName = context.UserName,

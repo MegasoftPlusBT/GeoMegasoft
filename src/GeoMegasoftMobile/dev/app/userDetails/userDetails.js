@@ -36,6 +36,7 @@
                 vm.vlez = resp.data.vlez;
                 vm.stan = resp.data.stan;
                 vm.grad = resp.data.grad;
+                vm.adresa=resp.data.adresa;
             }, function (err) {
                 if (err.status == 401) {
                     $window.localStorage.clear();

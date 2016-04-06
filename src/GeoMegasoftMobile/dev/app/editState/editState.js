@@ -73,7 +73,7 @@
                         $state.go("main.home");
                     } else {
                         vm.errors = {
-                            required: "Nastana greska obidete se povtorno"
+                            required: "Имате внесено за моменталниот месец"
                         };
                     }                   
                 })
@@ -81,7 +81,7 @@
             else
             {
                 vm.errors = {
-                    required: "Poleto nova sostojba e zadolzitelno"
+                    required: "Полето нова состојба е задолжително"
                 };
             }
         };

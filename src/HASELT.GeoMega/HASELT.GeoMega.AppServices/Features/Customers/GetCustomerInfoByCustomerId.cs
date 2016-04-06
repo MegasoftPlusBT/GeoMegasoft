@@ -25,6 +25,8 @@ namespace HASELT.GeoMega.AppServices.Features.Customers
 
             public string ShifraNaUlica { get; set; }
 
+            public string Adresa { get; set; }
+
             public string KukenBroj { get; set; }
 
             public string Vlez { get; set; }
@@ -98,6 +100,7 @@ namespace HASELT.GeoMega.AppServices.Features.Customers
                     response.Vlez = item.Vlez;
                     response.Stan = item.Stan;
                     response.Grad = item.Mesto;
+                    response.Adresa = item.Adresa;
                 }
                 return response;
             }
