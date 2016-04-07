@@ -27,6 +27,7 @@ namespace HASELT.GeoMega.WebApi
             // Web API configuration and services
             httpConfig.Filters.Add(new ExceptionFilterWrapperAttribute());
 
+           // httpConfig.EnableCors();
             // Web API routes
             httpConfig.MapHttpAttributeRoutes();
             httpConfig.Routes.MapHttpRoute(
@@ -38,17 +39,18 @@ namespace HASELT.GeoMega.WebApi
             _bootstrapper.Start(_settings);
 
             httpConfig.DependencyResolver = new StructureMapDependencyResolver(_bootstrapper.Container);
-            //httpConfig.EnableCors();
+
+            app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
             OAuthAuthorizationServerOptions OAuthServerOptions = new OAuthAuthorizationServerOptions()
             {
                 AllowInsecureHttp = true,
                 TokenEndpointPath = new PathString("/token"),
                 AccessTokenExpireTimeSpan = TimeSpan.FromDays(1),
-                Provider = new UserAuthorizationServerProvider(_bootstrapper.Container.GetInstance<IRequestDispatcher>())
+                Provider = new UserAuthorizationServerProvider(_bootstrapper.Container.GetInstance<IRequestDispatcher>()),
+               
             };
             app.UseOAuthAuthorizationServer(OAuthServerOptions);
             app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());
-            app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
             app.UseWebApi(httpConfig);
         }
     }

@@ -237,6 +237,7 @@
   <ItemGroup>
     <Content Include="packages.config" />
     <Content Include="AppSettings.config" />
+    <None Include="Properties\PublishProfiles\GeoMegasoft.pubxml" />
     <None Include="Properties\PublishProfiles\Primevo-FTP.pubxml" />
     <None Include="Properties\PublishProfiles\Primevo.api.develop.pubxml" />
     <None Include="Web.Debug.config">

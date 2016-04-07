@@ -18,9 +18,9 @@
         $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
         $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
-       
+
         function OnViewLoad() {
-           
+
         }
         vm.login = function () {
             var user = vm.user.username;
@@ -28,16 +28,17 @@
             if (user != null && user != undefined && pass != null && pass != undefined) {
                 var data = "grant_type=password&username=" + user + "&password=" + pass;
                 var url = WebAPIurl + 'token';
-                $http.post(url, data, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).success(function (response) {                    
-                   
+                $http.post(url, data, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).success(function (response) {
+
                     $window.localStorage['access_token'] = response.access_token;
                     $window.localStorage['token_type'] = response.token_type;
                     $state.go("main.getarea");
-                    
+
                 }).error(function (err, status) {
-                    vm.errors = {
-                        required: err.error
-                    };
+                    if (err != null)
+                        vm.errors = {
+                            required: err.error
+                        };
                 });
             }
         }

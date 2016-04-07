@@ -8,9 +8,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Http.Cors;
 
 namespace HASELT.GeoMega.WebApi.Security
 {
+
     public class UserAuthorizationServerProvider : OAuthAuthorizationServerProvider
     {
         readonly IRequestDispatcher _requestDispatcher;
@@ -23,7 +25,7 @@ namespace HASELT.GeoMega.WebApi.Security
         {
             context.Validated();
         }
-
+        
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
             string errorMessage = "Погрешена лозинка или корисничко име";
