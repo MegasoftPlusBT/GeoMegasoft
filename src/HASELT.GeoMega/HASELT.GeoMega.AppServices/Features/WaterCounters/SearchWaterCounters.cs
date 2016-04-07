@@ -51,6 +51,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 public string Ulica { get; set; }
 
                 public string Broj { get; set; }
+
+                public string NovaSostojba { get; set; }
             }
         }
 
@@ -75,7 +77,12 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                     lfl.Aktiven as Aktive,
                                     k.Naziv as Naziv, 
                                     k.Ulica as Ulica, 
-                                    k.Broj as Broj
+                                    k.Broj as Broj,
+									(
+									SELECT TOP 1 sf.SostojbaNova from SostojbaFizicki sf
+									Where sf.Vidkorid=bfl.VidKorID and sf.KorisnikID=bfl.KorisnikID and sf.LokacijaID=bfl.LokacijaID and sf.Broilo=bfl.Broilo
+									Order by sf.Mesec desc
+									) as NovaSostojba
                                     From BroilaFizickiLica bfl
                                     left join LokacijaFizickiLica lfl on 
                                     lfl.VidKorID=bfl.VidKorID AND 
@@ -93,7 +100,12 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                     lpl.Aktiven as Aktiven, 
                                     k.Naziv as Naziv, 
                                     k.Ulica as Ulica, 
-                                    k.Broj as Broj
+                                    k.Broj as Broj,
+									(
+									SELECT TOP 1 sp.SostojbaNova from SostojbaPravni sp
+									Where sp.KorisnikID=bpl.KorisnikID and sp.LokacijaID=bpl.LokacijaID and sp.Broilo=bpl.Broilo
+									Order by sp.Mesec desc
+									) as NovaSostojba
                                     From BroilaPravniLica bpl
                                     left join LokacijaPravniLica lpl on 
                                     bpl.LokacijaID=bpl.LokacijaID AND 
