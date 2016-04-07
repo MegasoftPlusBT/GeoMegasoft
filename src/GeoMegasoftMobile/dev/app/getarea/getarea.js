@@ -23,7 +23,7 @@
 
             if (vm.data.selectArea == null || vm.data.selectArea == undefined) {
                 vm.errors = {
-                    required: "Izberete reon"
+                    required: "Изберете реон"
                 };
             }
             else {
