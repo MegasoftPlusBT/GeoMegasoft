@@ -29,8 +29,10 @@
                 params: { vidkorid: $stateParams.vidkorid, lokacijaID: $stateParams.lokacijaID, korisnikID: $stateParams.korisnikID, reonID: $stateParams.reonID, broilo: $stateParams.broilo }
             }).then(function (resp) {
                 vm.state = {
-                    before: parseInt(resp.data.sostojbaNova)
+                    before: parseInt(resp.data.sostojbaNova),
+                    slika: resp.data.slikaSostojba
                 };
+                
             }, function (err) {
                 if (err.status == 401) {
                     $window.localStorage.clear();
@@ -55,35 +57,39 @@
                 "reonID": $stateParams.reonID,
                 "broilo": $stateParams.broilo,
                 "sostojbaStara": parseInt(vm.state.before),
-                "sostojbaNova": parseInt(vm.state.new)
+                "sostojbaNova": parseInt(vm.state.new),
+                "slikaSostojba": vm.state.slika
             };
             var newValue = parseInt(vm.state.new);
-            if (newValue != undefined && !isNaN(newValue)) {
-                var url = WebAPIurl + 'api/v1/watercounters/newstate';
-                $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-                $http.post(url, data).then(function (resp) {
-                  
-                    if (resp.data.isSucces === true)
-                    {
-                        $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
-                    }
-                }, function (err) {
-                    if (err.status == 401) {
-                        $window.localStorage.clear();
-                        $state.go("main.home");
-                    } else {
-                        vm.errors = {
-                            required: "Имате внесено состојба за моменталниот месец"
-                        };
-                    }                   
-                })
-            }
-            else
-            {
-                vm.errors = {
-                    required: "Полето нова состојба е задолжително"
-                };
-            }
+            //if (newValue != undefined && !isNaN(newValue)) {
+            var url = WebAPIurl + 'api/v1/watercounters/newstate';
+            $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
+            $http.post(url, data).then(function (resp) {
+                if (resp.data.isSucces === true) {
+                    $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
+                }
+                else
+                {
+                    vm.errors = {
+                        required: resp.data.message
+                    };
+                }
+            }, function (err) {
+                if (err.status == 401) {
+                    $window.localStorage.clear();
+                    $state.go("main.home");
+                } else {
+                    vm.errors = {
+                        required: err.data.exceptionMessage
+                    };
+                }
+            })
+            //}
+            //else {
+            //    vm.errors = {
+            //        required: "Полето нова состојба е задолжително"
+            //    };
+            //}
         };
         vm.takePhoto = function () {
             var options = {
@@ -99,7 +105,8 @@
             };
 
             $cordovaCamera.getPicture(options).then(function (imageData) {
-                $scope.imgURI = "data:image/jpeg;base64," + imageData;
+                //$scope.imgURI = "data:image/jpeg;base64," + imageData;
+                vm.state.slika = "data:image/jpeg;base64," + imageData;
             }, function (err) {
                 console.log("error taking photo", err);
                 // An error occured. Show a message to the user
@@ -119,7 +126,8 @@
             };
 
             $cordovaCamera.getPicture(options).then(function (imageData) {
-                $scope.imgURI = "data:image/jpeg;base64," + imageData;
+                //$scope.imgURI = "data:image/jpeg;base64," + imageData;
+                vm.state.slika = "data:image/jpeg;base64," + imageData;
             }, function (err) {
                 console.log("error choosing photo", err);
                 // An error occured. Show a message to the user

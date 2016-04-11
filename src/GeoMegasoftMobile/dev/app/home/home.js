@@ -39,6 +39,10 @@
                         vm.errors = {
                             required: err.error
                         };
+                    else
+                        vm.errors = {
+                            required: "Проверете ја интернет конекцијата"
+                        };
                 });
             }
         }

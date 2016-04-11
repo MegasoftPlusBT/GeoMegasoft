@@ -35,6 +35,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
             public string SostojbaNova { get; set; }
 
             public string Mesec { get; set; }
+
+            public string SlikaSostojba { get; set; }
         }
 
         public class Validator : AbstractValidator<Request>
@@ -51,7 +53,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 var response = Connection.Query<Response>(@"
                                                     SELECT SostojbaStara,
                                                            SostojbaNova, 
-                                                           Mesec
+                                                           Mesec,
+                                                           SlikaSostojba
                                                           FROM SostojbaFizicki
                                                           WHERE Vidkorid=@Vidkorid and LokacijaID=@LokacijaID and KorisnikID=@KorisnikID and ReonID=@ReonID and Broilo=@Broilo
                                                           ORDER BY Broilo, Mesec, Datum",
