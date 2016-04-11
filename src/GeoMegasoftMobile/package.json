@@ -32,7 +32,8 @@
     "ionic-plugin-keyboard",
     "cordova-plugin-network-information",
     "cordova-plugin-file",
-    "cordova-plugin-file-transfer"
+    "cordova-plugin-file-transfer",
+    "cordova-plugin-camera"
   ],
   "cordovaPlatforms": [
     "android",
