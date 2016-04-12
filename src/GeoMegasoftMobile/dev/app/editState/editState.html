@@ -48,12 +48,12 @@
         </div>
         <div class="row row-center"  ng-if="vm.state.slika !== undefined&&vm.state.slika!=null" >
             <div class="col col-75">
-                <a class="item item-thumbnail-left" href="#" style="margin-left:15%">
+                <div class="item item-thumbnail-left" href="#" style="margin-left:13.25%">
                     <img ng-show="vm.state.slika !== undefined" ng-src="{{vm.state.slika}}">
                     <h2> {{vm.state.mesec}}</h2>
-                </a>
+                </div>
             </div>
-            <div class="col">
+            <div class="col col-25" >
                 <button class="button button-positive" ng-click="vm.removImage()">
                     <i class="icon ion-android-close"></i>
                 </button>
