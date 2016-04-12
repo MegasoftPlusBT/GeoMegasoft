@@ -38,7 +38,7 @@
                 vm.grad = resp.data.grad;
                 vm.adresa=resp.data.adresa;
             }, function (err) {
-                if (err.status == 401) {
+                if (err.status == 401 || err.status == 0) {
                     $window.localStorage.clear();
                 }
                 $state.go("main.home");

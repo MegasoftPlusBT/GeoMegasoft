@@ -35,7 +35,7 @@
                 };
 
             }, function (err) {
-                if (err.status == 401) {
+                if (err.status == 401 || err.status == 0) {
                     $window.localStorage.clear();
                     $state.go("main.home");
                 } else {
@@ -82,28 +82,28 @@
                 $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
                 $http.post(url, data).then(function (resp) {
                     if (resp.data.isSucces === true) {
-                         $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
+                        $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
                     }
                     else {
                         vm.errors = {
-                            required: resp.data.message
+                            required: "* " + resp.data.message
                         };
                     }
                 }, function (err) {
-                    if (err.status == 401) {
+                    if (err.status == 401 || err.status == 0) {
                         $window.localStorage.clear();
                         $state.go("main.home");
                     } else {
                         vm.errors = {
-                            required: err.data.exceptionMessage
+                            required: "* " + err.data.exceptionMessage
                         };
                     }
                 })
 
-            }, 3000);
+            }, 1000);
 
-            
-            
+
+
         };
         vm.removImage = function () {
             vm.state.slika = null;

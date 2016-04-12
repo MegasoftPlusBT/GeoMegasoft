@@ -37,11 +37,11 @@
                 }).error(function (err, status) {
                     if (err != null)
                         vm.errors = {
-                            required: err.error
+                            required: "* "+err.error
                         };
                     else
                         vm.errors = {
-                            required: "Проверете ја интернет конекцијата"
+                            required: "* Проверете ја интернет конекцијата"
                         };
                 });
             }

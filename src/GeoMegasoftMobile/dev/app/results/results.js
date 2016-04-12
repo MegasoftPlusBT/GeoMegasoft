@@ -33,7 +33,7 @@
             $http.post(url, searchParameters).then(function (resp) {
                 vm.items = resp.data.items;
             }, function (err) {
-                if (err.status == 401) {
+                if (err.status == 401 || err.status == 0) {
                     $window.localStorage.clear();
                     $state.go("main.home");
                 } else {

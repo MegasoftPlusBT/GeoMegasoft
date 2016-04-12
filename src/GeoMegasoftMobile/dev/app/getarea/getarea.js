@@ -23,7 +23,7 @@
 
             if (vm.data.selectArea == null || vm.data.selectArea == undefined) {
                 vm.errors = {
-                    required: "Изберете реон"
+                    required: "* Изберете реон"
                 };
             }
             else {
@@ -44,8 +44,7 @@
                 vm.data.items = resp.data.items;
                 // For JSON responses, resp.data contains the result
             }, function (err) {
-                //err = Object {data: Object, status: 401, config: Object, statusText: "Unauthorized"
-                if (err.status == 401) {
+                if (err.status == 401 || err.status == 0) {
                     $window.localStorage.clear();
                 } else {
                     conso.log(err.data.message);

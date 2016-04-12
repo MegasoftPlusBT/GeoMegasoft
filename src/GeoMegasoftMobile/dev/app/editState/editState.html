@@ -1,16 +1,18 @@
 <ion-view class="hs-view-home has-header bar-calm" view-title="ВНЕСИ СОСТОЈБА НА БРОИЛО" content scroll="false">
-    <ion-content class="has-header" style="padding-top:30px;" content scroll="true">
+    <ion-content class="has-header" style="padding-top:10px;" content scroll="true">
         <div class="row row-center" style="height:70%;">
             <div class="col">
                 <div class="list">
                     <div class="item item-input inputElement">
-                        <input ng-model="vm.state.before" type="number" min="1" placeholder="Претходна состојба" readonly>
+                        <p>
+                            Стара состојба: {{vm.state.before}}
+                        </p>
                     </div>
                     <div class="item item-input inputElement">
                         <input ng-model="vm.state.new" type="number" min="1" placeholder="Нова состојба" required>
                     </div>
                     <input type="hidden" ng-model="vm.state.slika">
-                    <div style="margin-left: 10%;">
+                    <div style="margin-left: 10%; color:red">
                         <p>{{vm.errors.required}}</p>
                     </div>
 
@@ -48,15 +50,19 @@
         </div>
         <div class="row row-center"  ng-if="vm.state.slika !== undefined&&vm.state.slika!=null" >
             <div class="col col-75">
-                <div class="item item-thumbnail-left" href="#" style="margin-left:13.25%">
-                    <img ng-show="vm.state.slika !== undefined" ng-src="{{vm.state.slika}}">
-                    <h2> {{vm.state.mesec}}</h2>
+                <div class="list">
+                    <div class="item item-thumbnail-left" href="#" style="margin-left:13.25%">
+                        <img ng-show="vm.state.slika !== undefined" ng-src="{{vm.state.slika}}" />
+                        <h2> {{vm.state.mesec}}</h2>
+                    </div>
                 </div>
             </div>
             <div class="col col-25" >
-                <button class="button button-positive" ng-click="vm.removImage()">
-                    <i class="icon ion-android-close"></i>
-                </button>
+                <div class="list">
+                    <button class="button button-positive" ng-click="vm.removImage()">
+                        <i class="icon ion-android-close"></i>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="row">
