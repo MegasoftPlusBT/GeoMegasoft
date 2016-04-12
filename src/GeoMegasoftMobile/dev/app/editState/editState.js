@@ -51,52 +51,59 @@
 
         vm.saveNewState = function () {
             // console.log(vm.state.before + " " + vm.state.new);
-            var posOptions = { timeout: 10000, enableHighAccuracy: false };
+            var posOptions = { timeout: 3000, enableHighAccuracy: false };
             var lat = "0";
             var long = "0";
-            $cordovaGeolocation
-              .getCurrentPosition(posOptions)
-              .then(function (position) {
-                  lat = position.coords.latitude;
-                  long = position.coords.longitude;
-              }, function (err) {
-                  // error
-              });
+            var result = $cordovaGeolocation
+                .getCurrentPosition(posOptions)
+                .then(function (position) {
+                    lat = position.coords.latitude;
+                    long = position.coords.longitude;
+                }, function (err) {
+                    // error
+                    console.log(err);
+                });
+            $timeout(function () {
 
-            var data = {
-                "vidkorid": $stateParams.vidkorid,
-                "lokacijaID": $stateParams.lokacijaID,
-                "korisnikID": $stateParams.korisnikID,
-                "reonID": $stateParams.reonID,
-                "broilo": $stateParams.broilo,
-                "sostojbaStara": parseInt(vm.state.before),
-                "sostojbaNova": parseInt(vm.state.new),
-                "slikaSostojba": vm.state.slika,
-                "lat": lat,
-                "long": long
-            };
-            var newValue = parseInt(vm.state.new);
-            var url = WebAPIurl + 'api/v1/watercounters/newstate';
-            $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-            $http.post(url, data).then(function (resp) {
-                if (resp.data.isSucces === true) {
-                    $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
-                }
-                else {
-                    vm.errors = {
-                        required: resp.data.message
-                    };
-                }
-            }, function (err) {
-                if (err.status == 401) {
-                    $window.localStorage.clear();
-                    $state.go("main.home");
-                } else {
-                    vm.errors = {
-                        required: err.data.exceptionMessage
-                    };
-                }
-            })
+                var data = {
+                    "vidkorid": $stateParams.vidkorid,
+                    "lokacijaID": $stateParams.lokacijaID,
+                    "korisnikID": $stateParams.korisnikID,
+                    "reonID": $stateParams.reonID,
+                    "broilo": $stateParams.broilo,
+                    "sostojbaStara": parseInt(vm.state.before),
+                    "sostojbaNova": parseInt(vm.state.new),
+                    "slikaSostojba": vm.state.slika,
+                    "lat": lat,
+                    "long": long
+                };
+                var newValue = parseInt(vm.state.new);
+                var url = WebAPIurl + 'api/v1/watercounters/newstate';
+                $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
+                $http.post(url, data).then(function (resp) {
+                    if (resp.data.isSucces === true) {
+                         $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
+                    }
+                    else {
+                        vm.errors = {
+                            required: resp.data.message
+                        };
+                    }
+                }, function (err) {
+                    if (err.status == 401) {
+                        $window.localStorage.clear();
+                        $state.go("main.home");
+                    } else {
+                        vm.errors = {
+                            required: err.data.exceptionMessage
+                        };
+                    }
+                })
+
+            }, 3000);
+
+            
+            
         };
         vm.removImage = function () {
             vm.state.slika = null;

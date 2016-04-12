@@ -172,19 +172,19 @@
 
 })();
 
-(function() {
-    'use strict';
-  angular.module('starter.constants', [])
-    .constant('WebAPIurl', 'http://localhost:16952/')
-    ;
-})();
-
-//(function () {
+//(function() {
 //    'use strict';
-//    angular.module('starter.constants', [])
-//      .constant('WebAPIurl', 'http://geomegasoft.dev.haselt.net/')
+//  angular.module('starter.constants', [])
+//    .constant('WebAPIurl', 'http://localhost:16952/')
 //    ;
 //})();
+
+(function () {
+    'use strict';
+    angular.module('starter.constants', [])
+      .constant('WebAPIurl', 'http://geomegasoft.dev.haselt.net/')
+    ;
+})();
 
 
 (function() {
@@ -454,52 +454,59 @@ angular.module('starter.shared')
 
         vm.saveNewState = function () {
             // console.log(vm.state.before + " " + vm.state.new);
-            var posOptions = { timeout: 10000, enableHighAccuracy: false };
+            var posOptions = { timeout: 3000, enableHighAccuracy: false };
             var lat = "0";
             var long = "0";
-            $cordovaGeolocation
-              .getCurrentPosition(posOptions)
-              .then(function (position) {
-                  lat = position.coords.latitude;
-                  long = position.coords.longitude;
-              }, function (err) {
-                  // error
-              });
+            var result = $cordovaGeolocation
+                .getCurrentPosition(posOptions)
+                .then(function (position) {
+                    lat = position.coords.latitude;
+                    long = position.coords.longitude;
+                }, function (err) {
+                    // error
+                    console.log(err);
+                });
+            $timeout(function () {
 
-            var data = {
-                "vidkorid": $stateParams.vidkorid,
-                "lokacijaID": $stateParams.lokacijaID,
-                "korisnikID": $stateParams.korisnikID,
-                "reonID": $stateParams.reonID,
-                "broilo": $stateParams.broilo,
-                "sostojbaStara": parseInt(vm.state.before),
-                "sostojbaNova": parseInt(vm.state.new),
-                "slikaSostojba": vm.state.slika,
-                "lat": lat,
-                "long": long
-            };
-            var newValue = parseInt(vm.state.new);
-            var url = WebAPIurl + 'api/v1/watercounters/newstate';
-            $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-            $http.post(url, data).then(function (resp) {
-                if (resp.data.isSucces === true) {
-                    $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
-                }
-                else {
-                    vm.errors = {
-                        required: resp.data.message
-                    };
-                }
-            }, function (err) {
-                if (err.status == 401) {
-                    $window.localStorage.clear();
-                    $state.go("main.home");
-                } else {
-                    vm.errors = {
-                        required: err.data.exceptionMessage
-                    };
-                }
-            })
+                var data = {
+                    "vidkorid": $stateParams.vidkorid,
+                    "lokacijaID": $stateParams.lokacijaID,
+                    "korisnikID": $stateParams.korisnikID,
+                    "reonID": $stateParams.reonID,
+                    "broilo": $stateParams.broilo,
+                    "sostojbaStara": parseInt(vm.state.before),
+                    "sostojbaNova": parseInt(vm.state.new),
+                    "slikaSostojba": vm.state.slika,
+                    "lat": lat,
+                    "long": long
+                };
+                var newValue = parseInt(vm.state.new);
+                var url = WebAPIurl + 'api/v1/watercounters/newstate';
+                $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
+                $http.post(url, data).then(function (resp) {
+                    if (resp.data.isSucces === true) {
+                         $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
+                    }
+                    else {
+                        vm.errors = {
+                            required: resp.data.message
+                        };
+                    }
+                }, function (err) {
+                    if (err.status == 401) {
+                        $window.localStorage.clear();
+                        $state.go("main.home");
+                    } else {
+                        vm.errors = {
+                            required: err.data.exceptionMessage
+                        };
+                    }
+                })
+
+            }, 3000);
+
+            
+            
         };
         vm.removImage = function () {
             vm.state.slika = null;
@@ -914,7 +921,7 @@ angular.module('starter.shared')
 
 })();
 
-angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=\"ВНЕСИ СОСТОЈБА НА БРОИЛО\" content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=true><div class=\"row row-center\" style=height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=vm.state.before type=number min=1 placeholder=\"Претходна состојба\" readonly=\"\"></div><div class=\"item item-input inputElement\"><input ng-model=vm.state.new type=number min=1 placeholder=\"Нова состојба\" required=\"\"></div><input type=hidden ng-model=vm.state.slika><div style=\"margin-left: 10%;\"><p>{{vm.errors.required}}</p></div><!--<ion-item class=\"item\">\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Направи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ></i>\r\n </div>\r\n </div>\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Прикачи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ng-click=\"vm.choosePhoto()\"></i>\r\n </div>\r\n </div>\r\n </ion-item>--><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button><!--<img ng-show=\"vm.state.slika !== undefined\" ng-src=\"{{vm.state.slika}}\" style=\"text-align: center;max-height: 10%;max-width: 50%;margin-left: 30%;\">--><div ng-if=\"vm.state.slika !== undefined&&vm.state.slika!=null\"><div class=\"item item-button-right\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\"><a class=\"item item-thumbnail-left\" href=#><img ng-show=\"vm.state.slika !== undefined\" ng-src={{vm.state.slika}}></a> {{vm.state.mesec}} <button class=\"button button-positive\" ng-click=vm.removImage()><i class=\"icon ion-android-close\"></i></button></div></div></div><div class=list><p>{{errorMessage}}</p></div></div></div><div class=row><button class=\"submitButton button button-balanced\" ng-click=vm.saveNewState()><!--ui-sref=\"main.results\">-->ВНЕСИ</button></div></ion-content></ion-view>");
+angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=\"ВНЕСИ СОСТОЈБА НА БРОИЛО\" content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=true><div class=\"row row-center\" style=height:70%;><div class=col><div class=list><div class=\"item item-input inputElement\"><input ng-model=vm.state.before type=number min=1 placeholder=\"Претходна состојба\" readonly=\"\"></div><div class=\"item item-input inputElement\"><input ng-model=vm.state.new type=number min=1 placeholder=\"Нова состојба\" required=\"\"></div><input type=hidden ng-model=vm.state.slika><div style=\"margin-left: 10%;\"><p>{{vm.errors.required}}</p></div><!--<ion-item class=\"item\">\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Направи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ></i>\r\n </div>\r\n </div>\r\n <div class=\"rowFull\">\r\n <div class=\"colFull col-80\">\r\n Прикачи фотографија од броило\r\n </div>\r\n <div class=\"colFull col-20\">\r\n <i class=\"icon ion-camera placeholder-icon\" style=\"font-size: 30px;\" ng-click=\"vm.choosePhoto()\"></i>\r\n </div>\r\n </div>\r\n </ion-item>--><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button><p>{{errorMessage}}</p></div></div></div><div class=\"row row-center\" ng-if=\"vm.state.slika !== undefined&&vm.state.slika!=null\"><div class=\"col col-75\"><a class=\"item item-thumbnail-left\" href=# style=margin-left:15%><img ng-show=\"vm.state.slika !== undefined\" ng-src={{vm.state.slika}}><h2>{{vm.state.mesec}}</h2></a></div><div class=col><button class=\"button button-positive\" ng-click=vm.removImage()><i class=\"icon ion-android-close\"></i></button></div></div><div class=row><button class=\"submitButton button button-balanced\" ng-click=vm.saveNewState()><!--ui-sref=\"main.results\">-->ВНЕСИ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/getarea.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=\"ПРЕЗЕМИ ПОДАТОЦИ ЗА РЕОН\" overflow-scroll=false><ion-content class=has-header style=padding-top:20%; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><!--<select class=\"form-control incheck\">\r\n <option>Реон...</option>\r\n <option>Реон1</option>\r\n <option>Реон2</option>\r\n <option>Реон3</option>\r\n </select>--><select name=selectArea id=selectArea ng-model=vm.data.selectArea class=\"form-control incheck\"><option value=\"\">Реон...</option><!--not selected / blank option--><option ng-repeat=\"option in vm.data.items\" value={{option.reonID}}>{{option.zabeleska}}</option></select><br><div style=\"margin-left: 10%;\"><p>{{vm.errors.required}}</p></div></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.goToSearch()>ПРЕЗЕМИ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/home.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=ЛОГИН content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\"><div class=col><div class=list><label class=\"item item-input inputElement\"><input type=text ng-model=vm.user.username placeholder=\"Корисничко Име\"></label> <label class=\"item item-input inputElement\"><input type=password ng-model=vm.user.password placeholder=Лозинка></label><div style=\"margin-left: 10%;\"><p>{{vm.errors.required}}</p></div></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.login()>ЛОГИРАЈ СЕ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/internetConnection.html","<ion-view view-title=\"\" class=hs-view-internetConnection><ion-content scroll=false class=white-bg><div class=card><div class=\"item item-text-wrap\">{{vm.message}}</div></div></ion-content></ion-view>");
