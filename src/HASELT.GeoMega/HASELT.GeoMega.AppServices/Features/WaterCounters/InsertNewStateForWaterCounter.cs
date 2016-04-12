@@ -27,6 +27,10 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
             public string SostojbaNova { get; set; }
 
             public string SlikaSostojba { get; set; }
+
+            public string Lat { get; set; }
+
+            public string Long { get; set; }
         }
 
         public class Response : BaseResponse
@@ -81,8 +85,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                            From LokacijaFizickiLica 
                                                            where Vidkorid=@Vidkorid and LokacijaID=@LokacijaID and KorisnikID=@KorisnikID and ReonID=@ReonID",
                                                            new { Vidkorid = request.Vidkorid, LokacijaID = request.LokacijaID, KorisnikID = request.KorisnikID, ReonID = request.ReonID }).FirstOrDefault();
-
-                //var checkSostojba=
+                
                 List<string> sostojbiZaOvojMesec = Connection.Query<string>(@"SELECT SlikaSostojba
                                                                            FROM SostojbaFizicki
                                                                            WHERE Vidkorid=@Vidkorid and KorisnikID=@KorisnikID and LokacijaID=@LokacijaID and Broilo=@Broilo and Mesec=@Mesec",
@@ -128,7 +131,9 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                                        ,[stan]
                                                                        ,[BrClenovi]
                                                                        ,[Datum]
-                                                                       ,[SlikaSostojba])
+                                                                       ,[SlikaSostojba]
+                                                                       ,[Lat]
+                                                                       ,[Long])
                                                                  VALUES(@Vidkorid
                                                                        ,@KorisnikID
                                                                        ,@LokacijaID
@@ -144,7 +149,9 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                                        ,@stan
                                                                        ,@BrClenovi
                                                                        ,@Datum
-                                                                       ,@SlikaSostojba)"
+                                                                       ,@SlikaSostojba
+                                                                       ,@Lat
+                                                                       ,@Long)"
                                                                                , new
                                                                                {
                                                                                    Vidkorid = request.Vidkorid,
@@ -162,7 +169,9 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                                                    stan = korisnikInfo != null ? korisnikInfo.Broj.ToString() : "0",
                                                                                    BrClenovi = brojClenovi != null ? brojClenovi : 0,
                                                                                    Datum = DateTime.UtcNow,
-                                                                                   SlikaSostojba = request.SlikaSostojba
+                                                                                   SlikaSostojba = request.SlikaSostojba,
+                                                                                   Lat = request.Lat,
+                                                                                   Long = request.Long
                                                                                });
 
                         response.IsSucces = result == 1;

@@ -3,9 +3,9 @@
     angular.module('starter')
       .controller('editStateCtrl', editStateController);
 
-    editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location', 'WebAPIurl'];
+    editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location', 'WebAPIurl', '$cordovaGeolocation'];
 
-    function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location, WebAPIurl) {
+    function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location, WebAPIurl, $cordovaGeolocation) {
         var vm = this;
         initVariables();
 
@@ -30,9 +30,10 @@
             }).then(function (resp) {
                 vm.state = {
                     before: parseInt(resp.data.sostojbaNova),
-                    slika: resp.data.slikaSostojba
+                    slika: resp.data.slikaSostojba,
+                    mesec: resp.data.mesec
                 };
-                
+
             }, function (err) {
                 if (err.status == 401) {
                     $window.localStorage.clear();
@@ -49,7 +50,19 @@
 
 
         vm.saveNewState = function () {
-            console.log(vm.state.before + " " + vm.state.new);
+            // console.log(vm.state.before + " " + vm.state.new);
+            var posOptions = { timeout: 10000, enableHighAccuracy: false };
+            var lat = "0";
+            var long = "0";
+            $cordovaGeolocation
+              .getCurrentPosition(posOptions)
+              .then(function (position) {
+                  lat = position.coords.latitude;
+                  long = position.coords.longitude;
+              }, function (err) {
+                  // error
+              });
+
             var data = {
                 "vidkorid": $stateParams.vidkorid,
                 "lokacijaID": $stateParams.lokacijaID,
@@ -58,18 +71,18 @@
                 "broilo": $stateParams.broilo,
                 "sostojbaStara": parseInt(vm.state.before),
                 "sostojbaNova": parseInt(vm.state.new),
-                "slikaSostojba": vm.state.slika
+                "slikaSostojba": vm.state.slika,
+                "lat": lat,
+                "long": long
             };
             var newValue = parseInt(vm.state.new);
-            //if (newValue != undefined && !isNaN(newValue)) {
             var url = WebAPIurl + 'api/v1/watercounters/newstate';
             $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
             $http.post(url, data).then(function (resp) {
                 if (resp.data.isSucces === true) {
                     $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
                 }
-                else
-                {
+                else {
                     vm.errors = {
                         required: resp.data.message
                     };
@@ -84,12 +97,9 @@
                     };
                 }
             })
-            //}
-            //else {
-            //    vm.errors = {
-            //        required: "Полето нова состојба е задолжително"
-            //    };
-            //}
+        };
+        vm.removImage = function () {
+            vm.state.slika = null;
         };
         vm.takePhoto = function () {
             var options = {
@@ -105,11 +115,9 @@
             };
 
             $cordovaCamera.getPicture(options).then(function (imageData) {
-                //$scope.imgURI = "data:image/jpeg;base64," + imageData;
                 vm.state.slika = "data:image/jpeg;base64," + imageData;
             }, function (err) {
                 console.log("error taking photo", err);
-                // An error occured. Show a message to the user
             });
         }
         vm.choosePhoto = function () {
@@ -126,11 +134,9 @@
             };
 
             $cordovaCamera.getPicture(options).then(function (imageData) {
-                //$scope.imgURI = "data:image/jpeg;base64," + imageData;
                 vm.state.slika = "data:image/jpeg;base64," + imageData;
             }, function (err) {
                 console.log("error choosing photo", err);
-                // An error occured. Show a message to the user
             });
         }
 
