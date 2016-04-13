@@ -755,8 +755,8 @@ angular.module('starter.shared')
 
         }
         mainVm.check = function () {
-            console.log($ionicHistory.currentStateName);
-            return $ionicHistory.currentStateName == 'main.home';
+            console.log($state.current);
+            return $state.current.name == 'main.home';
         }
         mainVm.navigateToState = function (name, params) {
             if (name === "main.home") {
