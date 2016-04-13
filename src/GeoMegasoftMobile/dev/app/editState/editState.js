@@ -64,7 +64,6 @@
                     console.log(err);
                 });
             $timeout(function () {
-
                 var data = {
                     "vidkorid": $stateParams.vidkorid,
                     "lokacijaID": $stateParams.lokacijaID,
@@ -81,8 +80,11 @@
                 var url = WebAPIurl + 'api/v1/watercounters/newstate';
                 $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
                 $http.post(url, data).then(function (resp) {
-                    if (resp.data.isSucces === true) {
-                        $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
+                    if (resp.data.isSucces === true) {                       
+                        $ionicLoading.show({ template: "Новата состојба е зачувана!", noBackdrop: true, duration: 2000 });
+                        $timeout(function () {
+                            $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
+                        }, 3000);
                     }
                     else {
                         vm.errors = {
@@ -101,8 +103,6 @@
                 })
 
             }, 1000);
-
-
 
         };
         vm.removImage = function () {
