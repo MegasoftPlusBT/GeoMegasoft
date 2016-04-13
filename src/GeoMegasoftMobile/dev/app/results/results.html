@@ -5,10 +5,14 @@
                 <div class="rowFull">
                     <div class="colFull col-80" ui-sref="main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})">
                         <div class="row">
-                            {{item.naziv}}
+                            <p class="nameheader">
+                                {{item.naziv}}
+                            </p>
                         </div>
                         <div class="row">
-                            {{item.ulica}}/ {{item.broj}}
+                            <p class="nameheader">
+                                {{item.ulica}}/ {{item.broj}}
+                            </p>
                         </div>
                     </div>
                     <div class="colFull col-25" ui-sref="main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})">
