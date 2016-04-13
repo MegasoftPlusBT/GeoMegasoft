@@ -65,7 +65,7 @@
         }
       })
       .state('main.userdetails', {
-          url: '/userdetails/:vidkorid&:lokacijaID&:korisnikID&:reonID&:broilo',
+          url: '/userdetails/:vidkorid&:lokacijaID&:korisnikID&:reonID&:broilo&:selectedRegion',
         cache: false,
         views: {
           'subview': {
@@ -75,7 +75,7 @@
         }
       })
       .state('main.editstate', {
-          url: '/editstate/:vidkorid&:lokacijaID&:korisnikID&:reonID&:broilo',
+          url: '/editstate/:vidkorid&:lokacijaID&:korisnikID&:reonID&:broilo&:selectedRegion',
         cache: false,
         views: {
           'subview': {

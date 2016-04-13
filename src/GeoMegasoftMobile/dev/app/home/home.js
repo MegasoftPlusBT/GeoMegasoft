@@ -20,7 +20,7 @@
 
 
         function OnViewLoad() {
-
+            console.log($state.current.name);
         }
         vm.login = function () {
             var user = vm.user.username;

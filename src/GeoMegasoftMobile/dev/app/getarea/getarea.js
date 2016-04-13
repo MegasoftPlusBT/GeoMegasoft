@@ -28,6 +28,7 @@
             }
             else {
                 $state.go("main.search", { 'selecetedArea': vm.data.selectArea });
+                $window.localStorage['selected_search'] = vm.data.selectArea;
             }
         };
         function OnViewLoad() {

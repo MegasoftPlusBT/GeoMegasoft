@@ -9640,3 +9640,8 @@ fieldset[disabled] .form-control {
   width: 80%;
   text-align: center;
   margin-left: 10%; }
+
+.loading {
+  background-color: #33cd5f !important;
+  margin-left: 70% !important;
+  margin-bottom: 90% !important; }

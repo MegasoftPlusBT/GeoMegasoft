@@ -80,8 +80,8 @@
                 var url = WebAPIurl + 'api/v1/watercounters/newstate';
                 $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
                 $http.post(url, data).then(function (resp) {
-                    if (resp.data.isSucces === true) {                       
-                        $ionicLoading.show({ template: "Новата состојба е зачувана!", noBackdrop: true, duration: 2000 });
+                    if (resp.data.isSucces === true) {
+                        $ionicLoading.show({ template: "Успешно зачувана состојба!", noBackdrop: true, duration: 2000 });
                         $timeout(function () {
                             $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
                         }, 3000);

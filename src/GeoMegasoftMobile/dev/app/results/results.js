@@ -27,7 +27,7 @@
                 "radius": 0,
                 "reionId": parseInt($stateParams.selectedRegion)
             };
-
+            vm.items = [1];
             var url = WebAPIurl + 'api/v1/watercounters/search';
             $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
             $http.post(url, searchParameters).then(function (resp) {
