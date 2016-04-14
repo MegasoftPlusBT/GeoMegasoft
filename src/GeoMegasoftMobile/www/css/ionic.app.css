@@ -9642,6 +9642,6 @@ fieldset[disabled] .form-control {
   margin-left: 10%; }
 
 .loading {
-  background-color: #33cd5f !important;
+  /*background-color: rgb(51, 205, 95) !important;
   margin-bottom: 90% !important;
-  margin-left: 30% !important; }
+  margin-left: 30% !important;*/ }

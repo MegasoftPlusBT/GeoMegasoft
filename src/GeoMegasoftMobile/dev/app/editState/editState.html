@@ -15,7 +15,7 @@
                     <div style="margin-left: 10%; color:red">
                         <p>{{vm.errors.required}}</p>
                     </div>
-                   
+
                     <!-- <ion-item class="item">
                           <div class="rowFull">
                             <div class="colFull col-80">
@@ -41,14 +41,14 @@
                     <button class="button icon-right ion-image" style="width: 80%;text-align: center;margin-left: 10%;" ng-click="vm.choosePhoto()">
                         Прикачи фотографија
                     </button>
-                   
+
                     <p>
                         {{errorMessage}}
                     </p>
                 </div>
             </div>
         </div>
-        <div class="row row-center"  ng-if="vm.state.slika !== undefined&&vm.state.slika!=null" >
+        <div class="row row-center" ng-if="vm.state.slika !== undefined&&vm.state.slika!=null">
             <div class="col col-75">
                 <div class="list">
                     <div class="item item-thumbnail-left" href="#" style="margin-left:13.25%">
@@ -57,7 +57,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col col-25" >
+            <div class="col col-25">
                 <div class="list">
                     <button class="button button-positive" ng-click="vm.removImage()">
                         <i class="icon ion-android-close"></i>
@@ -65,11 +65,15 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <button class="submitButton button button-balanced" ng-click="vm.saveNewState()">
-                <!--ui-sref="main.results">-->
-                ВНЕСИ
-            </button>
+        <div class="row row-center">
+            <div class="col">
+                <div class="list">
+                    <button class="submitButton button button-balanced" ng-click="vm.saveNewState()">
+                        <!--ui-sref="main.results">-->
+                        ВНЕСИ
+                    </button>
+                </div>
+            </div>
         </div>
     </ion-content>
 </ion-view>

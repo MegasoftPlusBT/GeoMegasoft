@@ -18,6 +18,13 @@
         $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
         function OnViewLoad() {
+            $ionicLoading.show({
+                content: 'Loading',
+                animation: 'fade-in',
+                showBackdrop: true,
+                maxWidth: 200,
+                showDelay: 0
+            });
             $scope.regionId = $stateParams.selectedRegion;
             $scope.imePrezime = $stateParams.inputImePrezime;
             $scope.lokacija = $stateParams.inputLokacija;
@@ -31,6 +38,7 @@
             var url = WebAPIurl + 'api/v1/watercounters/search';
             $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
             $http.post(url, searchParameters).then(function (resp) {
+                $ionicLoading.hide();
                 vm.items = resp.data.items;
             }, function (err) {
                 if (err.status == 401 || err.status == 0) {

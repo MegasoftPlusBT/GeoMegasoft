@@ -50,6 +50,13 @@
 
 
         vm.saveNewState = function () {
+            $ionicLoading.show({
+                content: 'Loading',
+                animation: 'fade-in',
+                showBackdrop: true,
+                maxWidth: 200,
+                showDelay: 0
+            });
             // console.log(vm.state.before + " " + vm.state.new);
             var posOptions = { timeout: 3000, enableHighAccuracy: false };
             var lat = "0";
@@ -64,6 +71,7 @@
                     console.log(err);
                 });
             $timeout(function () {
+               
                 var data = {
                     "vidkorid": $stateParams.vidkorid,
                     "lokacijaID": $stateParams.lokacijaID,
@@ -81,12 +89,14 @@
                 $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
                 $http.post(url, data).then(function (resp) {
                     if (resp.data.isSucces === true) {
+                        $ionicLoading.hide();
                         $ionicLoading.show({ template: "Успешно зачувана состојба!", noBackdrop: true, duration: 2000 });
                         $timeout(function () {
                             $state.go("main.search", { 'selecetedArea': $stateParams.reonID });
                         }, 3000);
                     }
                     else {
+                        $ionicLoading.hide();
                         vm.errors = {
                             required: "* " + resp.data.message
                         };
@@ -96,6 +106,7 @@
                         $window.localStorage.clear();
                         $state.go("main.home");
                     } else {
+                        $ionicLoading.hide();
                         vm.errors = {
                             required: "* " + err.data.exceptionMessage
                         };
