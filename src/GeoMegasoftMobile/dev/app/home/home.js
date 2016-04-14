@@ -45,6 +45,12 @@
                         };
                 });
             }
+            else
+            {
+                vm.errors = {
+                    required: "* Внесете корисничко име и лозинка!"
+                };
+            }
         }
 
         function OnBeforeEnter() { }
