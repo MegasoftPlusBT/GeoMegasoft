@@ -221,7 +221,6 @@
     <Compile Include="BaseApiController.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\ReonsController.cs" />
-    <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Controllers\WaterCountersController.cs" />
     <Compile Include="DependencyResolution\StructureMapDependencyResolver .cs" />
     <Compile Include="DependencyResolution\StructureMapScope.cs" />
