@@ -37,6 +37,10 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
             public string Mesec { get; set; }
 
             public string SlikaSostojba { get; set; }
+
+            public string Broilo { get; set; }
+
+            public string ImeNaziv { get; set; }
         }
 
         public class Validator : AbstractValidator<Request>
@@ -51,13 +55,18 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
             public override async Task<Response> Handle(Request request)
             {
                 var response = Connection.Query<Response>(@"
-                                                    SELECT SostojbaStara,
-                                                           SostojbaNova, 
-                                                           Mesec,
-                                                           SlikaSostojba
-                                                          FROM SostojbaFizicki
-                                                          WHERE Vidkorid=@Vidkorid and LokacijaID=@LokacijaID and KorisnikID=@KorisnikID and ReonID=@ReonID and Broilo=@Broilo
-                                                          ORDER BY Broilo, Mesec, Datum",
+                                                    SELECT sf.SostojbaStara,
+                                                           sf.SostojbaNova, 
+                                                           sf.Mesec,
+                                                           sf.SlikaSostojba,
+                                                           sf.Broilo,
+														   k.Naziv as ImeNaziv
+                                                            
+                                                          FROM SostojbaFizicki as sf
+														  inner join Korisnici k on sf.KorisnikID=k.KorisnikID
+
+                                                          WHERE sf.Vidkorid=@Vidkorid and sf.LokacijaID=@LokacijaID and sf.KorisnikID=@KorisnikID and sf.ReonID=@ReonID and sf.Broilo=@Broilo
+                                                          ORDER BY sf.Broilo, sf.Mesec, sf.Datum",
                                                           new { Vidkorid = request.Vidkorid, LokacijaID = request.LokacijaID, KorisnikID = request.KorisnikID, ReonID = request.ReonID, Broilo = request.Broilo }).LastOrDefault();
                 if (response == null)
                     response = new Response();
