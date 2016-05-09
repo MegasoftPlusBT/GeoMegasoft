@@ -33,6 +33,8 @@
                     slika: resp.data.slikaSostojba,
                     mesec: resp.data.mesec
                 };
+                vm.imeNaziv = resp.data.imeNaziv;
+                vm.broilo = resp.data.broilo;
 
             }, function (err) {
                 if (err.status == 401 || err.status == 0) {
@@ -50,6 +52,14 @@
 
 
         vm.saveNewState = function () {
+          if(vm.state.new == null || vm.state.new < vm.state.before){
+            $ionicPopup.alert({
+              title: 'Новата состојба е невалидна',
+              template: 'Внесете состојба поголема од претходната.'
+            });
+            return;
+          }
+
             $ionicLoading.show({
                 content: 'Loading',
                 animation: 'fade-in',
@@ -68,10 +78,10 @@
                     long = position.coords.longitude;
                 }, function (err) {
                     // error
-                    console.log(err);
+                    //console.log(err);
                 });
             $timeout(function () {
-               
+
                 var data = {
                     "vidkorid": $stateParams.vidkorid,
                     "lokacijaID": $stateParams.lokacijaID,
@@ -127,7 +137,7 @@
                 allowEdit: true,
                 encodingType: Camera.EncodingType.JPEG,
                 targetWidth: 300,
-                targetHeight: 300,
+                targetHeight: 225,
                 popoverOptions: CameraPopoverOptions,
                 saveToPhotoAlbum: false
             };
@@ -135,7 +145,7 @@
             $cordovaCamera.getPicture(options).then(function (imageData) {
                 vm.state.slika = "data:image/jpeg;base64," + imageData;
             }, function (err) {
-                console.log("error taking photo", err);
+                //console.log("error taking photo", err);
             });
         }
         vm.choosePhoto = function () {
@@ -146,7 +156,7 @@
                 allowEdit: true,
                 encodingType: Camera.EncodingType.JPEG,
                 targetWidth: 300,
-                targetHeight: 300,
+                targetHeight: 225,
                 popoverOptions: CameraPopoverOptions,
                 saveToPhotoAlbum: false
             };
@@ -154,7 +164,7 @@
             $cordovaCamera.getPicture(options).then(function (imageData) {
                 vm.state.slika = "data:image/jpeg;base64," + imageData;
             }, function (err) {
-                console.log("error choosing photo", err);
+                //console.log("error choosing photo", err);
             });
         }
 

@@ -19,7 +19,6 @@
 
     function OnViewLoad() {
         $scope.region = $stateParams.selecetedArea;
-        console.log($stateParams.selecetedArea);
     }
 
     function OnBeforeEnter() {}

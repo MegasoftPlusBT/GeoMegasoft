@@ -18,7 +18,6 @@
 
         }
         mainVm.check = function () {
-            console.log($state.current);
             return $state.current.name == 'main.home';
         }
         mainVm.checkArea = function () {

@@ -10,7 +10,6 @@
 
   function InternetConnectionController($log, $scope, $interval, $timeout, $rootScope, $q, $state, $ionicPopup,  $ionicHistory, CordovaNetworkService) {
     var vm = this;
-    console.log('InternetConnectionController loaded');
     vm.message = "NO INTERNET MESSAGE HERE";
     $scope.$on("$destroy", ViewOnDestroy);
     vm.intervalPromise = undefined;

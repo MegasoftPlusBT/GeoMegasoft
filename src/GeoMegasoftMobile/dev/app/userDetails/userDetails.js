@@ -16,7 +16,7 @@
         $scope.$on('$ionicView.loaded', OnViewLoad);
         $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
         $scope.$on('$ionicView.afterLeave', onAfterLeave);
-     
+
         function OnViewLoad() {
             vm.vidkorID = $stateParams.vidkorid;
             vm.lokacijaID = $stateParams.lokacijaID;
