@@ -9654,3 +9654,12 @@ input[type=tel],
 input[type=text],
 input[type=url] {
   font-size: 20px; }
+
+.new-counter-checkbox {
+  position: absolute;
+  display: block;
+  right: 0;
+  bottom: 10px;
+  padding-left: 40px;
+  background-color: #f8f8f8;
+  border: 0; }
