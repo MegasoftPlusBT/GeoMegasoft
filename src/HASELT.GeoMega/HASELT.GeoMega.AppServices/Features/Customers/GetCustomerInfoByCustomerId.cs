@@ -17,6 +17,11 @@ namespace HASELT.GeoMega.AppServices.Features.Customers
 
         public class Response : BaseResponse
         {
+            public Response()
+            {
+                WaterCounters = new List<WaterCounterItem>();
+            }
+
             public string TipNaKorisnik { get; set; }
 
             public string ShifraNaKorisnik { get; set; }
@@ -34,6 +39,7 @@ namespace HASELT.GeoMega.AppServices.Features.Customers
             public string Stan { get; set; }
 
             public string Grad { get; set; }
+            public List<WaterCounterItem> WaterCounters { get; set; }
 
             public class Item
             {
@@ -58,6 +64,30 @@ namespace HASELT.GeoMega.AppServices.Features.Customers
                 public string Stan { get; set; }
 
                 public string Naziv1 { get; set; }
+            }
+            public class WaterCounterItem
+            {
+                public int VidKorID { get; set; }
+
+                public int KorisnikID { get; set; }
+
+                public int LokacijaID { get; set; }
+
+                public int? UlicaID { get; set; }
+
+                public int ReonID { get; set; }
+
+                public string Broilo { get; set; }
+
+                public bool Aktive { get; set; }
+
+                public string Naziv { get; set; }
+
+                public string Ulica { get; set; }
+
+                public string Broj { get; set; }
+
+                public string NovaSostojba { get; set; }
             }
         }
 
@@ -84,7 +114,7 @@ namespace HASELT.GeoMega.AppServices.Features.Customers
                                                                    Stan,
                                                                    Naziv1
                                                             FROM FinknJpk.dbo.Sifrarnik
-                                                            WHERE ID=@KorisnikId",new { KorisnikId =request.KorisnikID} ).FirstOrDefault();
+                                                            WHERE ID=@KorisnikId", new { KorisnikId = request.KorisnikID }).FirstOrDefault();
                 var response = new Response();
 
                 if (item != null)
@@ -101,7 +131,46 @@ namespace HASELT.GeoMega.AppServices.Features.Customers
                     response.Stan = item.Stan;
                     response.Grad = item.Mesto;
                     response.Adresa = item.Adresa;
+                    
+                    var sbSqlFizicki = @"Select  
+                                    bfl.VidKorID as VidKorID, 
+                                    bfl.KorisnikID as KorisnikID, 
+                                    bfl.LokacijaID as LokacijaID,
+                                    bfl.UlicaID as UlicaID,
+                                    bfl.ReonID as ReonID, 
+                                    bfl.Broilo as Broilo,
+                                    lfl.Aktiven as Aktive,
+                                    k.Naziv as Naziv, 
+                                    k.Ulica as Ulica, 
+                                    k.Broj as Broj,
+									(
+									SELECT TOP 1 sf.SostojbaNova from SostojbaFizicki sf
+									Where sf.Vidkorid=bfl.VidKorID and sf.KorisnikID=bfl.KorisnikID and sf.LokacijaID=bfl.LokacijaID and sf.Broilo=bfl.Broilo
+									Order by sf.Mesec desc
+									) as NovaSostojba
+                                    From BroilaFizickiLica bfl
+                                    left join LokacijaFizickiLica lfl on 
+                                    lfl.VidKorID=bfl.VidKorID AND 
+                                    lfl.LokacijaID=bfl.LokacijaID AND 
+                                    lfl.KorisnikID=bfl.KorisnikID AND
+                                    lfl.ReonID=bfl.ReonID
+                                    inner join Korisnici k on bfl.KorisnikID=k.KorisnikID
+                                    where lfl.Aktiven=1 AND bfl.Status=1 
+                                    AND bfl.KorisnikID = @KorisnikId";
+
+                    
+
+                    var fizickiBroilaResult = Connection.Query<Response.WaterCounterItem>(sbSqlFizicki,
+                        new
+                        {
+                            KorisnikId = request.KorisnikID
+                        }
+                        );
+
+                    response.WaterCounters.AddRange(fizickiBroilaResult.ToList());
+
                 }
+
                 return response;
             }
         }

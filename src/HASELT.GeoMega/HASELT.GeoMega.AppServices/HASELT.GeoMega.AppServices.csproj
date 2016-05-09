@@ -91,6 +91,7 @@
     <Compile Include="Features\Reons\GetReons.cs" />
     <Compile Include="Features\Users\GetUserByUserName.cs" />
     <Compile Include="Features\Customers\GetCustomerInfoByCustomerId.cs" />
+    <Compile Include="Features\WaterCounters\CreateNewWaterCounter.cs" />
     <Compile Include="Features\WaterCounters\GetLastStateOfWaterCounter.cs" />
     <Compile Include="Features\WaterCounters\InsertNewStateForWaterCounter.cs" />
     <Compile Include="Features\WaterCounters\SearchWaterCounters.cs" />

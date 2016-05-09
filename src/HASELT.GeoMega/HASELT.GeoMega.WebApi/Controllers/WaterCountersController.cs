@@ -17,7 +17,12 @@ namespace HASELT.GeoMega.WebApi.Controllers
         public Task<SearchWaterCounters.Response> Search(SearchWaterCounters.Request request)
           => Handle(request ?? new SearchWaterCounters.Request());
 
-       
+        [HttpPost]
+        [Route("newCounter")]
+        public Task<InsertNewStateForWaterCounter.Response> CreateNewCounter(InsertNewStateForWaterCounter.Request request)
+        {
+            return Handle(request);
+        }
 
         [HttpPost]
         [Route("newstate")]
