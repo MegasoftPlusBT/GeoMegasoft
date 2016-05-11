@@ -25,7 +25,7 @@
         templateUrl: 'templates/menu.html'
       })
       .state('main.home', {
-        url: '/home',
+        url: '/home/:message',
         cache: false,
         views: {
           'subview': {
@@ -96,7 +96,7 @@
 
 
     // if none of the above states are matched, use this as the fallback
-    $urlRouterProvider.otherwise('/main/home');
+    $urlRouterProvider.otherwise('/main/home/');
   }
 
 })();

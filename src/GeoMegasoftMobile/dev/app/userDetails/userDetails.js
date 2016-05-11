@@ -42,11 +42,11 @@
                 if (err.status == 401 || err.status == 0) {
                     $window.localStorage.clear();
                 }
-                $state.go("main.home");
+                $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
             })
         }
 
-        function OnBeforeEnter() {  
+        function OnBeforeEnter() {
             $ionicLoading.hide();
         }
 

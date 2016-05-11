@@ -41,16 +41,10 @@
                 $ionicLoading.hide();
                 vm.items = resp.data.items;
             }, function (err) {
-                if (err.status == 401 || err.status == 0) {
-                    $window.localStorage.clear();
-                    $state.go("main.home");
-                } else {
-                    if (err.data != null) {
-                        conso.log(err.data.message);
-                    }
-                    $state.go("main.home");
-                }
-            })
+              $window.localStorage.clear();
+              $ionicLoading.hide();
+              $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
+            });
         }
 
         function OnBeforeEnter() { }

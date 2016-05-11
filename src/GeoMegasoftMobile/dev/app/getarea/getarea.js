@@ -48,7 +48,7 @@
                 if (err.status == 401 || err.status == 0) {
                     $window.localStorage.clear();
                 } else {
-                    conso.log(err.data.message);
+                    //conso.log(err.data.message);
                 }
                 $state.go("main.home");
             })

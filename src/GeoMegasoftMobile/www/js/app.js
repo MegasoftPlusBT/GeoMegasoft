@@ -43,7 +43,7 @@
         templateUrl: 'templates/menu.html'
       })
       .state('main.home', {
-        url: '/home',
+        url: '/home/:message',
         cache: false,
         views: {
           'subview': {
@@ -114,7 +114,7 @@
 
 
     // if none of the above states are matched, use this as the fallback
-    $urlRouterProvider.otherwise('/main/home');
+    $urlRouterProvider.otherwise('/main/home/');
   }
 
 })();
@@ -452,7 +452,7 @@ angular.module('starter.shared')
       }, function(err) {
         if (err.status == 401 || err.status == 0) {
           $window.localStorage.clear();
-          $state.go("main.home");
+          $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
         } else {
           //console.log(err.data.message);
         }
@@ -534,7 +534,8 @@ angular.module('starter.shared')
         }, function(err) {
           if (err.status == 401 || err.status == 0) {
             $window.localStorage.clear();
-            $state.go("main.home");
+            $ionicLoading.hide();
+            $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
           } else {
             $ionicLoading.hide();
             vm.errors = {
@@ -615,7 +616,7 @@ angular.module('starter.shared')
         }, function(err) {
           if (err.status == 401 || err.status == 0) {
             $window.localStorage.clear();
-            $state.go("main.home");
+            $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
           } else {
             $ionicLoading.hide();
             vm.errors = {
@@ -754,7 +755,7 @@ angular.module('starter.shared')
                 if (err.status == 401 || err.status == 0) {
                     $window.localStorage.clear();
                 } else {
-                    conso.log(err.data.message);
+                    //conso.log(err.data.message);
                 }
                 $state.go("main.home");
             })
@@ -773,65 +774,73 @@ angular.module('starter.shared')
 
 })();
 
-(function () {
-    'use strict';
-    angular.module('starter')
-      .controller('HomeCtrl', HomeController);
+(function() {
+  'use strict';
+  angular.module('starter')
+    .controller('HomeCtrl', HomeController);
 
-    HomeController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
+  HomeController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$http', 'WebAPIurl'];
 
-    function HomeController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
-        var vm = this;
-        initVariables();
+  function HomeController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl) {
+    var vm = this;
+    initVariables();
 
-        function initVariables() {
-            vm.someArray = [];
-            vm.user = {};
-        }
-
-        $scope.$on('$ionicView.loaded', OnViewLoad);
-        $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
-        $scope.$on('$ionicView.afterLeave', onAfterLeave);
-
-
-        function OnViewLoad() {
-        }
-        vm.login = function () {
-            var user = vm.user.username;
-            var pass = vm.user.password;
-            if (user != null && user != undefined && pass != null && pass != undefined) {
-                var data = "grant_type=password&username=" + user + "&password=" + pass;
-                var url = WebAPIurl + 'token';
-                $http.post(url, data, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).success(function (response) {
-
-                    $window.localStorage['access_token'] = response.access_token;
-                    $window.localStorage['token_type'] = response.token_type;
-                    $state.go("main.getarea");
-
-                }).error(function (err, status) {
-                    if (err != null)
-                        vm.errors = {
-                            required: "* "+err.error
-                        };
-                    else
-                        vm.errors = {
-                            required: "* Проверете ја интернет конекцијата"
-                        };
-                });
-            }
-            else
-            {
-                vm.errors = {
-                    required: "* Внесете корисничко име и лозинка!"
-                };
-            }
-        }
-
-        function OnBeforeEnter() { }
-
-        function onAfterLeave() { }
-
+    function initVariables() {
+      vm.someArray = [];
+      vm.user = {};
     }
+
+    $scope.$on('$ionicView.loaded', OnViewLoad);
+    $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
+    $scope.$on('$ionicView.afterLeave', onAfterLeave);
+
+
+    function OnViewLoad() {}
+
+    vm.login = function() {
+      var user = vm.user.username;
+      var pass = vm.user.password;
+      if (user != null && user != undefined && pass != null && pass != undefined) {
+        var data = "grant_type=password&username=" + user + "&password=" + pass;
+        var url = WebAPIurl + 'token';
+        $http.post(url, data, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).success(function(response) {
+
+          $window.localStorage['access_token'] = response.access_token;
+          $window.localStorage['token_type'] = response.token_type;
+          $state.go("main.getarea");
+
+        }).error(function(err, status) {
+          if (err != null)
+            vm.errors = {
+              required: "* " + err.error
+            };
+          else
+            vm.errors = {
+              required: "* Проверете ја интернет конекцијата"
+            };
+        });
+      } else {
+        vm.errors = {
+          required: "* Внесете корисничко име и лозинка!"
+        };
+      }
+    }
+
+    function OnBeforeEnter() {
+      if ($stateParams.message != null && $stateParams.message.length > 0) {
+        vm.errors = {
+          required: "* " + $stateParams.message
+        };
+      }
+    }
+
+    function onAfterLeave() {}
+
+  }
 
 
 
@@ -982,16 +991,10 @@ angular.module('starter.shared')
                 $ionicLoading.hide();
                 vm.items = resp.data.items;
             }, function (err) {
-                if (err.status == 401 || err.status == 0) {
-                    $window.localStorage.clear();
-                    $state.go("main.home");
-                } else {
-                    if (err.data != null) {
-                        conso.log(err.data.message);
-                    }
-                    $state.go("main.home");
-                }
-            })
+              $window.localStorage.clear();
+              $ionicLoading.hide();
+              $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
+            });
         }
 
         function OnBeforeEnter() { }
@@ -1081,11 +1084,11 @@ angular.module('starter.shared')
                 if (err.status == 401 || err.status == 0) {
                     $window.localStorage.clear();
                 }
-                $state.go("main.home");
+                $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
             })
         }
 
-        function OnBeforeEnter() {  
+        function OnBeforeEnter() {
             $ionicLoading.hide();
         }
 
