@@ -37,6 +37,7 @@
                 vm.stan = resp.data.stan;
                 vm.grad = resp.data.grad;
                 vm.adresa=resp.data.adresa;
+                vm.items = resp.data.waterCounters;
             }, function (err) {
                 if (err.status == 401 || err.status == 0) {
                     $window.localStorage.clear();
@@ -49,6 +50,13 @@
 
         function onAfterLeave() { }
 
+        vm.getItemClass = function(item){
+          var newClass = '';
+          if(vm.broilo == item.broilo){
+            newClass = 'selectedItem';
+          }
+          return "item-stable " + newClass;
+        };
     }
 
 

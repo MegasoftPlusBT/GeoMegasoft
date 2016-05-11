@@ -122,7 +122,7 @@ input[type=search],
 input[type=tel],
 input[type=text],
 input[type=url] {
-  font-size: 20px;
+  font-size: 19px;
 }
 
 .new-counter-checkbox {
@@ -133,4 +133,8 @@ input[type=url] {
   padding-left: 40px;
   background-color: #f8f8f8;
   border: 0;
+}
+
+.selectedItem{
+  background-color: #C2C2C2 !important;
 }

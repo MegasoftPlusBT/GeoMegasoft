@@ -150,7 +150,79 @@
       //create new API call
       //on API create counter, and then set state
       //on success return to search
-      return;
+
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      // console.log(vm.state.before + " " + vm.state.new);
+      var posOptions = {
+        timeout: 3000,
+        enableHighAccuracy: false
+      };
+      var lat = "0";
+      var long = "0";
+      var result = $cordovaGeolocation
+        .getCurrentPosition(posOptions)
+        .then(function(position) {
+          lat = position.coords.latitude;
+          long = position.coords.longitude;
+        }, function(err) {
+          // error
+          //console.log(err);
+        });
+      $timeout(function() {
+
+        var data = {
+          "Vidkorid": $stateParams.vidkorid,
+          "LokacijaID": $stateParams.lokacijaID,
+          "KorisnikID": $stateParams.korisnikID,
+          "ReonID": $stateParams.reonID,
+          "Broilo": vm.brShasija,
+          "Sostojba": parseInt(vm.state.new),
+          "SlikaSostojba": vm.state.slika,
+          "Lat": lat,
+          "Long": long
+        };
+        var newValue = parseInt(vm.state.new);
+        var url = WebAPIurl + 'api/v1/watercounters/newCounter';
+        $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
+        $http.post(url, data).then(function(resp) {
+          if (resp.data.isSucces === true) {
+            $ionicLoading.hide();
+            $ionicLoading.show({
+              template: "Успешна промена!",
+              noBackdrop: true,
+              duration: 2000
+            });
+            $timeout(function() {
+              $state.go("main.search", {
+                'selecetedArea': $stateParams.reonID
+              });
+            }, 3000);
+          } else {
+            $ionicLoading.hide();
+            vm.errors = {
+              required: "* " + resp.data.message
+            };
+          }
+        }, function(err) {
+          if (err.status == 401 || err.status == 0) {
+            $window.localStorage.clear();
+            $state.go("main.home");
+          } else {
+            $ionicLoading.hide();
+            vm.errors = {
+              required: "* " + err.data.exceptionMessage
+            };
+          }
+        })
+
+      }, 1000);
+
     }
 
     function validateNewCounter() {
