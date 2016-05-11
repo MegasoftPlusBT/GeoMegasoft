@@ -138,6 +138,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 var result = new List<Response.Item>();
                 result.AddRange(fizickiLica);
                 result.AddRange(pravniLica);
+                result.OrderByDescending(x => x.Naziv);
+
                 return new Response
                 {
                     Items = result
