@@ -90,7 +90,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                     lfl.KorisnikID=bfl.KorisnikID AND
                                     lfl.ReonID=bfl.ReonID
                                     inner join Korisnici k on bfl.KorisnikID=k.KorisnikID
-                                    where lfl.Aktiven=1 AND bfl.Status=1 ");
+                                    where lfl.Aktiven=1 AND bfl.Status=1  ORDER BY k.Naziv");
                 StringBuilder sbSqlPravni = new StringBuilder(@"Select 
                                     lpl.VidKorID as VidKorID, 
                                     bpl.KorisnikID as KorisnikID,
@@ -112,7 +112,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                     bpl.KorisnikID=bpl.KorisnikID AND
                                     bpl.ReonID=bpl.ReonID
                                     inner join Korisnici k on bpl.KorisnikID=k.KorisnikID
-                                    where lpl.Aktiven=1 ");
+                                    where lpl.Aktiven=1  ORDER BY k.Naziv");
 
                 sbSqlFizicki.Append(@" AND bfl.ReonID = @ReonId");
                 sbSqlPravni.Append(@" AND bpl.ReonID = @ReonId");
@@ -138,7 +138,6 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 var result = new List<Response.Item>();
                 result.AddRange(fizickiLica);
                 result.AddRange(pravniLica);
-                result.OrderByDescending(x => x.Naziv);
 
                 return new Response
                 {
