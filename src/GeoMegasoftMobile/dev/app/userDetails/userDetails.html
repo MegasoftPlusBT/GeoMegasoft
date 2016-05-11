@@ -34,7 +34,7 @@
       <ion-list ng-repeat="item in vm.items">
         <ion-item ng-class="vm.getItemClass(item)">
           <div class="rowFull">
-            <div class="colFull col-75" ui-sref="main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})">
+            <div class="colFull col-75" ng-click="vm.navigateToUserDetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})">
               <div class="row">
                 <p class="nameheader">
                   {{item.naziv}}
@@ -46,7 +46,7 @@
                 </p>
               </div>
             </div>
-            <div class="colFull col-25" ui-sref="main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo, selectedRegion: item.reonID})">
+            <div class="colFull col-25" ng-click="vm.navigateToUserDetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo, selectedRegion: item.reonID})">
               <div class="row">
                 {{item.broilo}}
               </div>

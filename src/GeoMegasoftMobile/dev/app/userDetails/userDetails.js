@@ -46,7 +46,9 @@
             })
         }
 
-        function OnBeforeEnter() { }
+        function OnBeforeEnter() {  
+            $ionicLoading.hide();
+        }
 
         function onAfterLeave() { }
 
@@ -56,6 +58,19 @@
             newClass = 'selectedItem';
           }
           return "item-stable " + newClass;
+        };
+        vm.navigateToUserDetails = function (data) {
+          $ionicLoading.show({
+              content: 'Loading',
+              animation: 'fade-in',
+              showBackdrop: true,
+              maxWidth: 200,
+              showDelay: 0,
+              duration: 2000
+          });
+          $timeout(function() {
+           $state.go('main.userdetails',data,null);
+         }, 2000);
         };
     }
 

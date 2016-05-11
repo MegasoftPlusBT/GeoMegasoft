@@ -51,7 +51,7 @@
           $window.localStorage.clear();
           $state.go("main.home");
         } else {
-          conso.log(err.data.message);
+          //console.log(err.data.message);
         }
       })
     }
