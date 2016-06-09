@@ -3,10 +3,8 @@
 (function() {
   'use strict';
 
-
   angular.module('starter')
     .config(starterRoutes);
-
 
   starterRoutes.$inject = ['$stateProvider', '$urlRouterProvider'];
 
