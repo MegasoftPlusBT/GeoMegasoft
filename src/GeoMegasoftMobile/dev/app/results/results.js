@@ -52,7 +52,4 @@
         function onAfterLeave() { }
 
     }
-
-
-
 })();

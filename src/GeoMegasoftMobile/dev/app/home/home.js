@@ -1,3 +1,4 @@
+/* jshint -W098, -W069 */
 (function() {
   'use strict';
   angular.module('starter')
@@ -52,7 +53,7 @@
           required: "* Внесете корисничко име и лозинка!"
         };
       }
-    }
+    };
 
     function OnBeforeEnter() {
       if ($stateParams.message != null && $stateParams.message.length > 0) {

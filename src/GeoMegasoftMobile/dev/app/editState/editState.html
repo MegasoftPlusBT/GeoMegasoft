@@ -29,33 +29,12 @@
           <div style="margin-left: 10%; color:red">
             <p>{{vm.errors.required}}</p>
           </div>
-
-          <!-- <ion-item class="item">
-                          <div class="rowFull">
-                            <div class="colFull col-80">
-                        Направи фотографија од броило
-                        </div>
-                        <div class="colFull col-20">
-                          <i class="icon ion-camera placeholder-icon" style="font-size: 30px;" ></i>
-                    </div>
-                        </div>
-                        <div class="rowFull">
-                          <div class="colFull col-80">
-                        Прикачи фотографија од броило
-                        </div>
-                        <div class="colFull col-20">
-                        <i class="icon ion-camera placeholder-icon" style="font-size: 30px;" ng-click="vm.choosePhoto()"></i>
-                        </div>
-                        </div>
-                      </ion-item> -->
-
           <button class="button icon-right ion-camera" style="width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;" ng-click="vm.takePhoto()">
             Направи фотографија
           </button>
           <button class="button icon-right ion-image" style="width: 80%;text-align: center;margin-left: 10%;" ng-click="vm.choosePhoto()">
             Прикачи фотографија
           </button>
-
           <p>
             {{errorMessage}}
           </p>

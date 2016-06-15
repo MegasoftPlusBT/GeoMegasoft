@@ -1,3 +1,4 @@
+/* jshint -W098, -W069, -W040 */
 (function () {
     'use strict';
     angular.module('starter')
@@ -43,7 +44,7 @@
                     $window.localStorage.clear();
                 }
                 $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
-            })
+            });
         }
 
         function OnBeforeEnter() {
@@ -59,6 +60,7 @@
           }
           return "item-stable " + newClass;
         };
+
         vm.navigateToUserDetails = function (data) {
           $ionicLoading.show({
               content: 'Loading',

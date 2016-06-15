@@ -1,5 +1,5 @@
 /* globals _,ionic */
-/* jshint -W098 */
+/* jshint -W098, -W069 */
 (function () {
     'use strict';
 
@@ -19,14 +19,17 @@
         }
         mainVm.check = function () {
             return $state.current.name == 'main.home';
-        }
+        };
+
         mainVm.checkArea = function () {
             return $state.current.name != 'main.getarea';
-        }
+        };
+
         mainVm.logOut = function () {
             $window.localStorage.clear();
             $state.go("main.home");
-        }
+        };
+
         mainVm.navigateToState = function (name, params) {
             if (name === "main.home") {
                 $ionicHistory.nextViewOptions({
@@ -45,7 +48,5 @@
         mainVm.area = function () {
             $state.go("main.getarea");
         };
-
     }
-
 })();

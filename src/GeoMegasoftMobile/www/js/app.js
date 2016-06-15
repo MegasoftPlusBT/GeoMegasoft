@@ -21,10 +21,8 @@
 (function() {
   'use strict';
 
-
   angular.module('starter')
     .config(starterRoutes);
-
 
   starterRoutes.$inject = ['$stateProvider', '$urlRouterProvider'];
 
@@ -187,6 +185,27 @@
 })();
 
 
+/* globals _, ionic */
+/*jshint -W083 */
+(function() {
+  'use strict';
+  angular.module('starter.shared')
+    .factory('AppDataService', appDataService);
+
+  appDataService.$inject = [];
+
+  function appDataService() {
+    var service = new Service();
+    return service;
+
+    function Service() {
+      var self = this;
+
+    }
+  }
+
+})();
+
 (function() {
     'use strict';
 angular.module('starter.shared')
@@ -344,6 +363,93 @@ angular.module('starter.shared')
     }
 
   }
+})();
+
+(function() {
+  'use strict';
+  angular.module('starter.shared')
+    .factory('DbService', dbService);
+
+  dbService.$inject = ['$cordovaSQLite', '$q', '$ionicPlatform', '$log', '$window'];
+
+  function dbService($cordovaSQLite, $q, $ionicPlatform, $log, $window) {
+    var service = new Service();
+    return service;
+
+    function Service() {
+      /* jshint validthis: true */
+      var self = this;
+      self.query = queryCallback;
+      self.getAll = getAllCallback;
+      self.getById = getByIdCallback;
+      self.DropCreateContentTable = DropCreateContentTableCallback;
+
+      function getByIdCallback(result) {
+        var output = null;
+        output = angular.copy(result.rows.item(0));
+        return output;
+      }
+
+      function getAllCallback(result) {
+        var output = [];
+        for (var i = 0; i < result.rows.length; i++) {
+          output.push(result.rows.item(i));
+        }
+        return output;
+      }
+
+      function queryCallback(query, parameters) {
+        parameters = parameters || [];
+        var q = $q.defer();
+
+        $ionicPlatform.ready(function() {
+          $cordovaSQLite.execute($window.db, query, parameters)
+            .then(function(result) {
+              // $log.debug('result on sqlite service . query is: ' + query + 'and the params are:' + JSON.stringify(parameters), result);
+              //$log.debug('result on sqlite service . query is: ' + query, result);
+              q.resolve(result);
+            }, function(error) {
+              $log.debug('error on sqlite service . query is: ' + query + 'and the params are:' + JSON.stringify(parameters), JSON.stringify(error));
+
+              console.warn('I found an error');
+              console.warn(error);
+              q.reject(error);
+            });
+        });
+        return q.promise;
+      }
+    }
+
+    function DropCreateContentTableCallback() {
+      var q = $q.defer();
+      $ionicPlatform.ready(function() {
+        $cordovaSQLite.execute(
+          $window.db,
+          "DROP TABLE IF EXISTS content"
+        ).then(function(result) {
+          //console.log('ok', result);
+          $cordovaSQLite.execute(
+              $window.db, "CREATE TABLE IF NOT EXISTS content (id integer primary key, data text)")
+            .then(function(resultCreate) {
+              q.resolve(resultCreate);
+
+            }, function(errorCreate) {
+              console.warn('I found an error');
+              console.warn(errorCreate);
+              q.reject(errorCreate);
+            });
+        }, function(error) {
+          console.warn('I found an error');
+          console.warn(error);
+          q.reject(error);
+        });
+      });
+
+      return q.promise;
+    }
+
+  }
+
 })();
 
 (function() {
@@ -774,6 +880,7 @@ angular.module('starter.shared')
 
 })();
 
+/* jshint -W098, -W069 */
 (function() {
   'use strict';
   angular.module('starter')
@@ -828,7 +935,7 @@ angular.module('starter.shared')
           required: "* Внесете корисничко име и лозинка!"
         };
       }
-    }
+    };
 
     function OnBeforeEnter() {
       if ($stateParams.message != null && $stateParams.message.length > 0) {
@@ -897,7 +1004,7 @@ angular.module('starter.shared')
 })();
 
 /* globals _,ionic */
-/* jshint -W098 */
+/* jshint -W098, -W069 */
 (function () {
     'use strict';
 
@@ -917,14 +1024,17 @@ angular.module('starter.shared')
         }
         mainVm.check = function () {
             return $state.current.name == 'main.home';
-        }
+        };
+
         mainVm.checkArea = function () {
             return $state.current.name != 'main.getarea';
-        }
+        };
+
         mainVm.logOut = function () {
             $window.localStorage.clear();
             $state.go("main.home");
-        }
+        };
+
         mainVm.navigateToState = function (name, params) {
             if (name === "main.home") {
                 $ionicHistory.nextViewOptions({
@@ -943,9 +1053,7 @@ angular.module('starter.shared')
         mainVm.area = function () {
             $state.go("main.getarea");
         };
-
     }
-
 })();
 
 (function () {
@@ -1002,9 +1110,6 @@ angular.module('starter.shared')
         function onAfterLeave() { }
 
     }
-
-
-
 })();
 
 (function() {
@@ -1040,6 +1145,7 @@ angular.module('starter.shared')
 
 })();
 
+/* jshint -W098, -W069, -W040 */
 (function () {
     'use strict';
     angular.module('starter')
@@ -1085,7 +1191,7 @@ angular.module('starter.shared')
                     $window.localStorage.clear();
                 }
                 $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
-            })
+            });
         }
 
         function OnBeforeEnter() {
@@ -1101,6 +1207,7 @@ angular.module('starter.shared')
           }
           return "item-stable " + newClass;
         };
+
         vm.navigateToUserDetails = function (data) {
           $ionicLoading.show({
               content: 'Loading',
