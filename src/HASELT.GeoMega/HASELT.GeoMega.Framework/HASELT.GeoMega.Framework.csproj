@@ -48,52 +48,39 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="HASELT.Arc.Core, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Core.0.11.0\lib\net40\HASELT.Arc.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="HASELT.Arc.Email, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Email.0.11.0\lib\net40\HASELT.Arc.Email.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ExternalLibraries\HASELT.Arc.Core.dll</HintPath>
     </Reference>
     <Reference Include="HASELT.Arc.Exporters, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Exporters.0.11.0\lib\net40\HASELT.Arc.Exporters.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="HASELT.Arc.Exporters.CSV, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Exporters.CSV.0.11.0\lib\net40\HASELT.Arc.Exporters.CSV.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="HASELT.Arc.Exporters.Excel, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Exporters.Excel.0.11.0\lib\net40\HASELT.Arc.Exporters.Excel.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ExternalLibraries\HASELT.Arc.Exporters.dll</HintPath>
     </Reference>
     <Reference Include="HASELT.Arc.FileClients, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.FileClients.0.11.0\lib\net40\HASELT.Arc.FileClients.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ExternalLibraries\HASELT.Arc.FileClients.dll</HintPath>
     </Reference>
     <Reference Include="HASELT.Arc.FileClients.FileSystem, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.FileClients.FileSystem.0.11.0\lib\net40\HASELT.Arc.FileClients.FileSystem.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ExternalLibraries\HASELT.Arc.FileClients.FileSystem.dll</HintPath>
     </Reference>
     <Reference Include="HASELT.Arc.Logging, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Logging.0.11.0\lib\net40\HASELT.Arc.Logging.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ExternalLibraries\HASELT.Arc.Logging.dll</HintPath>
     </Reference>
     <Reference Include="HASELT.Arc.Messaging, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Messaging.0.11.0\lib\net40\HASELT.Arc.Messaging.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="HASELT.Arc.Util, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Util.0.11.0\lib\net40\HASELT.Arc.Util.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ExternalLibraries\HASELT.Arc.Messaging.dll</HintPath>
     </Reference>
     <Reference Include="HASELT.Arc.Web, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Web.0.11.0\lib\net40\HASELT.Arc.Web.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ExternalLibraries\HASELT.Arc.Web.dll</HintPath>
     </Reference>
     <Reference Include="HASELT.Arc.Web.AspNetMvc, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Web.AspNetMvc.0.11.0\lib\net40\HASELT.Arc.Web.AspNetMvc.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ExternalLibraries\HASELT.Arc.Web.AspNetMvc.dll</HintPath>
+    </Reference>
+    <Reference Include="HASELT.Arc.Web.AspNetWebApi">
+      <HintPath>..\ExternalLibraries\HASELT.Arc.Web.AspNetWebApi.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>

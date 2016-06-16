@@ -40,16 +40,16 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="HASELT.Arc.Core, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Core.0.11.0\lib\net40\HASELT.Arc.Core.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ExternalLibraries\HASELT.Arc.Core.dll</HintPath>
     </Reference>
     <Reference Include="HASELT.Arc.Messaging, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Messaging.0.11.0\lib\net40\HASELT.Arc.Messaging.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ExternalLibraries\HASELT.Arc.Messaging.dll</HintPath>
     </Reference>
     <Reference Include="HASELT.Arc.Util, Version=0.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HASELT.Arc.Util.0.11.0\lib\net40\HASELT.Arc.Util.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ExternalLibraries\HASELT.Arc.Util.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
