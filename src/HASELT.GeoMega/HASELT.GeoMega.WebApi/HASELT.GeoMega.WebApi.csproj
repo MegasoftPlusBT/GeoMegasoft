@@ -30,7 +30,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\HASELT-VS2015-RuleSet.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -257,10 +256,6 @@
     <ProjectReference Include="..\HASELT.GeoMega.Framework\HASELT.GeoMega.Framework.csproj">
       <Project>{def4442b-4dc5-49a0-9c8e-a287ec51d895}</Project>
       <Name>HASELT.GeoMega.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Primevo.Core\Primevo.Core.csproj">
-      <Project>{1cc9a641-de99-4dcb-b5a5-05fde01c1c75}</Project>
-      <Name>Primevo.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

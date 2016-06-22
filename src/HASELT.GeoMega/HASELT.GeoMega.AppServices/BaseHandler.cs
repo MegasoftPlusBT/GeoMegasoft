@@ -35,7 +35,6 @@ namespace HASELT.GeoMega.AppServices.Features
         /// <summary>
         /// ATTENTION: Some properties have injected values using Structuremap's setter injection. THIS IS ONLY CLASS WITH SUCH NEED. DO NOT USE SETTER INJECTION.
         /// </summary>
-        /// <param name="session"></param>
         protected BaseHandler()
         {
         }

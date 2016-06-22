@@ -66,7 +66,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
         public class Handler : BaseHandler<Request, Response>
         {
             public override async Task<Response> Handle(Request request)
-             {
+            {
                 StringBuilder sbSqlFizicki = new StringBuilder(@"Select  
                                     bfl.VidKorID as VidKorID, 
                                     bfl.KorisnikID as KorisnikID, 
@@ -135,7 +135,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 StringBuilder query = new StringBuilder();
                 query.AppendLine(sbSqlFizicki.ToString());
                 query.AppendLine(sbSqlPravni.ToString());
-                var multi = Connection.QueryMultiple(query.ToString(), new { ReonId = request.ReionId, Location =$"%{request.Location}%", Naziv = $"%{request.FirstLastName}%" });
+                var multi = Connection.QueryMultiple(query.ToString(), new { ReonId = request.ReionId, Location = $"%{request.Location}%", Naziv = $"%{request.FirstLastName}%" });
                 var fizickiLica = multi.Read<Response.Item>().ToList();
                 var pravniLica = multi.Read<Response.Item>().ToList();
                 var result = new List<Response.Item>();

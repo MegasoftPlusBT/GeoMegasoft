@@ -15,7 +15,7 @@ namespace HASELT.GeoMega.WebApi.DependencyResolution
         {
             if (container == null)
             {
-                throw new ArgumentNullException("container");
+                throw new ArgumentNullException(nameof(container));
             }
             this.container = container;
         }

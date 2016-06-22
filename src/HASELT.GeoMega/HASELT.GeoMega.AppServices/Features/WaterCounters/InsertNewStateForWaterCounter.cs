@@ -78,7 +78,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 var response = new Response();
                 int year = DateTime.UtcNow.Year;
                 int month = DateTime.UtcNow.Month;
-                var composeMesec = year.ToString() + "/" + (month < 10 ? "0" + month.ToString() : month.ToString());
+                var composeMesec = year + "/" + (month < 10 ? "0" + month : month.ToString());
                 var razlika = Convert.ToInt64(request.SostojbaNova) - Convert.ToInt64(request.SostojbaStara);
 
                 var brojClenovi = Connection.Query<int?>(@"Select BrojClenovi 

@@ -11,10 +11,10 @@ namespace HASELT.GeoMega.WebApi
 {
     public class ExceptionFilterWrapperAttribute : ExceptionFilterAttribute
     {
-        public override void OnException(HttpActionExecutedContext context)
+        public override void OnException(HttpActionExecutedContext actionExecutedContext)
         {
             // Get the exception object.
-            Exception exc = context.Exception;
+            Exception exc = actionExecutedContext.Exception;
 
             // Log the exception and notify system operators
             var logger = Bootstrapper.StaticContainer.GetInstance<ILogger>();
