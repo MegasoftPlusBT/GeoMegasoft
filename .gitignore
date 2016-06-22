@@ -31,3 +31,4 @@ _ReSharper*/
 packages/*
 src/HASELT.GeoMega/packages/**/*
 src/GeoMegasoftMobile/.sass-cache/**/*
+src/HASELT.GeoMega/.vs/config/applicationhost.config
