@@ -19,9 +19,9 @@
     $logProvider.debugEnabled(true);
   }
 
-  starterRun.$inject = ['$ionicPlatform', '$window'];
+  starterRun.$inject = ['$ionicPlatform', '$window','$cordovaSQLite'];
 
-  function starterRun($ionicPlatform, $window) {
+  function starterRun($ionicPlatform, $window,$cordovaSQLite) {
     $ionicPlatform.ready(function() {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -33,11 +33,18 @@
         // org.apache.cordova.statusbar required
         StatusBar.styleLightContent();
       }
-     
+
       // $ionicPlatform.registerBackButtonAction(function(e) {
       //   e.preventDefault();
       //   return false;
       // }, 101);
+
+      $window.db = $cordovaSQLite.openDB({name: "geoMegaSoft.db", location: 'default'});
+
+      $cordovaSQLite.execute($window.db, "CREATE TABLE IF NOT EXISTS customers (ID integer, SifTipID integer, Naziv text, UlicaID integer,  Adresa text, Broj integer, Mesto text, Drzava text, Vlez text, Stan text, Naziv1 text )");
+      $cordovaSQLite.execute($window.db, "CREATE TABLE IF NOT EXISTS waterCounters (ReonId integer, VidKorID integer, KorisnikId integer, LokacijaId integer, UlicaId integer, Broilo text, Aktive int, Naziv text, Ulica text, Broj text, SostojbaNova text, Mesec text)");
+      //UlicaId in waterCounters in nullable
+      //Aktive in waterCounters is boolean, but saved as integer (0 and 1)
 
     });
   }

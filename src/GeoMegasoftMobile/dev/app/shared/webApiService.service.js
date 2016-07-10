@@ -1,52 +1,48 @@
+/* jshint -W069, -W041 */
 (function() {
   'use strict';
   angular.module('starter.shared')
-    .factory('WebService', webService);
+    .factory('WebAPIService', webAPIService);
 
-  webService.$inject = ['$http', 'WebPortalAPIurl'];
+  webAPIService.$inject = ['$http', 'WebAPIurl', '$window', '$state'];
 
-  function webService($http, WebPortalAPIurl) {
+  function webAPIService($http, WebAPIurl, $window, $state) {
     var service = new Service();
     return service;
 
     function Service() {
       var self = this;
-      self.get = getContentCallback;
+      self.downladReonData = downladReonDataCallback;
+      self.sendData = sendDataCallback;
 
-      function getContentCallback(pairCode) {
-        var requestUrl = WebPortalAPIurl + 'something/';
-
-        return $http({
-            method: "get",
-            url: requestUrl,
-            headers: {
-              'Content-Type': 'application/json',
-              'Cache-Control': 'no-cache',
-            },
-            data: ''
-          })
-          .then(onGetSuccessCallback, onGetFailCallback);
-
-        function onGetSuccessCallback(response) {
-          ////console.log('webService response:\r\n',JSON.stringify(response));
-          if (response.data.status === "success") {
-            var data = response.data;
-            if (data === null) {
-              return null;
-            }
-
-            return data;
-          } else {
-            //console.log(response);
-            return {};
+      function downladReonDataCallback(reonId) {
+        // TODO add code to download data from online API service and add it to the database
+        var url = WebAPIurl + 'api/v1/Reons/ReonData?ReonId=' + reonId;
+        return $http.get(url, {
+          headers: {
+            'Authorization': 'Bearer ' + $window.localStorage['access_token']
+          },
+          params: {
+            ReonId: reonId
           }
-          //return checkError(response);
-        }
+        }).then(function(resp) {
+          var data = {};
+          data.customers = resp.data.customers;
+          data.waterCounters = resp.data.waterCounters;
+          return data;
+        }, function(err) {
+          if (err.status == 401 || err.status == 0) {
+            $window.localStorage.clear();
+          }
+          
+          $state.go("main.login", {
+            message: "Проверете ја интернет конекцијата"
+          }, null);
+        });
+      }
 
-        function onGetFailCallback(error) {
-          //console.log(error);
-          return [];
-        }
+      function sendDataCallback() {
+        // TODO add code to send the local data changes to the online API service, and clean the local DATA
       }
     }
   }

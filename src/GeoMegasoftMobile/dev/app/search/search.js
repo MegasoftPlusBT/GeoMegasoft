@@ -11,6 +11,10 @@
 
     function initVariables() {
       vm.someArray = [];
+      vm.search = {
+        imeprezime: '',
+        lokacija: ''
+      };
     }
 
     $scope.$on('$ionicView.loaded', OnViewLoad);
@@ -18,15 +22,19 @@
     $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
     function OnViewLoad() {
-        $scope.region = $stateParams.selecetedArea;
     }
+
+    vm.search = function() {
+      $state.go('main.results', {
+        selectedRegion: $stateParams.selecetedArea,
+        inputImePrezime: vm.search.imeprezime,
+        inputLokacija: vm.search.lokacija
+      });
+    };
 
     function OnBeforeEnter() {}
 
     function onAfterLeave() {}
 
   }
-
-
-
 })();

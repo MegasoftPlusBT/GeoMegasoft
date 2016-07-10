@@ -18,7 +18,7 @@
 
         }
         mainVm.check = function () {
-            return $state.current.name == 'main.home';
+            return $state.current.name == 'main.login';
         };
 
         mainVm.checkArea = function () {
@@ -27,11 +27,11 @@
 
         mainVm.logOut = function () {
             $window.localStorage.clear();
-            $state.go("main.home");
+            $state.go("main.login");
         };
 
         mainVm.navigateToState = function (name, params) {
-            if (name === "main.home") {
+            if (name === "main.login") {
                 $ionicHistory.nextViewOptions({
                     disableBack: true
                 });

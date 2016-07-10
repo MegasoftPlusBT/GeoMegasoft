@@ -3,24 +3,24 @@
         <ion-list ng-repeat="item in vm.items">
             <ion-item class="item-stable">
                 <div class="rowFull">
-                    <div class="colFull col-75" ui-sref="main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo})">
+                    <div class="colFull col-75" ng-click="vm.openDetails(item)">
                         <div class="row">
                             <p class="nameheader">
-                                {{item.naziv}}
+                                {{item.Naziv}}
                             </p>
                         </div>
                         <div class="row" ng-if="item.ulica">
                             <p class="nameheader">
-                                {{item.ulica}} / {{item.broj}}
+                                {{item.Ulica}} / {{item.Broj}}
                             </p>
                         </div>
                     </div>
-                    <div class="colFull col-25" ui-sref="main.userdetails({vidkorid: item.vidKorID, lokacijaID: item.lokacijaID, korisnikID: item.korisnikID, reonID: item.reonID, broilo: item.broilo, selectedRegion: item.reonID})">
+                    <div class="colFull col-25" ng-click="vm.openDetails(item)">
                         <div class="row">
-                            {{item.broilo}}
+                            {{item.Broilo}}
                         </div>
                         <div class="row">
-                            {{item.novaSostojba}}
+                            {{item.NovaSostojba}}
                         </div>
                     </div>
                 </div>

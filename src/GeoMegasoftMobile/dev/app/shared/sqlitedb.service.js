@@ -15,7 +15,7 @@
       self.query = queryCallback;
       self.getAll = getAllCallback;
       self.getById = getByIdCallback;
-      self.DropCreateContentTable = DropCreateContentTableCallback;
+      self.DropCreateCustomersTable = DropCreateCustomersTableCallback;
 
       function getByIdCallback(result) {
         var output = null;
@@ -43,7 +43,6 @@
               q.resolve(result);
             }, function(error) {
               $log.debug('error on sqlite service . query is: ' + query + 'and the params are:' + JSON.stringify(parameters), JSON.stringify(error));
-
               console.warn('I found an error');
               console.warn(error);
               q.reject(error);
@@ -53,16 +52,16 @@
       }
     }
 
-    function DropCreateContentTableCallback() {
+    function DropCreateCustomersTableCallback() {
       var q = $q.defer();
       $ionicPlatform.ready(function() {
         $cordovaSQLite.execute(
           $window.db,
-          "DROP TABLE IF EXISTS content"
+          "DROP TABLE IF EXISTS customers"
         ).then(function(result) {
           //console.log('ok', result);
           $cordovaSQLite.execute(
-              $window.db, "CREATE TABLE IF NOT EXISTS content (id integer primary key, data text)")
+              $window.db, "CREATE TABLE IF NOT EXISTS customers (id integer primary key, data text)")
             .then(function(resultCreate) {
               q.resolve(resultCreate);
 

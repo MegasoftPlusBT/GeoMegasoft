@@ -49,7 +49,7 @@
       }, function(err) {
         if (err.status == 401 || err.status == 0) {
           $window.localStorage.clear();
-          $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
+          $state.go("main.login",{message:"Проверете ја интернет конекцијата"},null);
         } else {
           //console.log(err.data.message);
         }
@@ -132,7 +132,7 @@
           if (err.status == 401 || err.status == 0) {
             $window.localStorage.clear();
             $ionicLoading.hide();
-            $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
+            $state.go("main.login",{message:"Проверете ја интернет конекцијата"},null);
           } else {
             $ionicLoading.hide();
             vm.errors = {
@@ -213,7 +213,7 @@
         }, function(err) {
           if (err.status == 401 || err.status == 0) {
             $window.localStorage.clear();
-            $state.go("main.home",{message:"Проверете ја интернет конекцијата"},null);
+            $state.go("main.login",{message:"Проверете ја интернет конекцијата"},null);
           } else {
             $ionicLoading.hide();
             vm.errors = {

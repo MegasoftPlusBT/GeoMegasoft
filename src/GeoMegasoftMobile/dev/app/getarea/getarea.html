@@ -13,9 +13,14 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <button class="submitButton button button-calm" ng-click="vm.goToSearch()">
+        <!-- <div class="row">
+            <button class="submitButton button button-calm" ng-click="vm.goToSearch()" ng-enabled="vm.hasReonsList">
                 ПРЕЗЕМИ
+            </button>
+        </div> -->
+        <div class="row">
+            <button class="submitButton button button-calm" ng-click="vm.downloadReonData()"  ng-enabled="vm.hasReonsList">
+              DOWNLOAD REON
             </button>
         </div>
     </ion-content>

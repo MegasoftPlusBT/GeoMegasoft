@@ -22,13 +22,13 @@
         // template: '<ion-nav-view name="subview"></ion-nav-view>'
         templateUrl: 'templates/menu.html'
       })
-      .state('main.home', {
-        url: '/home/:message',
+      .state('main.login', {
+        url: '/login/:message',
         cache: false,
         views: {
           'subview': {
-            templateUrl: 'templates/home.html',
-            controller: 'HomeCtrl as vm'
+            templateUrl: 'templates/login.html',
+            controller: 'LoginCtrl as vm'
           }
         }
       })
@@ -94,7 +94,7 @@
 
 
     // if none of the above states are matched, use this as the fallback
-    $urlRouterProvider.otherwise('/main/home/');
+    $urlRouterProvider.otherwise('/main/login/');
   }
 
 })();

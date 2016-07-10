@@ -4,17 +4,17 @@
             <div class="col">
                 <div class="list">
                     <div class="item item-input inputElement">
-                        <input ng-model="search.imeprezime" type="text" placeholder="Корисник (Име/Презиме)">
+                        <input ng-model="vm.search.imeprezime" type="text" placeholder="Корисник (Име/Презиме)">
                     </div>
                     <div class="item item-input inputElement">
-                        <input ng-model="search.lokacija" type="text" placeholder="Локација (Улица, Број ...)">
+                        <input ng-model="vm.search.lokacija" type="text" placeholder="Локација (Улица, Број ...)">
                     </div>
                 </div>
             </div>
         </div>
         <div class="row">
             <button class="submitButton button button-calm"
-                    ui-sref="main.results({selectedRegion:region,inputImePrezime:search.imeprezime,inputLokacija:search.lokacija})">
+                    ng-click="vm.search()">
                 БАРАЈ
             </button>
         </div>
