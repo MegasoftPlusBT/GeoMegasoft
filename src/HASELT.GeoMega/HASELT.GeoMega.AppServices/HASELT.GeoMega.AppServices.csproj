@@ -88,6 +88,7 @@
     <Compile Include="BaseHandler.cs" />
     <Compile Include="BaseRequests.cs" />
     <Compile Include="BaseResponses.cs" />
+    <Compile Include="Features\Reons\GetAllDataFromReon.cs" />
     <Compile Include="Features\Reons\GetReons.cs" />
     <Compile Include="Features\Users\GetUserByUserName.cs" />
     <Compile Include="Features\Customers\GetCustomerInfoByCustomerId.cs" />
