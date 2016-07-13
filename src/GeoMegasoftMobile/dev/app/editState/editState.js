@@ -4,9 +4,9 @@
   angular.module('starter')
     .controller('editStateCtrl', editStateController);
 
-  editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location', 'WebAPIurl', '$cordovaGeolocation','LocalDataService'];
+  editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location', 'WebAPIurl', '$cordovaGeolocation', 'LocalDataService'];
 
-  function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location, WebAPIurl, $cordovaGeolocation,LocalDataService) {
+  function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location, WebAPIurl, $cordovaGeolocation, LocalDataService) {
     var vm = this;
     initVariables();
 
@@ -26,53 +26,23 @@
       vm.reonID = $stateParams.reonID;
       vm.broilo = $stateParams.broilo;
       LocalDataService.getLastWaterCounterState(
-          $stateParams.vidkorid,
-          $stateParams.lokacijaID,
-          $stateParams.korisnikID,
-          $stateParams.reonID,
-          $stateParams.broilo
-        ).then(function(res) {
-          console.log(res);
-          vm.imeNaziv = res[0].Naziv;
-          vm.broilo = res[0].Broilo;
-          vm.state = {
-              before: parseInt(res[0].SostojbaNova),
-              slika: null,
-              mesec: res[0].Mesec
-            };
-        }, function(err) {
-          console.log(err);
-        });
-        // var url = WebAPIurl + 'api/v1/watercounters/laststate';
-        // $http.get(url, {
-        //   headers: {
-        //     'Authorization': 'Bearer ' + $window.localStorage['access_token']
-        //   },
-        //   params: {
-        //     vidkorid: $stateParams.vidkorid,
-        //     lokacijaID: $stateParams.lokacijaID,
-        //     korisnikID: $stateParams.korisnikID,
-        //     reonID: $stateParams.reonID,
-        //     broilo: $stateParams.broilo
-        //   }
-        // }).then(function(resp) {
-        //   vm.state = {
-        //     before: parseInt(resp.data.sostojbaNova),
-        //     slika: resp.data.slikaSostojba,
-        //     mesec: resp.data.mesec
-        //   };
-        //   vm.imeNaziv = resp.data.imeNaziv;
-        //   vm.broilo = resp.data.broilo;
-        //
-        // }, function(err) {
-        //   if (err.status == 401 || err.status == 0) {
-        //     $window.localStorage.clear();
-        //     $state.go("main.login",{message:"Проверете ја интернет конекцијата"},null);
-        //   } else {
-        //     //console.log(err.data.message);
-        //   }
-        // });
-
+        $stateParams.vidkorid,
+        $stateParams.lokacijaID,
+        $stateParams.korisnikID,
+        $stateParams.reonID,
+        $stateParams.broilo
+      ).then(function(res) {
+        console.log(res);
+        vm.imeNaziv = res[0].Naziv;
+        vm.broilo = res[0].Broilo;
+        vm.state = {
+          before: parseInt(res[0].SostojbaNova),
+          slika: null,
+          mesec: res[0].Mesec
+        };
+      }, function(err) {
+        console.log(err);
+      });
     }
 
     function OnBeforeEnter() {}
@@ -88,6 +58,10 @@
         return;
       }
 
+      vm.errors = {
+        required: ""
+      };
+
       $ionicLoading.show({
         content: 'Loading',
         animation: 'fade-in',
@@ -95,72 +69,59 @@
         maxWidth: 200,
         showDelay: 0
       });
-      // console.log(vm.state.before + " " + vm.state.new);
+
       var posOptions = {
         timeout: 3000,
         enableHighAccuracy: false
       };
-      var lat = "0";
-      var long = "0";
+      var latValue = "0";
+      var longValue = "0";
       var result = $cordovaGeolocation
         .getCurrentPosition(posOptions)
         .then(function(position) {
-          lat = position.coords.latitude;
-          long = position.coords.longitude;
+          latValue = position.coords.latitude;
+          longValue = position.coords.longitude;
         }, function(err) {
           // error
           //console.log(err);
         });
       $timeout(function() {
-
-        var data = {
-          "vidkorid": $stateParams.vidkorid,
-          "lokacijaID": $stateParams.lokacijaID,
-          "korisnikID": $stateParams.korisnikID,
-          "reonID": $stateParams.reonID,
-          "broilo": $stateParams.broilo,
-          "sostojbaStara": parseInt(vm.state.before),
-          "sostojbaNova": parseInt(vm.state.new),
-          "slikaSostojba": vm.state.slika,
-          "lat": lat,
-          "long": long
+        var updatedWaterCounterStateData = {
+          ReonId: $stateParams.reonID,
+          VidKorID: $stateParams.vidkorid,
+          KorisnikId: $stateParams.korisnikID,
+          LokacijaId: $stateParams.lokacijaID,
+          Broilo: $stateParams.broilo,
+          SostojbaStara: parseInt(vm.state.before),
+          SostojbaNova: parseInt(vm.state.new),
+          SlikaSostojba: vm.state.slika,
+          lat: latValue,
+          long: longValue,
+          DateCreated: (new Date()).toJSON(),
+          TypeOfAPICall: 'updateState',
+          IsSentToAPI: false
         };
-        var newValue = parseInt(vm.state.new);
-        var url = WebAPIurl + 'api/v1/watercounters/newstate';
-        $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-        $http.post(url, data).then(function(resp) {
-          if (resp.data.isSucces === true) {
+
+        LocalDataService.updateWaterCounterState(updatedWaterCounterStateData).then(function(result) {
+          $ionicLoading.hide();
+          $ionicLoading.show({
+            template: "Успешно зачувана состојба!",
+            noBackdrop: true,
+            duration: 2000
+          });
+          $timeout(function() {
             $ionicLoading.hide();
-            $ionicLoading.show({
-              template: "Успешно зачувана состојба!",
-              noBackdrop: true,
-              duration: 2000
+            $state.go("main.search", {
+              'selecetedArea': $stateParams.reonID
             });
-            $timeout(function() {
-              $state.go("main.search", {
-                'selecetedArea': $stateParams.reonID
-              });
-            }, 3000);
-          } else {
-            $ionicLoading.hide();
-            vm.errors = {
-              required: "* " + resp.data.message
-            };
-          }
-        }, function(err) {
-          if (err.status == 401 || err.status == 0) {
-            $window.localStorage.clear();
-            $ionicLoading.hide();
-            $state.go("main.login", {
-              message: "Проверете ја интернет конекцијата"
-            }, null);
-          } else {
-            $ionicLoading.hide();
-            vm.errors = {
-              required: "* " + err.data.exceptionMessage
-            };
-          }
-        })
+          }, 3000);
+        }, function(error) {
+          $ionicLoading.hide();
+          vm.errors = {
+            required: "грешка при зачувување."
+          };
+        });
+
 
       }, 1000);
     }
@@ -185,65 +146,102 @@
         timeout: 3000,
         enableHighAccuracy: false
       };
-      var lat = "0";
-      var long = "0";
+      var latValue = "0";
+      var longValue = "0";
       var result = $cordovaGeolocation
         .getCurrentPosition(posOptions)
         .then(function(position) {
-          lat = position.coords.latitude;
-          long = position.coords.longitude;
+          latValue = position.coords.latitude;
+          longValue = position.coords.longitude;
         }, function(err) {
           // error
           //console.log(err);
         });
       $timeout(function() {
 
-        var data = {
-          "Vidkorid": $stateParams.vidkorid,
-          "LokacijaID": $stateParams.lokacijaID,
-          "KorisnikID": $stateParams.korisnikID,
-          "ReonID": $stateParams.reonID,
-          "Broilo": vm.brShasija,
-          "Sostojba": parseInt(vm.state.new),
-          "SlikaSostojba": vm.state.slika,
-          "Lat": lat,
-          "Long": long
+        // var data = {
+        //   "Vidkorid": $stateParams.vidkorid,
+        //   "LokacijaID": $stateParams.lokacijaID,
+        //   "KorisnikID": $stateParams.korisnikID,
+        //   "ReonID": $stateParams.reonID,
+        //   "Broilo": vm.brShasija,
+        //   "Sostojba": parseInt(vm.state.new),
+        //   "SlikaSostojba": vm.state.slika,
+        //   "Lat": lat,
+        //   "Long": long
+        // };
+        // var newValue = parseInt(vm.state.new);
+
+        var updatedWaterCounterStateData = {
+          ReonId: $stateParams.reonID,
+          VidKorID: $stateParams.vidkorid,
+          KorisnikId: $stateParams.korisnikID,
+          LokacijaId: $stateParams.lokacijaID,
+          Broilo: $stateParams.broilo,
+          SostojbaStara: 0,
+          SostojbaNova: parseInt(vm.state.new),
+          SlikaSostojba: vm.state.slika,
+          lat: latValue,
+          long: longValue,
+          DateCreated: (new Date()).toJSON(),
+          TypeOfAPICall: 'newWaterCounter',
+          IsSentToAPI: false
         };
-        var newValue = parseInt(vm.state.new);
-        var url = WebAPIurl + 'api/v1/watercounters/newCounter';
-        $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-        $http.post(url, data).then(function(resp) {
-          if (resp.data.isSucces === true) {
+
+        LocalDataService.addNewWaterCounter(updatedWaterCounterStateData,vm.imeNaziv,vm.brShasija).then(function(result) {
+          $ionicLoading.hide();
+          $ionicLoading.show({
+            template: "Успешна промена!",
+            noBackdrop: true,
+            duration: 2000
+          });
+          $timeout(function() {
             $ionicLoading.hide();
-            $ionicLoading.show({
-              template: "Успешна промена!",
-              noBackdrop: true,
-              duration: 2000
+            $state.go("main.search", {
+              'selecetedArea': $stateParams.reonID
             });
-            $timeout(function() {
-              $state.go("main.search", {
-                'selecetedArea': $stateParams.reonID
-              });
-            }, 3000);
-          } else {
-            $ionicLoading.hide();
-            vm.errors = {
-              required: "* " + resp.data.message
-            };
-          }
-        }, function(err) {
-          if (err.status == 401 || err.status == 0) {
-            $window.localStorage.clear();
-            $state.go("main.login", {
-              message: "Проверете ја интернет конекцијата"
-            }, null);
-          } else {
-            $ionicLoading.hide();
-            vm.errors = {
-              required: "* " + err.data.exceptionMessage
-            };
-          }
-        })
+          }, 3000);
+        }, function(error) {
+          $ionicLoading.hide();
+          vm.errors = {
+            required: "грешка при зачувување."
+          };
+        });
+
+        // var url = WebAPIurl + 'api/v1/watercounters/newCounter';
+        // $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
+        // $http.post(url, data).then(function(resp) {
+        //   if (resp.data.isSucces === true) {
+        //     $ionicLoading.hide();
+        //     $ionicLoading.show({
+        //       template: "Успешна промена!",
+        //       noBackdrop: true,
+        //       duration: 2000
+        //     });
+        //     $timeout(function() {
+        //       $state.go("main.search", {
+        //         'selecetedArea': $stateParams.reonID
+        //       });
+        //     }, 3000);
+        //   } else {
+        //     $ionicLoading.hide();
+        //     vm.errors = {
+        //       required: "* " + resp.data.message
+        //     };
+        //   }
+        // }, function(err) {
+        //   if (err.status == 401 || err.status == 0) {
+        //     $window.localStorage.clear();
+        //     $state.go("main.login", {
+        //       message: "Проверете ја интернет конекцијата"
+        //     }, null);
+        //   } else {
+        //     $ionicLoading.hide();
+        //     vm.errors = {
+        //       required: "* " + err.data.exceptionMessage
+        //     };
+        //   }
+        // })
 
       }, 1000);
 
@@ -298,7 +296,8 @@
       }, function(err) {
         //console.log("error taking photo", err);
       });
-    }
+    };
+
     vm.choosePhoto = function() {
       var options = {
         quality: 75,
@@ -317,7 +316,7 @@
       }, function(err) {
         //console.log("error choosing photo", err);
       });
-    }
+    };
 
   }
 

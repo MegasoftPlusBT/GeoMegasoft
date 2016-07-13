@@ -164,9 +164,9 @@
       var createCustomersTableQuery = "CREATE TABLE IF NOT EXISTS customers (ID integer, SifTipID integer, Naziv text, UlicaID integer,  Adresa text, Broj integer, Mesto text, Drzava text, Vlez text, Stan text, Naziv1 text ); ";
       var createWaterCountersTableQuery = "CREATE TABLE IF NOT EXISTS waterCounters (ReonId integer, VidKorId integer, KorisnikId integer, LokacijaId integer, UlicaId integer, Broilo text, Aktive int, Naziv text, Ulica text, Broj text, SostojbaNova text, Mesec text); ";
       var createLocalChangesTableQuery = "CREATE TABLE IF NOT EXISTS LocalDataChanges (LocalDataChangeId  integer primary key,ReonId integer, VidKorID integer, KorisnikId integer,  LokacijaId integer,  Broilo text, SostojbaStara text, SostojbaNova text, SlikaSostojba text, lat text, long text, DateCreated text, TypeOfAPICall text, IsSentToAPI text ); ";
-      $cordovaSQLite.execute($window.db, createCustomersTableQuery + createWaterCountersTableQuery + createLocalChangesTableQuery);
-      // $cordovaSQLite.execute($window.db,  createWaterCountersTableQuery);
-      // $cordovaSQLite.execute($window.db, createLocalChangesTableQuery);
+      $cordovaSQLite.execute($window.db, createCustomersTableQuery);
+      $cordovaSQLite.execute($window.db,  createWaterCountersTableQuery);
+      $cordovaSQLite.execute($window.db, createLocalChangesTableQuery);
       //UlicaId in waterCounters in nullable
       //Aktive in waterCounters is boolean, but saved as integer (0 and 1)
 
@@ -369,9 +369,9 @@ angular.module('starter.shared')
               console.error(err);
               q.reject(err);
             });
-          }, function(err) {
-            console.error(err);
-            q.reject(err);
+          }, function(error) {
+            console.error(error);
+            q.reject(error);
           });
 
         });
@@ -433,7 +433,6 @@ angular.module('starter.shared')
         //Vlez
         //Stan
         //Grad
-        //WaterCounters (array of WaterCounter Item: { VidKorID,KorisnikID, LokacijaID, UlicaID, ReonID, Broilo,Aktive,Naziv, Ulica, Broj, NovaSostojba })
         //}
 
         var getCustomerInfoQuery = "SELECT SifTipID, ID, Naziv, UlicaID, Adresa,  Broj, Mesto, Drzava, Vlez, Stan, Naziv1  FROM customers  WHERE ID=" + korisnikID;
@@ -458,23 +457,6 @@ angular.module('starter.shared')
         var q = $q.defer();
         firstLastName = firstLastName.toUpperCase();
         location = location.toUpperCase();
-        // not necessary params locally
-        // TODO SearchWaterCounters:
-        // returns:
-        // {
-        //    VidKorID
-        //    KorisnikID
-        //    LokacijaID
-        //    UlicaID
-        //    ReonID
-        //    Broilo
-        //    Aktive
-        //    Naziv
-        //    Ulica
-        //    Broj
-        //    NovaSostojba
-        // }
-
         var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 ";
 
         if (location && location.length > 0) {
@@ -506,45 +488,82 @@ angular.module('starter.shared')
         return q.promise;
       }
 
-      function addNewWaterCounterCallback(vidkorid, lokacijaID, korisnikID, reonID, broilo, sostojba, slikaSostojba, lat, long) {
+      function addNewWaterCounterCallback(data,imeNaziv,brShasija) {
         // TODO CreateNewWaterCounter
+        var q = $q.defer();
+        var addNewWaterCounterToLocalChangesQuery = "INSERT INTO LocalDataChanges (ReonId , VidKorID , KorisnikId ,  LokacijaId ,  Broilo , SostojbaStara , SostojbaNova , SlikaSostojba , lat , long , DateCreated , TypeOfAPICall , IsSentToAPI ) VALUES (? , ? , ? ,  ? ,  ? , ? , ? , ? , ? , ? , ? , ? , ?)";
+        var waterCounterInsertQuery = "INSERT INTO waterCounters (ReonId , VidKorId , KorisnikId, LokacijaId , UlicaId, Broilo , Aktive , Naziv , Ulica, Broj , SostojbaNova, Mesec) VALUES (?, ? , ?, ?, ?, ? , ?, ?, ?, ? , ?, ?)";
 
-        // returns
-        // {
-        //IsSuccess
-        //Message
-        // }
+        var itemToSaveInWaterCounters = [
+          data.ReonId,
+          data.VidKorID,
+          data.KorisnikId,
+          data.LokacijaId,
+          null,
+          brShasija,
+          1,
+          imeNaziv,
+          null,
+          null,
+          data.SostojbaNova,
+          data.null
+        ];
+
+        var dataToSave = Object.keys(data).map(function(key) {
+          return data[key];
+        });
+
+        $ionicPlatform.ready(function() {
+          $cordovaSQLite.execute($window.db, addNewWaterCounterToLocalChangesQuery, dataToSave).then(function(res) {
+
+            $cordovaSQLite.execute($window.db, waterCounterInsertQuery, itemToSaveInWaterCounters).then(function(result) {
+              q.resolve(result);
+            }, function(error) {
+              console.error(error);
+              q.reject(error);
+            });
+
+          }, function(err) {
+            console.error(err);
+            q.reject(err);
+          });
+        });
+
+        return q.promise;
       }
 
-      function updateWaterCounterStateCallback(vidkorid, lokacijaID, korisnikID, reonID, broilo, sostojbaStara, sostojbaNova, slikaSostojba, lat, long) {
+      function updateWaterCounterStateCallback(data) {
         // TODO InsertNewStateForWaterCounter
+        var q = $q.defer();
+        var newWaterCounterStateInsertQuery = "INSERT INTO LocalDataChanges (ReonId , VidKorID , KorisnikId ,  LokacijaId ,  Broilo , SostojbaStara , SostojbaNova , SlikaSostojba , lat , long , DateCreated , TypeOfAPICall , IsSentToAPI ) VALUES (? , ? , ? ,  ? ,  ? , ? , ? , ? , ? , ? , ? , ? , ?)";
 
-        // returns
-        // {
-        //IsSuccess
-        //Message
-        // }
+        var updateStateInWaterCountersQuery = "UPDATE `waterCounters` SET SostojbaNova='" + data.SostojbaNova + "' WHERE Aktive = 1 AND VidKorId = " +
+          data.VidKorID + " AND LokacijaId = " + data.LokacijaId +
+          " AND KorisnikId =" + data.KorisnikId + " AND ReonId = " + data.ReonId + " AND Broilo = '" + data.Broilo + "'";
+
+        var dataToSave = Object.keys(data).map(function(key) {
+          return data[key];
+        });
+
+        $ionicPlatform.ready(function() {
+          $cordovaSQLite.execute($window.db, newWaterCounterStateInsertQuery, dataToSave).then(function(res) {
+            $cordovaSQLite.execute($window.db, updateStateInWaterCountersQuery, null).then(function(result) {
+              q.resolve(result);
+            }, function(error) {
+              console.error(error);
+              q.reject(error);
+            });
+          }, function(err) {
+            console.log(err);
+            q.reject(err);
+          });
+        });
+
+        return q.promise;
       }
 
       function getLastWaterCounterStateCallback(vidkorid, lokacijaID, korisnikID, reonID, broilo) {
-        // TODO GetLastStateOfWaterCounter
         var q = $q.defer();
-        // returns
-        // {
-        //   ReonId,
-        //   VidKorID,
-        //   KorisnikId,
-        //   LokacijaId,
-        //   UlicaId,
-        //   Broilo,
-        //   Aktive,
-        //   Naziv,
-        //   Ulica,
-        //   Broj,
-        //   SostojbaNova,
-        //   Mesec
-        // }
-
         var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 AND VidKorId = " + vidkorid + " AND LokacijaId = " + lokacijaID +
           " AND KorisnikId =" + korisnikID + " AND ReonId = " + reonID + " AND Broilo = '" + broilo + "'";
 
@@ -565,8 +584,9 @@ angular.module('starter.shared')
       }
 
       function searchWaterCountersByUserIdCallback(korisnikId) {
+        //TODO search for newly create WaterCounters in localDb
         var q = $q.defer();
-        var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 AND KorisnikId = "+ korisnikId + " ORDER BY Naziv ";
+        var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 AND KorisnikId = " + korisnikId + " ORDER BY Naziv ";
 
         $ionicPlatform.ready(function() {
           $cordovaSQLite.execute($window.db, searchQuery).then(function(res) {
@@ -576,7 +596,7 @@ angular.module('starter.shared')
             }
             q.resolve(output);
           }, function(err) {
-            console.error(err);
+            console.log(err);
             q.reject(err);
           });
         });
@@ -877,9 +897,9 @@ angular.module('starter.shared')
   angular.module('starter')
     .controller('editStateCtrl', editStateController);
 
-  editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location', 'WebAPIurl', '$cordovaGeolocation','LocalDataService'];
+  editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location', 'WebAPIurl', '$cordovaGeolocation', 'LocalDataService'];
 
-  function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location, WebAPIurl, $cordovaGeolocation,LocalDataService) {
+  function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location, WebAPIurl, $cordovaGeolocation, LocalDataService) {
     var vm = this;
     initVariables();
 
@@ -899,53 +919,23 @@ angular.module('starter.shared')
       vm.reonID = $stateParams.reonID;
       vm.broilo = $stateParams.broilo;
       LocalDataService.getLastWaterCounterState(
-          $stateParams.vidkorid,
-          $stateParams.lokacijaID,
-          $stateParams.korisnikID,
-          $stateParams.reonID,
-          $stateParams.broilo
-        ).then(function(res) {
-          console.log(res);
-          vm.imeNaziv = res[0].Naziv;
-          vm.broilo = res[0].Broilo;
-          vm.state = {
-              before: parseInt(res[0].SostojbaNova),
-              slika: null,
-              mesec: res[0].Mesec
-            };
-        }, function(err) {
-          console.log(err);
-        });
-        // var url = WebAPIurl + 'api/v1/watercounters/laststate';
-        // $http.get(url, {
-        //   headers: {
-        //     'Authorization': 'Bearer ' + $window.localStorage['access_token']
-        //   },
-        //   params: {
-        //     vidkorid: $stateParams.vidkorid,
-        //     lokacijaID: $stateParams.lokacijaID,
-        //     korisnikID: $stateParams.korisnikID,
-        //     reonID: $stateParams.reonID,
-        //     broilo: $stateParams.broilo
-        //   }
-        // }).then(function(resp) {
-        //   vm.state = {
-        //     before: parseInt(resp.data.sostojbaNova),
-        //     slika: resp.data.slikaSostojba,
-        //     mesec: resp.data.mesec
-        //   };
-        //   vm.imeNaziv = resp.data.imeNaziv;
-        //   vm.broilo = resp.data.broilo;
-        //
-        // }, function(err) {
-        //   if (err.status == 401 || err.status == 0) {
-        //     $window.localStorage.clear();
-        //     $state.go("main.login",{message:"Проверете ја интернет конекцијата"},null);
-        //   } else {
-        //     //console.log(err.data.message);
-        //   }
-        // });
-
+        $stateParams.vidkorid,
+        $stateParams.lokacijaID,
+        $stateParams.korisnikID,
+        $stateParams.reonID,
+        $stateParams.broilo
+      ).then(function(res) {
+        console.log(res);
+        vm.imeNaziv = res[0].Naziv;
+        vm.broilo = res[0].Broilo;
+        vm.state = {
+          before: parseInt(res[0].SostojbaNova),
+          slika: null,
+          mesec: res[0].Mesec
+        };
+      }, function(err) {
+        console.log(err);
+      });
     }
 
     function OnBeforeEnter() {}
@@ -961,6 +951,10 @@ angular.module('starter.shared')
         return;
       }
 
+      vm.errors = {
+        required: ""
+      };
+
       $ionicLoading.show({
         content: 'Loading',
         animation: 'fade-in',
@@ -968,72 +962,59 @@ angular.module('starter.shared')
         maxWidth: 200,
         showDelay: 0
       });
-      // console.log(vm.state.before + " " + vm.state.new);
+
       var posOptions = {
         timeout: 3000,
         enableHighAccuracy: false
       };
-      var lat = "0";
-      var long = "0";
+      var latValue = "0";
+      var longValue = "0";
       var result = $cordovaGeolocation
         .getCurrentPosition(posOptions)
         .then(function(position) {
-          lat = position.coords.latitude;
-          long = position.coords.longitude;
+          latValue = position.coords.latitude;
+          longValue = position.coords.longitude;
         }, function(err) {
           // error
           //console.log(err);
         });
       $timeout(function() {
-
-        var data = {
-          "vidkorid": $stateParams.vidkorid,
-          "lokacijaID": $stateParams.lokacijaID,
-          "korisnikID": $stateParams.korisnikID,
-          "reonID": $stateParams.reonID,
-          "broilo": $stateParams.broilo,
-          "sostojbaStara": parseInt(vm.state.before),
-          "sostojbaNova": parseInt(vm.state.new),
-          "slikaSostojba": vm.state.slika,
-          "lat": lat,
-          "long": long
+        var updatedWaterCounterStateData = {
+          ReonId: $stateParams.reonID,
+          VidKorID: $stateParams.vidkorid,
+          KorisnikId: $stateParams.korisnikID,
+          LokacijaId: $stateParams.lokacijaID,
+          Broilo: $stateParams.broilo,
+          SostojbaStara: parseInt(vm.state.before),
+          SostojbaNova: parseInt(vm.state.new),
+          SlikaSostojba: vm.state.slika,
+          lat: latValue,
+          long: longValue,
+          DateCreated: (new Date()).toJSON(),
+          TypeOfAPICall: 'updateState',
+          IsSentToAPI: false
         };
-        var newValue = parseInt(vm.state.new);
-        var url = WebAPIurl + 'api/v1/watercounters/newstate';
-        $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-        $http.post(url, data).then(function(resp) {
-          if (resp.data.isSucces === true) {
+
+        LocalDataService.updateWaterCounterState(updatedWaterCounterStateData).then(function(result) {
+          $ionicLoading.hide();
+          $ionicLoading.show({
+            template: "Успешно зачувана состојба!",
+            noBackdrop: true,
+            duration: 2000
+          });
+          $timeout(function() {
             $ionicLoading.hide();
-            $ionicLoading.show({
-              template: "Успешно зачувана состојба!",
-              noBackdrop: true,
-              duration: 2000
+            $state.go("main.search", {
+              'selecetedArea': $stateParams.reonID
             });
-            $timeout(function() {
-              $state.go("main.search", {
-                'selecetedArea': $stateParams.reonID
-              });
-            }, 3000);
-          } else {
-            $ionicLoading.hide();
-            vm.errors = {
-              required: "* " + resp.data.message
-            };
-          }
-        }, function(err) {
-          if (err.status == 401 || err.status == 0) {
-            $window.localStorage.clear();
-            $ionicLoading.hide();
-            $state.go("main.login", {
-              message: "Проверете ја интернет конекцијата"
-            }, null);
-          } else {
-            $ionicLoading.hide();
-            vm.errors = {
-              required: "* " + err.data.exceptionMessage
-            };
-          }
-        })
+          }, 3000);
+        }, function(error) {
+          $ionicLoading.hide();
+          vm.errors = {
+            required: "грешка при зачувување."
+          };
+        });
+
 
       }, 1000);
     }
@@ -1058,65 +1039,102 @@ angular.module('starter.shared')
         timeout: 3000,
         enableHighAccuracy: false
       };
-      var lat = "0";
-      var long = "0";
+      var latValue = "0";
+      var longValue = "0";
       var result = $cordovaGeolocation
         .getCurrentPosition(posOptions)
         .then(function(position) {
-          lat = position.coords.latitude;
-          long = position.coords.longitude;
+          latValue = position.coords.latitude;
+          longValue = position.coords.longitude;
         }, function(err) {
           // error
           //console.log(err);
         });
       $timeout(function() {
 
-        var data = {
-          "Vidkorid": $stateParams.vidkorid,
-          "LokacijaID": $stateParams.lokacijaID,
-          "KorisnikID": $stateParams.korisnikID,
-          "ReonID": $stateParams.reonID,
-          "Broilo": vm.brShasija,
-          "Sostojba": parseInt(vm.state.new),
-          "SlikaSostojba": vm.state.slika,
-          "Lat": lat,
-          "Long": long
+        // var data = {
+        //   "Vidkorid": $stateParams.vidkorid,
+        //   "LokacijaID": $stateParams.lokacijaID,
+        //   "KorisnikID": $stateParams.korisnikID,
+        //   "ReonID": $stateParams.reonID,
+        //   "Broilo": vm.brShasija,
+        //   "Sostojba": parseInt(vm.state.new),
+        //   "SlikaSostojba": vm.state.slika,
+        //   "Lat": lat,
+        //   "Long": long
+        // };
+        // var newValue = parseInt(vm.state.new);
+
+        var updatedWaterCounterStateData = {
+          ReonId: $stateParams.reonID,
+          VidKorID: $stateParams.vidkorid,
+          KorisnikId: $stateParams.korisnikID,
+          LokacijaId: $stateParams.lokacijaID,
+          Broilo: $stateParams.broilo,
+          SostojbaStara: 0,
+          SostojbaNova: parseInt(vm.state.new),
+          SlikaSostojba: vm.state.slika,
+          lat: latValue,
+          long: longValue,
+          DateCreated: (new Date()).toJSON(),
+          TypeOfAPICall: 'newWaterCounter',
+          IsSentToAPI: false
         };
-        var newValue = parseInt(vm.state.new);
-        var url = WebAPIurl + 'api/v1/watercounters/newCounter';
-        $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-        $http.post(url, data).then(function(resp) {
-          if (resp.data.isSucces === true) {
+
+        LocalDataService.addNewWaterCounter(updatedWaterCounterStateData,vm.imeNaziv,vm.brShasija).then(function(result) {
+          $ionicLoading.hide();
+          $ionicLoading.show({
+            template: "Успешна промена!",
+            noBackdrop: true,
+            duration: 2000
+          });
+          $timeout(function() {
             $ionicLoading.hide();
-            $ionicLoading.show({
-              template: "Успешна промена!",
-              noBackdrop: true,
-              duration: 2000
+            $state.go("main.search", {
+              'selecetedArea': $stateParams.reonID
             });
-            $timeout(function() {
-              $state.go("main.search", {
-                'selecetedArea': $stateParams.reonID
-              });
-            }, 3000);
-          } else {
-            $ionicLoading.hide();
-            vm.errors = {
-              required: "* " + resp.data.message
-            };
-          }
-        }, function(err) {
-          if (err.status == 401 || err.status == 0) {
-            $window.localStorage.clear();
-            $state.go("main.login", {
-              message: "Проверете ја интернет конекцијата"
-            }, null);
-          } else {
-            $ionicLoading.hide();
-            vm.errors = {
-              required: "* " + err.data.exceptionMessage
-            };
-          }
-        })
+          }, 3000);
+        }, function(error) {
+          $ionicLoading.hide();
+          vm.errors = {
+            required: "грешка при зачувување."
+          };
+        });
+
+        // var url = WebAPIurl + 'api/v1/watercounters/newCounter';
+        // $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
+        // $http.post(url, data).then(function(resp) {
+        //   if (resp.data.isSucces === true) {
+        //     $ionicLoading.hide();
+        //     $ionicLoading.show({
+        //       template: "Успешна промена!",
+        //       noBackdrop: true,
+        //       duration: 2000
+        //     });
+        //     $timeout(function() {
+        //       $state.go("main.search", {
+        //         'selecetedArea': $stateParams.reonID
+        //       });
+        //     }, 3000);
+        //   } else {
+        //     $ionicLoading.hide();
+        //     vm.errors = {
+        //       required: "* " + resp.data.message
+        //     };
+        //   }
+        // }, function(err) {
+        //   if (err.status == 401 || err.status == 0) {
+        //     $window.localStorage.clear();
+        //     $state.go("main.login", {
+        //       message: "Проверете ја интернет конекцијата"
+        //     }, null);
+        //   } else {
+        //     $ionicLoading.hide();
+        //     vm.errors = {
+        //       required: "* " + err.data.exceptionMessage
+        //     };
+        //   }
+        // })
 
       }, 1000);
 
@@ -1171,7 +1189,8 @@ angular.module('starter.shared')
       }, function(err) {
         //console.log("error taking photo", err);
       });
-    }
+    };
+
     vm.choosePhoto = function() {
       var options = {
         quality: 75,
@@ -1190,7 +1209,7 @@ angular.module('starter.shared')
       }, function(err) {
         //console.log("error choosing photo", err);
       });
-    }
+    };
 
   }
 

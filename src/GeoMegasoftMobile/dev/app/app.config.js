@@ -45,9 +45,9 @@
       var createCustomersTableQuery = "CREATE TABLE IF NOT EXISTS customers (ID integer, SifTipID integer, Naziv text, UlicaID integer,  Adresa text, Broj integer, Mesto text, Drzava text, Vlez text, Stan text, Naziv1 text ); ";
       var createWaterCountersTableQuery = "CREATE TABLE IF NOT EXISTS waterCounters (ReonId integer, VidKorId integer, KorisnikId integer, LokacijaId integer, UlicaId integer, Broilo text, Aktive int, Naziv text, Ulica text, Broj text, SostojbaNova text, Mesec text); ";
       var createLocalChangesTableQuery = "CREATE TABLE IF NOT EXISTS LocalDataChanges (LocalDataChangeId  integer primary key,ReonId integer, VidKorID integer, KorisnikId integer,  LokacijaId integer,  Broilo text, SostojbaStara text, SostojbaNova text, SlikaSostojba text, lat text, long text, DateCreated text, TypeOfAPICall text, IsSentToAPI text ); ";
-      $cordovaSQLite.execute($window.db, createCustomersTableQuery + createWaterCountersTableQuery + createLocalChangesTableQuery);
-      // $cordovaSQLite.execute($window.db,  createWaterCountersTableQuery);
-      // $cordovaSQLite.execute($window.db, createLocalChangesTableQuery);
+      $cordovaSQLite.execute($window.db, createCustomersTableQuery);
+      $cordovaSQLite.execute($window.db,  createWaterCountersTableQuery);
+      $cordovaSQLite.execute($window.db, createLocalChangesTableQuery);
       //UlicaId in waterCounters in nullable
       //Aktive in waterCounters is boolean, but saved as integer (0 and 1)
 

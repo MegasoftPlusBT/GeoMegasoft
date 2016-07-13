@@ -98,9 +98,9 @@
               console.error(err);
               q.reject(err);
             });
-          }, function(err) {
-            console.error(err);
-            q.reject(err);
+          }, function(error) {
+            console.error(error);
+            q.reject(error);
           });
 
         });
@@ -162,7 +162,6 @@
         //Vlez
         //Stan
         //Grad
-        //WaterCounters (array of WaterCounter Item: { VidKorID,KorisnikID, LokacijaID, UlicaID, ReonID, Broilo,Aktive,Naziv, Ulica, Broj, NovaSostojba })
         //}
 
         var getCustomerInfoQuery = "SELECT SifTipID, ID, Naziv, UlicaID, Adresa,  Broj, Mesto, Drzava, Vlez, Stan, Naziv1  FROM customers  WHERE ID=" + korisnikID;
@@ -187,23 +186,6 @@
         var q = $q.defer();
         firstLastName = firstLastName.toUpperCase();
         location = location.toUpperCase();
-        // not necessary params locally
-        // TODO SearchWaterCounters:
-        // returns:
-        // {
-        //    VidKorID
-        //    KorisnikID
-        //    LokacijaID
-        //    UlicaID
-        //    ReonID
-        //    Broilo
-        //    Aktive
-        //    Naziv
-        //    Ulica
-        //    Broj
-        //    NovaSostojba
-        // }
-
         var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 ";
 
         if (location && location.length > 0) {
@@ -235,45 +217,82 @@
         return q.promise;
       }
 
-      function addNewWaterCounterCallback(vidkorid, lokacijaID, korisnikID, reonID, broilo, sostojba, slikaSostojba, lat, long) {
+      function addNewWaterCounterCallback(data,imeNaziv,brShasija) {
         // TODO CreateNewWaterCounter
+        var q = $q.defer();
+        var addNewWaterCounterToLocalChangesQuery = "INSERT INTO LocalDataChanges (ReonId , VidKorID , KorisnikId ,  LokacijaId ,  Broilo , SostojbaStara , SostojbaNova , SlikaSostojba , lat , long , DateCreated , TypeOfAPICall , IsSentToAPI ) VALUES (? , ? , ? ,  ? ,  ? , ? , ? , ? , ? , ? , ? , ? , ?)";
+        var waterCounterInsertQuery = "INSERT INTO waterCounters (ReonId , VidKorId , KorisnikId, LokacijaId , UlicaId, Broilo , Aktive , Naziv , Ulica, Broj , SostojbaNova, Mesec) VALUES (?, ? , ?, ?, ?, ? , ?, ?, ?, ? , ?, ?)";
 
-        // returns
-        // {
-        //IsSuccess
-        //Message
-        // }
+        var itemToSaveInWaterCounters = [
+          data.ReonId,
+          data.VidKorID,
+          data.KorisnikId,
+          data.LokacijaId,
+          null,
+          brShasija,
+          1,
+          imeNaziv,
+          null,
+          null,
+          data.SostojbaNova,
+          data.null
+        ];
+
+        var dataToSave = Object.keys(data).map(function(key) {
+          return data[key];
+        });
+
+        $ionicPlatform.ready(function() {
+          $cordovaSQLite.execute($window.db, addNewWaterCounterToLocalChangesQuery, dataToSave).then(function(res) {
+
+            $cordovaSQLite.execute($window.db, waterCounterInsertQuery, itemToSaveInWaterCounters).then(function(result) {
+              q.resolve(result);
+            }, function(error) {
+              console.error(error);
+              q.reject(error);
+            });
+
+          }, function(err) {
+            console.error(err);
+            q.reject(err);
+          });
+        });
+
+        return q.promise;
       }
 
-      function updateWaterCounterStateCallback(vidkorid, lokacijaID, korisnikID, reonID, broilo, sostojbaStara, sostojbaNova, slikaSostojba, lat, long) {
+      function updateWaterCounterStateCallback(data) {
         // TODO InsertNewStateForWaterCounter
+        var q = $q.defer();
+        var newWaterCounterStateInsertQuery = "INSERT INTO LocalDataChanges (ReonId , VidKorID , KorisnikId ,  LokacijaId ,  Broilo , SostojbaStara , SostojbaNova , SlikaSostojba , lat , long , DateCreated , TypeOfAPICall , IsSentToAPI ) VALUES (? , ? , ? ,  ? ,  ? , ? , ? , ? , ? , ? , ? , ? , ?)";
 
-        // returns
-        // {
-        //IsSuccess
-        //Message
-        // }
+        var updateStateInWaterCountersQuery = "UPDATE `waterCounters` SET SostojbaNova='" + data.SostojbaNova + "' WHERE Aktive = 1 AND VidKorId = " +
+          data.VidKorID + " AND LokacijaId = " + data.LokacijaId +
+          " AND KorisnikId =" + data.KorisnikId + " AND ReonId = " + data.ReonId + " AND Broilo = '" + data.Broilo + "'";
+
+        var dataToSave = Object.keys(data).map(function(key) {
+          return data[key];
+        });
+
+        $ionicPlatform.ready(function() {
+          $cordovaSQLite.execute($window.db, newWaterCounterStateInsertQuery, dataToSave).then(function(res) {
+            $cordovaSQLite.execute($window.db, updateStateInWaterCountersQuery, null).then(function(result) {
+              q.resolve(result);
+            }, function(error) {
+              console.error(error);
+              q.reject(error);
+            });
+          }, function(err) {
+            console.log(err);
+            q.reject(err);
+          });
+        });
+
+        return q.promise;
       }
 
       function getLastWaterCounterStateCallback(vidkorid, lokacijaID, korisnikID, reonID, broilo) {
-        // TODO GetLastStateOfWaterCounter
         var q = $q.defer();
-        // returns
-        // {
-        //   ReonId,
-        //   VidKorID,
-        //   KorisnikId,
-        //   LokacijaId,
-        //   UlicaId,
-        //   Broilo,
-        //   Aktive,
-        //   Naziv,
-        //   Ulica,
-        //   Broj,
-        //   SostojbaNova,
-        //   Mesec
-        // }
-
         var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 AND VidKorId = " + vidkorid + " AND LokacijaId = " + lokacijaID +
           " AND KorisnikId =" + korisnikID + " AND ReonId = " + reonID + " AND Broilo = '" + broilo + "'";
 
@@ -294,8 +313,9 @@
       }
 
       function searchWaterCountersByUserIdCallback(korisnikId) {
+        //TODO search for newly create WaterCounters in localDb
         var q = $q.defer();
-        var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 AND KorisnikId = "+ korisnikId + " ORDER BY Naziv ";
+        var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 AND KorisnikId = " + korisnikId + " ORDER BY Naziv ";
 
         $ionicPlatform.ready(function() {
           $cordovaSQLite.execute($window.db, searchQuery).then(function(res) {
@@ -305,7 +325,7 @@
             }
             q.resolve(output);
           }, function(err) {
-            console.error(err);
+            console.log(err);
             q.reject(err);
           });
         });
