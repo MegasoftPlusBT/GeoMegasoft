@@ -1,10 +1,8 @@
-﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using FluentValidation;
 
 namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 {
@@ -64,11 +62,9 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 
             public string Naziv1 { get; set; }
         }
+
         public class Validator : AbstractValidator<Request>
         {
-            public Validator()
-            {
-            }
         }
 
         public class Handler : BaseHandler<Request, Response>
@@ -76,8 +72,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
             public override async Task<Response> Handle(Request request)
             {
                 var response = new Response();
-                int year = DateTime.UtcNow.Year;
-                int month = DateTime.UtcNow.Month;
+                var year = DateTime.UtcNow.Year;
+                var month = DateTime.UtcNow.Month;
                 var composeMesec = year + "/" + (month < 10 ? "0" + month : month.ToString());
                 var razlika = Convert.ToInt64(request.SostojbaNova) - Convert.ToInt64(request.SostojbaStara);
 
@@ -85,23 +81,14 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                            From LokacijaFizickiLica 
                                                            where Vidkorid=@Vidkorid and LokacijaID=@LokacijaID and KorisnikID=@KorisnikID and ReonID=@ReonID",
                                                            new { Vidkorid = request.Vidkorid, LokacijaID = request.LokacijaID, KorisnikID = request.KorisnikID, ReonID = request.ReonID }).FirstOrDefault();
-                
-                List<string> sostojbiZaOvojMesec = Connection.Query<string>(@"SELECT SlikaSostojba
-                                                                           FROM SostojbaFizicki
-                                                                           WHERE Vidkorid=@Vidkorid and KorisnikID=@KorisnikID and LokacijaID=@LokacijaID and Broilo=@Broilo and Mesec=@Mesec",
-                                                                          new { Vidkorid = request.Vidkorid, KorisnikID = request.KorisnikID, LokacijaID = request.LokacijaID, Broilo = request.Broilo, Mesec = composeMesec }).ToList();
-                int countProverkaZaSostojbaZaOvojMesec = sostojbiZaOvojMesec == null ? 0 : sostojbiZaOvojMesec.Count();
 
-
-                if (countProverkaZaSostojbaZaOvojMesec == 0)
+                if (string.IsNullOrEmpty(request.SostojbaNova))
                 {
-                    if (string.IsNullOrEmpty(request.SostojbaNova))
-                    {
-                        response.Message = "Полето нова состојба е задолжително";
-                    }
-                    else
-                    {
-                        var korisnikInfo = Connection.Query<KorisnikInfo>(@"SELECT SifTipID, 
+                    response.Message = "Полето нова состојба е задолжително";
+                }
+                else
+                {
+                    var korisnikInfo = Connection.Query<KorisnikInfo>(@"SELECT SifTipID, 
                                                                    ID,
                                                                    Naziv,
                                                                    UlicaID,
@@ -115,7 +102,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                             FROM FinknJpk.dbo.Sifrarnik
                                                             WHERE ID=@KorisnikId", new { KorisnikId = request.KorisnikID }).FirstOrDefault();
 
-                        var result = Connection.Execute(@"INSERT INTO [dbo].[SostojbaFizicki]
+                    var result = Connection.Execute(@"INSERT INTO [dbo].[SostojbaFizicki]
                                                                        ([Vidkorid]
                                                                        ,[KorisnikID]
                                                                        ,[LokacijaID]
@@ -152,55 +139,31 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                                        ,@SlikaSostojba
                                                                        ,@Lat
                                                                        ,@Long)"
-                                                                               , new
-                                                                               {
-                                                                                   Vidkorid = request.Vidkorid,
-                                                                                   KorisnikID = request.KorisnikID,
-                                                                                   LokacijaID = request.LokacijaID,
-                                                                                   Broilo = request.Broilo,
-                                                                                   Mesec = composeMesec,
-                                                                                   SostojbaStara = request.SostojbaStara,
-                                                                                   SostojbaNova = request.SostojbaNova,
-                                                                                   Razlika = razlika.ToString(),
-                                                                                   ReonID = request.ReonID,
-                                                                                   UlicaID = korisnikInfo != null ? korisnikInfo.UlicaID : 1,
-                                                                                   Broj = korisnikInfo != null ? korisnikInfo.Broj.ToString() : "0",
-                                                                                   Vlez = korisnikInfo != null ? korisnikInfo.Vlez : "0",
-                                                                                   stan = korisnikInfo != null ? korisnikInfo.Broj.ToString() : "0",
-                                                                                   BrClenovi = brojClenovi != null ? brojClenovi : 0,
-                                                                                   Datum = DateTime.UtcNow,
-                                                                                   SlikaSostojba = request.SlikaSostojba,
-                                                                                   Lat = request.Lat,
-                                                                                   Long = request.Long
-                                                                               });
+                                                                           , new
+                                                                           {
+                                                                               Vidkorid = request.Vidkorid,
+                                                                               KorisnikID = request.KorisnikID,
+                                                                               LokacijaID = request.LokacijaID,
+                                                                               Broilo = request.Broilo,
+                                                                               Mesec = composeMesec,
+                                                                               SostojbaStara = request.SostojbaStara,
+                                                                               SostojbaNova = request.SostojbaNova,
+                                                                               Razlika = razlika.ToString(),
+                                                                               ReonID = request.ReonID,
+                                                                               UlicaID = korisnikInfo != null ? korisnikInfo.UlicaID : 1,
+                                                                               Broj = korisnikInfo != null ? korisnikInfo.Broj.ToString() : "0",
+                                                                               Vlez = korisnikInfo != null ? korisnikInfo.Vlez : "0",
+                                                                               stan = korisnikInfo != null ? korisnikInfo.Broj.ToString() : "0",
+                                                                               BrClenovi = brojClenovi != null ? brojClenovi : 0,
+                                                                               Datum = DateTime.UtcNow,
+                                                                               SlikaSostojba = request.SlikaSostojba,
+                                                                               Lat = request.Lat,
+                                                                               Long = request.Long
+                                                                           });
 
-                        response.IsSucces = result == 1;
-                    }
+                    response.IsSucces = result == 1;
                 }
-                if (countProverkaZaSostojbaZaOvojMesec == 1)
-                {
-                    if (request.SlikaSostojba == sostojbiZaOvojMesec.First())
-                    {
-                        response.Message = "Имате внесено состојба за моменталниот месец";
-                    }
-                    else
-                    {
-                        var result = Connection.Execute(@"UPDATE [dbo].[SostojbaFizicki]
-                                                      SET [SlikaSostojba] = @SlikaSostojba
-                                                      WHERE Vidkorid=@Vidkorid and KorisnikID=@KorisnikID and LokacijaID=@LokacijaID and Broilo=@Broilo and Mesec=@Mesec"
-                                                                             , new
-                                                                             {
-                                                                                 Vidkorid = request.Vidkorid,
-                                                                                 KorisnikID = request.KorisnikID,
-                                                                                 LokacijaID = request.LokacijaID,
-                                                                                 Broilo = request.Broilo,
-                                                                                 Mesec = composeMesec,
-                                                                                 SlikaSostojba = request.SlikaSostojba
-                                                                             });
 
-                        response.IsSucces = result == 1;
-                    }
-                }
                 return response;
             }
         }

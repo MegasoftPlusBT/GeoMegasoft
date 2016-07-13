@@ -1,10 +1,7 @@
-﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using FluentValidation;
 
 namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 {
@@ -45,9 +42,6 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 
         public class Validator : AbstractValidator<Request>
         {
-            public Validator()
-            {
-            }
         }
 
         public class Handler : BaseHandler<Request, Response>

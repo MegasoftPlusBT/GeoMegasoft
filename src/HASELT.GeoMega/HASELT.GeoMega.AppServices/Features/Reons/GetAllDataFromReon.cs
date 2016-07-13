@@ -11,15 +11,17 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
         {
             public int ReonId { get; set; }
         }
+
         public class Response : BaseResponse
         {
-
             public Response()
             {
-
+                WaterCounters = new List<WaterCounterListItem>();
+                Customers = new List<CustomerListItem>();
             }
 
             public List<WaterCounterListItem> WaterCounters { get; set; }
+
             public List<CustomerListItem> Customers { get; set; }
 
             public class CustomerListItem
@@ -73,7 +75,6 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
 
                 public string Mesec { get; set; }
             }
-
         }
 
         public class Validator : AbstractValidator<Query>
@@ -149,7 +150,7 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
 
                 var waterCounters = Connection.Query<Response.WaterCounterListItem>(_queryWaterCounters, new { ReonId = request.ReonId }).AsList();
 
-                return new Response()
+                return new Response
                 {
                     Customers = customers,
                     WaterCounters = waterCounters

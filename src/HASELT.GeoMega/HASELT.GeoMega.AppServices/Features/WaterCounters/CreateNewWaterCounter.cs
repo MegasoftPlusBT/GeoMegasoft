@@ -1,10 +1,8 @@
-﻿using Dapper;
-using FluentValidation;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Dapper;
+using FluentValidation;
 
 namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 {
@@ -94,19 +92,18 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 		               )
                 ";
 
-                var createCounterResult = Connection.Execute(createQuery, new
-                {
-                    VidKorId = request.Vidkorid,
-                    KorisnikId = request.KorisnikID,
-                    LokacijaId = request.LokacijaID,
-                    ReonId = request.ReonID,
-                    Broilo = request.Broilo
-                });
+                var createCounterResult = Connection.Execute(createQuery,
+                    new
+                    {
+                        VidKorId = request.Vidkorid,
+                        KorisnikId = request.KorisnikID,
+                        LokacijaId = request.LokacijaID,
+                        ReonId = request.ReonID,
+                        Broilo = request.Broilo
+                    });
 
-
-
-                int year = DateTime.UtcNow.Year;
-                int month = DateTime.UtcNow.Month;
+                var year = DateTime.UtcNow.Year;
+                var month = DateTime.UtcNow.Month;
                 var composeMesec = year + "/" + (month < 10 ? "0" + month : month.ToString());
                 var razlika = request.Sostojba;
 
@@ -193,7 +190,6 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 return response;
             }
         }
-
 
         public class KorisnikInfo
         {

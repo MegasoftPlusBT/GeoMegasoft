@@ -58,16 +58,13 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 
         public class Validator : AbstractValidator<Request>
         {
-            public Validator()
-            {
-            }
         }
 
         public class Handler : BaseHandler<Request, Response>
         {
             public override async Task<Response> Handle(Request request)
             {
-                StringBuilder sbSqlFizicki = new StringBuilder(@"Select  
+                var sbSqlFizicki = new StringBuilder(@"Select  
                                     bfl.VidKorID as VidKorID, 
                                     bfl.KorisnikID as KorisnikID, 
                                     bfl.LokacijaID as LokacijaID,
@@ -91,7 +88,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                     lfl.ReonID=bfl.ReonID
                                     inner join Korisnici k on bfl.KorisnikID=k.KorisnikID
                                     where lfl.Aktiven=1 AND bfl.Status=1");
-                StringBuilder sbSqlPravni = new StringBuilder(@"Select 
+                var sbSqlPravni = new StringBuilder(@"Select 
                                     lpl.VidKorID as VidKorID, 
                                     bpl.KorisnikID as KorisnikID,
                                     bpl.LokacijaID as LokacijaID, 
@@ -132,7 +129,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 sbSqlFizicki.Append(" ORDER BY k.Naziv ");
                 sbSqlPravni.Append(" ORDER BY k.Naziv ");
 
-                StringBuilder query = new StringBuilder();
+                var query = new StringBuilder();
                 query.AppendLine(sbSqlFizicki.ToString());
                 query.AppendLine(sbSqlPravni.ToString());
                 var multi = Connection.QueryMultiple(query.ToString(), new { ReonId = request.ReionId, Location = $"%{request.Location}%", Naziv = $"%{request.FirstLastName}%" });

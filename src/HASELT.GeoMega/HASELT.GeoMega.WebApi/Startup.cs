@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Web.Http;
-using Microsoft.Owin;
-using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.DataHandler.Encoder;
-using Microsoft.Owin.Security.Jwt;
-using Microsoft.Owin.Security.OAuth;
-using Microsoft.Practices.ServiceLocation;
-using Owin;
-using HASELT.GeoMega.WebApi.Security;
+using HASELT.Arc.Messaging;
 using HASELT.GeoMega.Framework;
 using HASELT.GeoMega.WebApi.DependencyResolution;
-using HASELT.Arc.Messaging;
+using HASELT.GeoMega.WebApi.Security;
+using Microsoft.Owin;
+using Microsoft.Owin.Security.OAuth;
+using Owin;
 
 namespace HASELT.GeoMega.WebApi
 {
@@ -27,7 +22,6 @@ namespace HASELT.GeoMega.WebApi
             // Web API configuration and services
             httpConfig.Filters.Add(new ExceptionFilterWrapperAttribute());
 
-           // httpConfig.EnableCors();
             // Web API routes
             httpConfig.MapHttpAttributeRoutes();
             httpConfig.Routes.MapHttpRoute(
@@ -41,7 +35,7 @@ namespace HASELT.GeoMega.WebApi
             httpConfig.DependencyResolver = new StructureMapDependencyResolver(_bootstrapper.Container);
 
             app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
-            OAuthAuthorizationServerOptions OAuthServerOptions = new OAuthAuthorizationServerOptions()
+            var OAuthServerOptions = new OAuthAuthorizationServerOptions
             {
                 AllowInsecureHttp = true,
                 TokenEndpointPath = new PathString("/token"),

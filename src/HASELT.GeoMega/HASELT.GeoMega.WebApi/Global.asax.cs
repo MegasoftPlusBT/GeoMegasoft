@@ -8,7 +8,7 @@ namespace HASELT.GeoMega.WebApi
     {
         protected void Application_Start()
         {
-            HttpConfiguration config = GlobalConfiguration.Configuration;
+            var config = GlobalConfiguration.Configuration;
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             config.Formatters.JsonFormatter.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
             config.Formatters.JsonFormatter.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Include;

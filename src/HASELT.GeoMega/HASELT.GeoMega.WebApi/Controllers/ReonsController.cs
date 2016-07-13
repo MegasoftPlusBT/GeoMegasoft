@@ -19,7 +19,6 @@ namespace HASELT.GeoMega.WebApi.Controllers
         public Task<GetAllDataFromReon.Response> ReonData([FromUri]GetAllDataFromReon.Query request)
         {
             return Handle(request);
-
         }
     }
 }
