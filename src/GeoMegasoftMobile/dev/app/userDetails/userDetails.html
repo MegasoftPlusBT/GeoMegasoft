@@ -24,14 +24,14 @@
           <div class="rowFull">
             <b>Стан</b>: {{vm.stan}}
           </div>
-          <div class="rowFull">
+          <!-- <div class="rowFull">
             <b>Град</b>: {{vm.grad}}
-          </div>
+          </div> -->
         </ion-item>
       </div>
     </div>
-      <ion-list ng-repeat="item in vm.items">
-        <ion-item ng-class="vm.getItemClass(item)">
+      <ion-list >
+        <ion-item ng-class="vm.getItemClass(item)" ng-repeat="item in vm.items">
           <div class="rowFull">
             <div class="colFull col-75" ng-click="vm.navigateToUserDetails(item)">
               <div class="row">

@@ -4,9 +4,9 @@
   angular.module('starter')
     .controller('editStateCtrl', editStateController);
 
-  editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location', 'WebAPIurl', '$cordovaGeolocation'];
+  editStateController.$inject = ['$scope', '$state', '$timeout', '$stateParams', '$window', '$ionicLoading', 'CordovaNetworkService', '$ionicPopup', '$rootScope', '$cordovaCamera', '$http', '$location', 'WebAPIurl', '$cordovaGeolocation','LocalDataService'];
 
-  function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location, WebAPIurl, $cordovaGeolocation) {
+  function editStateController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $cordovaCamera, $http, $location, WebAPIurl, $cordovaGeolocation,LocalDataService) {
     var vm = this;
     initVariables();
 
@@ -25,35 +25,54 @@
       vm.korisnikID = $stateParams.korisnikID;
       vm.reonID = $stateParams.reonID;
       vm.broilo = $stateParams.broilo;
-      var url = WebAPIurl + 'api/v1/watercounters/laststate';
-      $http.get(url, {
-        headers: {
-          'Authorization': 'Bearer ' + $window.localStorage['access_token']
-        },
-        params: {
-          vidkorid: $stateParams.vidkorid,
-          lokacijaID: $stateParams.lokacijaID,
-          korisnikID: $stateParams.korisnikID,
-          reonID: $stateParams.reonID,
-          broilo: $stateParams.broilo
-        }
-      }).then(function(resp) {
-        vm.state = {
-          before: parseInt(resp.data.sostojbaNova),
-          slika: resp.data.slikaSostojba,
-          mesec: resp.data.mesec
-        };
-        vm.imeNaziv = resp.data.imeNaziv;
-        vm.broilo = resp.data.broilo;
+      LocalDataService.getLastWaterCounterState(
+          $stateParams.vidkorid,
+          $stateParams.lokacijaID,
+          $stateParams.korisnikID,
+          $stateParams.reonID,
+          $stateParams.broilo
+        ).then(function(res) {
+          console.log(res);
+          vm.imeNaziv = res[0].Naziv;
+          vm.broilo = res[0].Broilo;
+          vm.state = {
+              before: parseInt(res[0].SostojbaNova),
+              slika: null,
+              mesec: res[0].Mesec
+            };
+        }, function(err) {
+          console.log(err);
+        });
+        // var url = WebAPIurl + 'api/v1/watercounters/laststate';
+        // $http.get(url, {
+        //   headers: {
+        //     'Authorization': 'Bearer ' + $window.localStorage['access_token']
+        //   },
+        //   params: {
+        //     vidkorid: $stateParams.vidkorid,
+        //     lokacijaID: $stateParams.lokacijaID,
+        //     korisnikID: $stateParams.korisnikID,
+        //     reonID: $stateParams.reonID,
+        //     broilo: $stateParams.broilo
+        //   }
+        // }).then(function(resp) {
+        //   vm.state = {
+        //     before: parseInt(resp.data.sostojbaNova),
+        //     slika: resp.data.slikaSostojba,
+        //     mesec: resp.data.mesec
+        //   };
+        //   vm.imeNaziv = resp.data.imeNaziv;
+        //   vm.broilo = resp.data.broilo;
+        //
+        // }, function(err) {
+        //   if (err.status == 401 || err.status == 0) {
+        //     $window.localStorage.clear();
+        //     $state.go("main.login",{message:"Проверете ја интернет конекцијата"},null);
+        //   } else {
+        //     //console.log(err.data.message);
+        //   }
+        // });
 
-      }, function(err) {
-        if (err.status == 401 || err.status == 0) {
-          $window.localStorage.clear();
-          $state.go("main.login",{message:"Проверете ја интернет конекцијата"},null);
-        } else {
-          //console.log(err.data.message);
-        }
-      })
     }
 
     function OnBeforeEnter() {}
@@ -132,7 +151,9 @@
           if (err.status == 401 || err.status == 0) {
             $window.localStorage.clear();
             $ionicLoading.hide();
-            $state.go("main.login",{message:"Проверете ја интернет конекцијата"},null);
+            $state.go("main.login", {
+              message: "Проверете ја интернет конекцијата"
+            }, null);
           } else {
             $ionicLoading.hide();
             vm.errors = {
@@ -213,7 +234,9 @@
         }, function(err) {
           if (err.status == 401 || err.status == 0) {
             $window.localStorage.clear();
-            $state.go("main.login",{message:"Проверете ја интернет конекцијата"},null);
+            $state.go("main.login", {
+              message: "Проверете ја интернет конекцијата"
+            }, null);
           } else {
             $ionicLoading.hide();
             vm.errors = {

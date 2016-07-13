@@ -15,18 +15,25 @@
         imeprezime: '',
         lokacija: ''
       };
+      vm.errors = {
+        required: ""
+      };
     }
 
     $scope.$on('$ionicView.loaded', OnViewLoad);
     $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
     $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
-    function OnViewLoad() {
-    }
+    function OnViewLoad() {}
 
     vm.search = function() {
+      if ($window.localStorage['localReonId'] == null || $window.localStorage['localReonId'] == undefined) {
+        vm.errors.required = "Недозволена акција, преземете реон.";
+        return;
+      }
+
       $state.go('main.results', {
-        selectedRegion: $stateParams.selecetedArea,
+        selectedRegion: $window.localStorage['localReonId'],
         inputImePrezime: vm.search.imeprezime,
         inputLokacija: vm.search.lokacija
       });

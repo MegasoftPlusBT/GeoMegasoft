@@ -6,8 +6,7 @@
 
   angular.module('starter')
     .config(starterConfig)
-    .run(starterRun)
-    ;
+    .run(starterRun);
 
   starterConfig.$inject = ['$compileProvider', '$ionicConfigProvider', '$logProvider'];
 
@@ -19,9 +18,9 @@
     $logProvider.debugEnabled(true);
   }
 
-  starterRun.$inject = ['$ionicPlatform', '$window','$cordovaSQLite'];
+  starterRun.$inject = ['$ionicPlatform', '$window', '$cordovaSQLite'];
 
-  function starterRun($ionicPlatform, $window,$cordovaSQLite) {
+  function starterRun($ionicPlatform, $window, $cordovaSQLite) {
     $ionicPlatform.ready(function() {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -39,10 +38,16 @@
       //   return false;
       // }, 101);
 
-      $window.db = $cordovaSQLite.openDB({name: "geoMegaSoft.db", location: 'default'});
-
-      $cordovaSQLite.execute($window.db, "CREATE TABLE IF NOT EXISTS customers (ID integer, SifTipID integer, Naziv text, UlicaID integer,  Adresa text, Broj integer, Mesto text, Drzava text, Vlez text, Stan text, Naziv1 text )");
-      $cordovaSQLite.execute($window.db, "CREATE TABLE IF NOT EXISTS waterCounters (ReonId integer, VidKorID integer, KorisnikId integer, LokacijaId integer, UlicaId integer, Broilo text, Aktive int, Naziv text, Ulica text, Broj text, SostojbaNova text, Mesec text)");
+      $window.db = $cordovaSQLite.openDB({
+        name: "geoMegaSoft.db",
+        location: 'default'
+      });
+      var createCustomersTableQuery = "CREATE TABLE IF NOT EXISTS customers (ID integer, SifTipID integer, Naziv text, UlicaID integer,  Adresa text, Broj integer, Mesto text, Drzava text, Vlez text, Stan text, Naziv1 text ); ";
+      var createWaterCountersTableQuery = "CREATE TABLE IF NOT EXISTS waterCounters (ReonId integer, VidKorId integer, KorisnikId integer, LokacijaId integer, UlicaId integer, Broilo text, Aktive int, Naziv text, Ulica text, Broj text, SostojbaNova text, Mesec text); ";
+      var createLocalChangesTableQuery = "CREATE TABLE IF NOT EXISTS LocalDataChanges (LocalDataChangeId  integer primary key,ReonId integer, VidKorID integer, KorisnikId integer,  LokacijaId integer,  Broilo text, SostojbaStara text, SostojbaNova text, SlikaSostojba text, lat text, long text, DateCreated text, TypeOfAPICall text, IsSentToAPI text ); ";
+      $cordovaSQLite.execute($window.db, createCustomersTableQuery + createWaterCountersTableQuery + createLocalChangesTableQuery);
+      // $cordovaSQLite.execute($window.db,  createWaterCountersTableQuery);
+      // $cordovaSQLite.execute($window.db, createLocalChangesTableQuery);
       //UlicaId in waterCounters in nullable
       //Aktive in waterCounters is boolean, but saved as integer (0 and 1)
 

@@ -24,7 +24,9 @@
       //check if already logged in
       //check if has reon
       if($window.localStorage['access_token'] != null && $window.localStorage['access_token'] != undefined){
-        $state.go("main.getarea");
+        $state.go("main.search", {
+          'selecetedArea': $window.localStorage['localReonId']
+        });
       }
     }
 
@@ -33,7 +35,9 @@
       var pass = vm.user.password;
       if (user != null && user != undefined && pass != null && pass != undefined) {
         LoginAPIService.login(user, pass).then(function() {
-          $state.go("main.getarea");
+          $state.go("main.search", {
+            'selecetedArea': $window.localStorage['localReonId']
+          });
         }, function(error) {
           vm.errors = {
             required: error

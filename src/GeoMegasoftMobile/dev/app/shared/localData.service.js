@@ -18,6 +18,7 @@
       // ------------------------------------------------------------------
       // begin: synchronization functions
       self.setReonFromAPI = SetReonFromAPICallback;
+      self.uploadAllChangesToApi = UploadAllChangesToApiCallback;
 
       function SetReonFromAPICallback(dataFromAPI, selectedArea) {
         var q = $q.defer();
@@ -35,7 +36,7 @@
         var waterCountersToInsert = [];
         var customersToInsert = [];
 
-        var waterCounterInsertQuery = "INSERT INTO waterCounters (ReonId , VidKorID , KorisnikId, LokacijaId , UlicaId, Broilo , Aktive , Naziv , Ulica, Broj , SostojbaNova, Mesec) VALUES (?, ? , ?, ?, ?, ? , ?, ?, ?, ? , ?, ?)";
+        var waterCounterInsertQuery = "INSERT INTO waterCounters (ReonId , VidKorId , KorisnikId, LokacijaId , UlicaId, Broilo , Aktive , Naziv , Ulica, Broj , SostojbaNova, Mesec) VALUES (?, ? , ?, ?, ?, ? , ?, ?, ?, ? , ?, ?)";
         var customersInsertQuery = "INSERT INTO customers (ID , SifTipID , Naziv , UlicaID ,  Adresa , Broj , Mesto , Drzava , Vlez , Stan , Naziv1 ) VALUES (? , ?, ? , ?,  ? , ? , ? , ?, ? , ?, ? )";
         for (var i = 0; i < dataFromAPI.waterCounters.length; i++) {
           //dataFromAPI.waterCounters[i]
@@ -108,14 +109,30 @@
       }
 
       function CleanLocalReonData() {
+        var q = $q.defer();
         $window.localStorage.removeItem("localReonId");
-        DbService.query("DELETE FROM customers;", null);
-        DbService.query("DELETE FROM waterCounters;", null);
+        DbService.query("DELETE FROM customers; DELETE FROM waterCounters; DELETE FROM LocalDataChanges; ", null).then(function() {
+          q.resolve();
+        }, function(errror) {
+          q.reject(errror);
+        });
+
+        return q.promise;
       }
 
-      function UploadAllChangesToApi() {
+      function UploadAllChangesToApiCallback() {
+        var q = $q.defer();
         //TODO make calls one by one, verify update and clear from queue
         //in the meantime display ionicLoading
+
+        //on the end clear local Data
+        CleanLocalReonData().then(function(res) {
+          q.resolve(res); //
+        }, function(error) {
+          q.reject(error);
+        });
+
+        return q.promise;
       }
 
       // end: synchronization functions
@@ -128,6 +145,7 @@
       self.addNewWaterCounter = addNewWaterCounterCallback;
       self.updateWaterCounterState = updateWaterCounterStateCallback;
       self.getLastWaterCounterState = getLastWaterCounterStateCallback;
+      self.searchWaterCountersByUserId = searchWaterCountersByUserIdCallback;
 
       function readCustomerInfoCallback(korisnikID) {
         // TODO GetCustomerInfoByWatterCounterId
@@ -168,6 +186,7 @@
       function searchWaterCountersCallback(firstLastName, location, radius, reionId) {
         var q = $q.defer();
         firstLastName = firstLastName.toUpperCase();
+        location = location.toUpperCase();
         // not necessary params locally
         // TODO SearchWaterCounters:
         // returns:
@@ -189,13 +208,13 @@
 
         if (location && location.length > 0) {
           searchQuery += "AND " +
-            " ( Ulica like  '" + location + "' " +
-            " or  Broj LIKE '" + location + "'" +
-            "  or (Ulica+' '+Broj)) like '" + location + "' )";
+            " ( upper(Ulica) like  '%" + location + "%' " +
+            " or  upper(Broj) LIKE '%" + location + "%'" +
+            "  or (upper(Ulica)+' '+upper(Broj) like '%" + location + "%' )) ";
         }
 
         if (firstLastName && firstLastName.length > 0) {
-          searchQuery += " AND (upper(Naziv) like '" + firstLastName + "%')";
+          searchQuery += " AND (upper(Naziv) like '%" + firstLastName + "%')";
         }
 
         searchQuery += " ORDER BY Naziv ";
@@ -238,16 +257,60 @@
 
       function getLastWaterCounterStateCallback(vidkorid, lokacijaID, korisnikID, reonID, broilo) {
         // TODO GetLastStateOfWaterCounter
-
+        var q = $q.defer();
         // returns
         // {
-        //  SostojbaStara
-        //  SostojbaNova
-        //  Mesec
-        //  SlikaSostojba
-        //  Broilo
-        //  ImeNaziv
+        //   ReonId,
+        //   VidKorID,
+        //   KorisnikId,
+        //   LokacijaId,
+        //   UlicaId,
+        //   Broilo,
+        //   Aktive,
+        //   Naziv,
+        //   Ulica,
+        //   Broj,
+        //   SostojbaNova,
+        //   Mesec
         // }
+
+        var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 AND VidKorId = " + vidkorid + " AND LokacijaId = " + lokacijaID +
+          " AND KorisnikId =" + korisnikID + " AND ReonId = " + reonID + " AND Broilo = '" + broilo + "'";
+
+        $ionicPlatform.ready(function() {
+          $cordovaSQLite.execute($window.db, searchQuery).then(function(res) {
+            var output = [];
+            for (var i = 0; i < res.rows.length; i++) {
+              output.push(res.rows.item(i));
+            }
+            q.resolve(output);
+          }, function(err) {
+            console.error(err);
+            q.reject(err);
+          });
+        });
+
+        return q.promise;
+      }
+
+      function searchWaterCountersByUserIdCallback(korisnikId) {
+        var q = $q.defer();
+        var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 AND KorisnikId = "+ korisnikId + " ORDER BY Naziv ";
+
+        $ionicPlatform.ready(function() {
+          $cordovaSQLite.execute($window.db, searchQuery).then(function(res) {
+            var output = [];
+            for (var i = 0; i < res.rows.length; i++) {
+              output.push(res.rows.item(i));
+            }
+            q.resolve(output);
+          }, function(err) {
+            console.error(err);
+            q.reject(err);
+          });
+        });
+
+        return q.promise;
       }
 
       // end: local data functions // API replacements

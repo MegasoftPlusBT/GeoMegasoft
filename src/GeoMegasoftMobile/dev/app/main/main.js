@@ -26,7 +26,6 @@
         };
 
         mainVm.logOut = function () {
-            $window.localStorage.clear();
             $state.go("main.login");
         };
 
