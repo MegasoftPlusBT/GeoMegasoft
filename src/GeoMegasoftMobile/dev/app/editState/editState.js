@@ -13,6 +13,7 @@
     function initVariables() {
       vm.someArray = [];
       vm.newCounter = false;
+      vm.HasBeenUpdatedLocally = false; //TODO check from localDB
     }
 
     $scope.$on('$ionicView.loaded', OnViewLoad);
@@ -37,9 +38,10 @@
         vm.broilo = res[0].Broilo;
         vm.state = {
           before: parseInt(res[0].SostojbaNova),
-          slika: null,
+          slika: res[0].SlikaSostojba,
           mesec: res[0].Mesec
         };
+        vm.HasBeenUpdatedLocally = res[0].HasBeenUpdatedLocally;
       }, function(err) {
         console.log(err);
       });
@@ -208,40 +210,7 @@
           };
         });
 
-        // var url = WebAPIurl + 'api/v1/watercounters/newCounter';
-        // $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-        // $http.post(url, data).then(function(resp) {
-        //   if (resp.data.isSucces === true) {
-        //     $ionicLoading.hide();
-        //     $ionicLoading.show({
-        //       template: "Успешна промена!",
-        //       noBackdrop: true,
-        //       duration: 2000
-        //     });
-        //     $timeout(function() {
-        //       $state.go("main.search", {
-        //         'selecetedArea': $stateParams.reonID
-        //       });
-        //     }, 3000);
-        //   } else {
-        //     $ionicLoading.hide();
-        //     vm.errors = {
-        //       required: "* " + resp.data.message
-        //     };
-        //   }
-        // }, function(err) {
-        //   if (err.status == 401 || err.status == 0) {
-        //     $window.localStorage.clear();
-        //     $state.go("main.login", {
-        //       message: "Проверете ја интернет конекцијата"
-        //     }, null);
-        //   } else {
-        //     $ionicLoading.hide();
-        //     vm.errors = {
-        //       required: "* " + err.data.exceptionMessage
-        //     };
-        //   }
-        // })
+
 
       }, 1000);
 

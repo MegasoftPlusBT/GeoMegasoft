@@ -5,9 +5,9 @@
   angular.module('starter.shared')
     .factory('LocalDataService', localDataService);
 
-  localDataService.$inject = ['DbService', '$cordovaSQLite', '$window', '$q', '$ionicPlatform'];
+  localDataService.$inject = ['DbService', '$cordovaSQLite', '$window', '$q', '$ionicPlatform', 'WebAPIurl', '$http'];
 
-  function localDataService(DbService, $cordovaSQLite, $window, $q, $ionicPlatform) {
+  function localDataService(DbService, $cordovaSQLite, $window, $q, $ionicPlatform, WebAPIurl, $http) {
     var service = new Service();
     return service;
 
@@ -36,7 +36,7 @@
         var waterCountersToInsert = [];
         var customersToInsert = [];
 
-        var waterCounterInsertQuery = "INSERT INTO waterCounters (ReonId , VidKorId , KorisnikId, LokacijaId , UlicaId, Broilo , Aktive , Naziv , Ulica, Broj , SostojbaNova, Mesec) VALUES (?, ? , ?, ?, ?, ? , ?, ?, ?, ? , ?, ?)";
+        var waterCounterInsertQuery = "INSERT INTO waterCounters (ReonId , VidKorId , KorisnikId, LokacijaId , UlicaId, Broilo , Aktive , Naziv , Ulica, Broj , SostojbaNova, Mesec,SlikaSostojba , HasBeenUpdatedLocally ) VALUES (?, ? , ?, ?, ?, ? , ?, ?, ?, ? , ?, ?,?,?)";
         var customersInsertQuery = "INSERT INTO customers (ID , SifTipID , Naziv , UlicaID ,  Adresa , Broj , Mesto , Drzava , Vlez , Stan , Naziv1 ) VALUES (? , ?, ? , ?,  ? , ? , ? , ?, ? , ?, ? )";
         for (var i = 0; i < dataFromAPI.waterCounters.length; i++) {
           //dataFromAPI.waterCounters[i]
@@ -53,13 +53,11 @@
             dataFromAPI.waterCounters[i].ulica,
             dataFromAPI.waterCounters[i].broj,
             dataFromAPI.waterCounters[i].sostojbaNova,
-            dataFromAPI.waterCounters[i].mesec
+            dataFromAPI.waterCounters[i].mesec,
+            null, //SlikaSostojba
+             0 //HasBeenUpdatedLocally
           ];
           waterCountersToInsert.push(waterCounterParameters);
-          // waterCountersQueries.push(
-          //   [waterCounterInsertQuery,
-          //     waterCounterParameters
-          //   ]);
         }
         for (var j = 0; j < dataFromAPI.customers.length; j++) {
           //dataFromAPI.customers[j]
@@ -111,11 +109,27 @@
       function CleanLocalReonData() {
         var q = $q.defer();
         $window.localStorage.removeItem("localReonId");
-        DbService.query("DELETE FROM customers; DELETE FROM waterCounters; DELETE FROM LocalDataChanges; ", null).then(function() {
-          q.resolve();
-        }, function(errror) {
+
+
+        $cordovaSQLite.execute($window.db, "DELETE FROM customers;").then(function(res1) {
+          $cordovaSQLite.execute($window.db, "DELETE FROM waterCounters;").then(function(res2) {
+            $cordovaSQLite.execute($window.db, "DELETE FROM LocalDataChanges;").then(function(res3) {
+              q.resolve(res3);
+            }, function(error) {
+              q.reject(errror);
+            });
+          }, function(error) {
+            q.reject(errror);
+          });
+        }, function(error) {
           q.reject(errror);
         });
+
+        // DbService.query("DELETE FROM customers; DELETE FROM waterCounters; DELETE FROM LocalDataChanges; ", null).then(function() {
+        //
+        // }, function(errror) {
+        //   q.reject(errror);
+        // });
 
         return q.promise;
       }
@@ -132,6 +146,75 @@
           q.reject(error);
         });
 
+        return q.promise;
+      }
+
+      function SendUpdateWaterCounterStateToAPI(dataToSend) {
+
+        var q = $q.defer();
+        var data = {
+          // "vidkorid": $stateParams.vidkorid,
+          // "lokacijaID": $stateParams.lokacijaID,
+          // "korisnikID": $stateParams.korisnikID,
+          // "reonID": $stateParams.reonID,
+          // "broilo": $stateParams.broilo,
+          // "sostojbaStara": parseInt(vm.state.before),
+          // "sostojbaNova": parseInt(vm.state.new),
+          // "slikaSostojba": vm.state.slika,
+          // "lat": lat,
+          // "long": long
+        };
+        var newValue = parseInt(vm.state.new);
+        var url = WebAPIurl + 'api/v1/watercounters/newstate';
+        $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
+        $http.post(url, data).then(function(resp) {
+          if (resp.data.isSucces === true) {
+            console.log("Успешно зачувана состојба!");
+          } else {
+            console.error('Not successfull');
+          }
+        }, function(err) {
+          if (err.status == 401 || err.status == 0) {
+            console.error('Not successfull');
+          } else {
+            console.error('Not successfull');
+          }
+        });
+      }
+
+      function SendAddNewWaterCounterCallToAPI(dataToSend) {
+        var q = $q.defer();
+        var data = {
+          // "Vidkorid": $stateParams.vidkorid,
+          // "LokacijaID": $stateParams.lokacijaID,
+          // "KorisnikID": $stateParams.korisnikID,
+          // "ReonID": $stateParams.reonID,
+          // "Broilo": vm.brShasija,
+          // "Sostojba": parseInt(vm.state.new),
+          // "SlikaSostojba": vm.state.slika,
+          // "Lat": lat,
+          // "Long": long
+        };
+        var url = WebAPIurl + 'api/v1/watercounters/newCounter';
+        $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
+        $http.post(url, data).then(function(resp) {
+          if (resp.data.isSucces === true) {
+            //successfully sent to API
+            console.log('successfully sent to API');
+
+            q.resolve(true);
+          } else {
+            console.error('Not successfull');
+            q.reject('Not successfull');
+          }
+        }, function(err) {
+          if (err.status == 401 || err.status == 0) {
+            console.error('Not successfull');
+          } else {
+            console.error('Not successfull');
+          }
+          q.reject('Not successfull');
+        });
         return q.promise;
       }
 
@@ -217,11 +300,19 @@
         return q.promise;
       }
 
-      function addNewWaterCounterCallback(data,imeNaziv,brShasija) {
+      function addNewWaterCounterCallback(data, imeNaziv, brShasija) {
         // TODO CreateNewWaterCounter
         var q = $q.defer();
         var addNewWaterCounterToLocalChangesQuery = "INSERT INTO LocalDataChanges (ReonId , VidKorID , KorisnikId ,  LokacijaId ,  Broilo , SostojbaStara , SostojbaNova , SlikaSostojba , lat , long , DateCreated , TypeOfAPICall , IsSentToAPI ) VALUES (? , ? , ? ,  ? ,  ? , ? , ? , ? , ? , ? , ? , ? , ?)";
-        var waterCounterInsertQuery = "INSERT INTO waterCounters (ReonId , VidKorId , KorisnikId, LokacijaId , UlicaId, Broilo , Aktive , Naziv , Ulica, Broj , SostojbaNova, Mesec) VALUES (?, ? , ?, ?, ?, ? , ?, ?, ?, ? , ?, ?)";
+        var waterCounterInsertQuery = "INSERT INTO waterCounters (ReonId , VidKorId , KorisnikId, LokacijaId , UlicaId, Broilo , Aktive , Naziv , Ulica, Broj , SostojbaNova, Mesec,SlikaSostojba , HasBeenUpdatedLocally) VALUES (?, ? , ?, ?, ?, ? , ?, ?, ?, ? , ?, ?, ?, ?)";
+
+        var slikaSostojbaValue = data.SlikaSostojba;
+        if(slikaSostojbaValue == null){
+          slikaSostojbaValue = null;
+        }
+        else{
+          slikaSostojbaValue =  data.SlikaSostojba;
+        }
 
         var itemToSaveInWaterCounters = [
           data.ReonId,
@@ -235,7 +326,9 @@
           null,
           null,
           data.SostojbaNova,
-          data.null
+          data.null,
+          slikaSostojbaValue,//SlikaSostojba text,
+          1 //HasBeenUpdatedLocally integer
         ];
 
         var dataToSave = Object.keys(data).map(function(key) {
@@ -266,7 +359,15 @@
         var q = $q.defer();
         var newWaterCounterStateInsertQuery = "INSERT INTO LocalDataChanges (ReonId , VidKorID , KorisnikId ,  LokacijaId ,  Broilo , SostojbaStara , SostojbaNova , SlikaSostojba , lat , long , DateCreated , TypeOfAPICall , IsSentToAPI ) VALUES (? , ? , ? ,  ? ,  ? , ? , ? , ? , ? , ? , ? , ? , ?)";
 
-        var updateStateInWaterCountersQuery = "UPDATE `waterCounters` SET SostojbaNova='" + data.SostojbaNova + "' WHERE Aktive = 1 AND VidKorId = " +
+        var slikaSostojbaValue = data.SlikaSostojba;
+        if(slikaSostojbaValue == null){
+          slikaSostojbaValue = null;
+        }
+        else{
+          slikaSostojbaValue = "'" + data.SlikaSostojba + "'";
+        }
+
+        var updateStateInWaterCountersQuery = "UPDATE `waterCounters` SET SostojbaNova='" + data.SostojbaNova + "', SlikaSostojba = "+slikaSostojbaValue+", HasBeenUpdatedLocally=1 WHERE Aktive = 1 AND VidKorId = " +
           data.VidKorID + " AND LokacijaId = " + data.LokacijaId +
           " AND KorisnikId =" + data.KorisnikId + " AND ReonId = " + data.ReonId + " AND Broilo = '" + data.Broilo + "'";
 

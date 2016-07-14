@@ -26,6 +26,7 @@
         };
 
         mainVm.logOut = function () {
+            $window.localStorage.removeItem('access_token');
             $state.go("main.login");
         };
 

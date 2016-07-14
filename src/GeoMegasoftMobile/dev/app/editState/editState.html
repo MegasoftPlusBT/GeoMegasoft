@@ -1,5 +1,8 @@
 <ion-view class="hs-view-home has-header bar-calm" view-title="Состојба" content scroll="false">
   <ion-content class="has-header" style="padding-top:10px;" content scroll="true">
+    <div style="margin-left: 10%;margin-top: 20px;margin-bottom: 20px;color: red;margin-right: 10%;" ng-if="vm.HasBeenUpdatedLocally == 1">
+      <p>Внимание, за ова броило имате внесено податок за овој месец.</p>
+    </div>
     <div class="row row-center" style="width:80%;margin-left: 10%;      margin-right: 10%;">
       <div class="col">
         <ion-item class="item-stable" style="max-height:70%">
