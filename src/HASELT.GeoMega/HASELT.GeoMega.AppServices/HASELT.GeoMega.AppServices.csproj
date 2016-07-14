@@ -96,6 +96,7 @@
     <Compile Include="Features\WaterCounters\GetLastStateOfWaterCounter.cs" />
     <Compile Include="Features\WaterCounters\InsertNewStateForWaterCounter.cs" />
     <Compile Include="Features\WaterCounters\SearchWaterCounters.cs" />
+    <Compile Include="Features\WaterCounters\SynchronizeDataFromMobile.cs" />
     <Compile Include="IBootstrapperConfiguration.cs" />
     <Compile Include="ISmtpClientConfiguration.cs" />
     <Compile Include="IFileClientConfiguration.cs" />

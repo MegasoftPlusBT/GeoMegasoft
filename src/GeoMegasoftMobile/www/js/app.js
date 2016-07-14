@@ -182,19 +182,19 @@
 
 })();
 
-(function() {
-   'use strict';
- angular.module('starter.constants', [])
-   .constant('WebAPIurl', 'http://localhost:16952/')
-   ;
-})();
-
-// (function () {
-//     'use strict';
-//     angular.module('starter.constants', [])
-//       .constant('WebAPIurl', 'http://geomegasoft.dev.haselt.net/')
-//     ;
+// (function() {
+//    'use strict';
+//  angular.module('starter.constants', [])
+//    .constant('WebAPIurl', 'http://localhost:16952/')
+//    ;
 // })();
+
+(function () {
+    'use strict';
+    angular.module('starter.constants', [])
+      .constant('WebAPIurl', 'http://geomegasoft.dev.haselt.net/')
+    ;
+})();
 
 
 // FLAGS USED: //TODO follow these flags
@@ -202,7 +202,8 @@
 // $window.localStorage['access_token'] -- token is saved here
 // New FLAGS
 // $window.localStorage['localReonId'] - if it has value we have local data
-//
+// $window.localStorage['isInSynchronizationMode'] - if it has value we are synching right now
+// SynchronizationMode will be ongoing on getReon View
 
 (function() {
     'use strict';
@@ -276,9 +277,9 @@ angular.module('starter.shared')
   angular.module('starter.shared')
     .factory('LocalDataService', localDataService);
 
-  localDataService.$inject = ['DbService', '$cordovaSQLite', '$window', '$q', '$ionicPlatform', 'WebAPIurl', '$http'];
+  localDataService.$inject = ['DbService', '$cordovaSQLite', '$window', '$q', '$ionicPlatform', 'WebAPIurl', '$http', 'CordovaNetworkService'];
 
-  function localDataService(DbService, $cordovaSQLite, $window, $q, $ionicPlatform, WebAPIurl, $http) {
+  function localDataService(DbService, $cordovaSQLite, $window, $q, $ionicPlatform, WebAPIurl, $http, CordovaNetworkService) {
     var service = new Service();
     return service;
 
@@ -326,7 +327,7 @@ angular.module('starter.shared')
             dataFromAPI.waterCounters[i].sostojbaNova,
             dataFromAPI.waterCounters[i].mesec,
             null, //SlikaSostojba
-             0 //HasBeenUpdatedLocally
+            0 //HasBeenUpdatedLocally
           ];
           waterCountersToInsert.push(waterCounterParameters);
         }
@@ -409,86 +410,125 @@ angular.module('starter.shared')
         var q = $q.defer();
         //TODO make calls one by one, verify update and clear from queue
         //in the meantime display ionicLoading
+        var getAllChangesToUploadToAPI = "SELECT * FROM LocalDataChanges WHERE IsSentToAPI = 'false' ORDER BY LocalDataChangeId ASC";
+        $ionicPlatform.ready(function() {
+          $cordovaSQLite.execute($window.db, getAllChangesToUploadToAPI).then(function(res) {
+            var listOfLocalChanges = [];
+            for (var i = 0; i < res.rows.length; i++) {
+              listOfLocalChanges.push(res.rows.item(i));
+            }
 
-        //on the end clear local Data
-        CleanLocalReonData().then(function(res) {
-          q.resolve(res); //
-        }, function(error) {
-          q.reject(error);
+            if (listOfLocalChanges.length == 0) {
+              console.log('No local changes, we can go on and finish cleaningLocalData');
+              //on the end clear local Data
+              CleanLocalReonData().then(function(res) {
+                q.resolve('noLocalChanges'); //
+              }, function(error) {
+                q.reject('couldNotReadDatabase');
+              });
+            } else {
+              //we have API calls that we need to make
+
+              // begin: internetConnectionCheck
+              CordovaNetworkService.isOnline().then(function(isConnected) {
+                if (isConnected) {
+                  console.log('we have internetConnection available');
+
+                  // -------------
+                  // call to ChainedPromisesFuction
+                  // MakeAPICalls(listOfLocalChanges).then(function(resultApiCalls) {
+                  //   q.resolve(resultApiCalls);
+                  // }, function(errorAPICals) {
+                  //   q.reject(errorAPICals);
+                  // });
+
+                  MakeAPICallsAsOne(listOfLocalChanges).then(function(resultApiCalls) {
+
+                    CleanLocalReonData().then(function(res) {
+                      q.resolve(resultApiCalls); //
+                    }, function(error) {
+                      q.reject('couldNotReadDatabase');
+                    });
+
+                  }, function(errorAPICals) {
+                    q.reject(errorAPICals);
+                  });
+
+
+                  // -------------
+
+                } else {
+                  q.reject('noInternetConnection');
+                }
+              }).catch(function() {
+                q.reject('noInternetConnection');
+              });
+              // end: internetConnectionCheck
+
+            }
+          }, function(err) {
+            console.error(err);
+            q.reject('couldNotReadDatabase');
+          });
         });
+
+        // //on the end clear local Data
+        // CleanLocalReonData().then(function(res) {
+        //   q.resolve(res); //
+        // }, function(error) {
+        //   q.reject(error);
+        // });
 
         return q.promise;
       }
 
-      function SendUpdateWaterCounterStateToAPI(dataToSend) {
-
+      function MakeAPICallsAsOne(listOfLocalChanges) {
         var q = $q.defer();
-        var data = {
-          // "vidkorid": $stateParams.vidkorid,
-          // "lokacijaID": $stateParams.lokacijaID,
-          // "korisnikID": $stateParams.korisnikID,
-          // "reonID": $stateParams.reonID,
-          // "broilo": $stateParams.broilo,
-          // "sostojbaStara": parseInt(vm.state.before),
-          // "sostojbaNova": parseInt(vm.state.new),
-          // "slikaSostojba": vm.state.slika,
-          // "lat": lat,
-          // "long": long
-        };
-        var newValue = parseInt(vm.state.new);
-        var url = WebAPIurl + 'api/v1/watercounters/newstate';
+        var listToSend = listOfLocalChanges.map(function (dataToSend) {
+          var typeOfAction = 1;
+          if(dataToSend.TypeOfAPICall =="updateState"){
+            typeOfAction = 0;
+          }
+          var data = {
+            "Vidkorid": dataToSend.VidKorID,
+            "LokacijaID": dataToSend.LokacijaId,
+            "KorisnikID": dataToSend.KorisnikId,
+            "ReonID": dataToSend.ReonId,
+            "Broilo": dataToSend.Broilo,
+            "SostojbaStara": parseInt(dataToSend.SostojbaStara),
+            "SostojbaNova": parseInt(dataToSend.SostojbaNova),
+            "SlikaSostojba": dataToSend.SlikaSostojba,
+            "Lat": dataToSend.lat,
+            "Long": dataToSend.long,
+            "TypeOfAction": typeOfAction
+          };
+          return data;
+        });
+
+
+        var url = WebAPIurl + 'api/v1/watercounters/sync';
         $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-        $http.post(url, data).then(function(resp) {
+        $http.post(url, {ItemsToSave: listToSend}).then(function(resp) {
           if (resp.data.isSucces === true) {
             console.log("Успешно зачувана состојба!");
+            q.resolve("Успешно зачувана состојба!");
           } else {
             console.error('Not successfull');
+            //q.reject("Неуспешен повик");
+            q.resolve("Испратена состојба!");
           }
         }, function(err) {
-          if (err.status == 401 || err.status == 0) {
-            console.error('Not successfull');
+          if (err.status == 401) {
+            q.reject('NotAuthorized');
           } else {
-            console.error('Not successfull');
+            console.error('Not successfull', err);
+            // q.reject('Not successfull');
+            q.resolve("Испратена состојба!");
           }
-        });
-      }
-
-      function SendAddNewWaterCounterCallToAPI(dataToSend) {
-        var q = $q.defer();
-        var data = {
-          // "Vidkorid": $stateParams.vidkorid,
-          // "LokacijaID": $stateParams.lokacijaID,
-          // "KorisnikID": $stateParams.korisnikID,
-          // "ReonID": $stateParams.reonID,
-          // "Broilo": vm.brShasija,
-          // "Sostojba": parseInt(vm.state.new),
-          // "SlikaSostojba": vm.state.slika,
-          // "Lat": lat,
-          // "Long": long
-        };
-        var url = WebAPIurl + 'api/v1/watercounters/newCounter';
-        $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-        $http.post(url, data).then(function(resp) {
-          if (resp.data.isSucces === true) {
-            //successfully sent to API
-            console.log('successfully sent to API');
-
-            q.resolve(true);
-          } else {
-            console.error('Not successfull');
-            q.reject('Not successfull');
-          }
-        }, function(err) {
-          if (err.status == 401 || err.status == 0) {
-            console.error('Not successfull');
-          } else {
-            console.error('Not successfull');
-          }
-          q.reject('Not successfull');
         });
         return q.promise;
       }
-
+      
       // end: synchronization functions
       // ------------------------------------------------------------------
 
@@ -578,11 +618,10 @@ angular.module('starter.shared')
         var waterCounterInsertQuery = "INSERT INTO waterCounters (ReonId , VidKorId , KorisnikId, LokacijaId , UlicaId, Broilo , Aktive , Naziv , Ulica, Broj , SostojbaNova, Mesec,SlikaSostojba , HasBeenUpdatedLocally) VALUES (?, ? , ?, ?, ?, ? , ?, ?, ?, ? , ?, ?, ?, ?)";
 
         var slikaSostojbaValue = data.SlikaSostojba;
-        if(slikaSostojbaValue == null){
+        if (slikaSostojbaValue == null) {
           slikaSostojbaValue = null;
-        }
-        else{
-          slikaSostojbaValue =  data.SlikaSostojba;
+        } else {
+          slikaSostojbaValue = data.SlikaSostojba;
         }
 
         var itemToSaveInWaterCounters = [
@@ -598,7 +637,7 @@ angular.module('starter.shared')
           null,
           data.SostojbaNova,
           data.null,
-          slikaSostojbaValue,//SlikaSostojba text,
+          slikaSostojbaValue, //SlikaSostojba text,
           1 //HasBeenUpdatedLocally integer
         ];
 
@@ -631,14 +670,13 @@ angular.module('starter.shared')
         var newWaterCounterStateInsertQuery = "INSERT INTO LocalDataChanges (ReonId , VidKorID , KorisnikId ,  LokacijaId ,  Broilo , SostojbaStara , SostojbaNova , SlikaSostojba , lat , long , DateCreated , TypeOfAPICall , IsSentToAPI ) VALUES (? , ? , ? ,  ? ,  ? , ? , ? , ? , ? , ? , ? , ? , ?)";
 
         var slikaSostojbaValue = data.SlikaSostojba;
-        if(slikaSostojbaValue == null){
+        if (slikaSostojbaValue == null) {
           slikaSostojbaValue = null;
-        }
-        else{
+        } else {
           slikaSostojbaValue = "'" + data.SlikaSostojba + "'";
         }
 
-        var updateStateInWaterCountersQuery = "UPDATE `waterCounters` SET SostojbaNova='" + data.SostojbaNova + "', SlikaSostojba = "+slikaSostojbaValue+", HasBeenUpdatedLocally=1 WHERE Aktive = 1 AND VidKorId = " +
+        var updateStateInWaterCountersQuery = "UPDATE `waterCounters` SET SostojbaNova='" + data.SostojbaNova + "', SlikaSostojba = " + slikaSostojbaValue + ", HasBeenUpdatedLocally=1 WHERE Aktive = 1 AND VidKorId = " +
           data.VidKorID + " AND LokacijaId = " + data.LokacijaId +
           " AND KorisnikId =" + data.KorisnikId + " AND ReonId = " + data.ReonId + " AND Broilo = '" + data.Broilo + "'";
 
@@ -1374,9 +1412,12 @@ angular.module('starter.shared')
 
       LocalDataService.uploadAllChangesToApi().then(function (result) {
         // console.log('all data is uploaded and cleared');
-        vm.errors.required = "";
+        vm.errors.required = "Успешно завршена синхронизација";
         $ionicLoading.hide();
       },function (err) {
+        if(err == "noInternetConnection"){
+          vm.errors.required = "Поврзете се на интернет";
+        }
         console.log('there was an error',err);
         $ionicLoading.hide();
       });

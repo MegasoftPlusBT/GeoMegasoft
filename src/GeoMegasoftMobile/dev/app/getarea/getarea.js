@@ -85,9 +85,12 @@
 
       LocalDataService.uploadAllChangesToApi().then(function (result) {
         // console.log('all data is uploaded and cleared');
-        vm.errors.required = "";
+        vm.errors.required = "Успешно завршена синхронизација";
         $ionicLoading.hide();
       },function (err) {
+        if(err == "noInternetConnection"){
+          vm.errors.required = "Поврзете се на интернет";
+        }
         console.log('there was an error',err);
         $ionicLoading.hide();
       });
