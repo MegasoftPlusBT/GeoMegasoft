@@ -803,10 +803,10 @@ angular.module('starter.shared')
   'use strict';
 
   angular.module('starter.shared')
-    .factory('NetworkInfoService', networkInfoService);
+    .factory('CordovaNetworkService', networkInfoService);
 
-  angular.module('starter.shared')
-    .service('CordovaNetworkService', navigatorNetworkService);
+  // angular.module('starter.shared')
+  //   .service('CordovaNetworkService', navigatorNetworkService);
 
   navigatorNetworkService.$inject = ['$rootScope', '$ionicPlatform', '$q'];
 
