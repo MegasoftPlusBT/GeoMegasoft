@@ -27,6 +27,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
             public string Lat { get; set; }
 
             public string Long { get; set; }
+            public string Mesec { get; set; }
         }
 
         public class Response : BaseResponse
@@ -50,6 +51,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 RuleFor(x => x.Sostojba).NotEmpty().WithMessage(message);
                 RuleFor(x => x.Lat).NotEmpty().WithMessage(message);
                 RuleFor(x => x.Long).NotEmpty().WithMessage(message);
+
+                RuleFor(x => x.Mesec).NotEmpty().WithMessage(message);
             }
         }
 
@@ -59,7 +62,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
             {
                 var response = new Response();
                 var createQuery = @"
-                    INSERT INTO [dbo].[BroilaFizickiLica]
+                    INSERT INTO [Komunalecjpk].[dbo].[BroilaFizickiLica]
                        ([VidKorID]
                        ,[KorisnikID]
                        ,[LokacijaID]
@@ -102,13 +105,11 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                         Broilo = request.Broilo
                     });
 
-                var year = DateTime.UtcNow.Year;
-                var month = DateTime.UtcNow.Month;
-                var composeMesec = year + "/" + (month < 10 ? "0" + month : month.ToString());
+                var composeMesec = request.Mesec;
                 var razlika = request.Sostojba;
 
                 var brojClenovi = Connection.Query<int?>(@"Select BrojClenovi 
-                                                           From LokacijaFizickiLica 
+                                                           From Komunalecjpk.dbo.LokacijaFizickiLica  
                                                            where Vidkorid=@Vidkorid and LokacijaID=@LokacijaID and KorisnikID=@KorisnikID and ReonID=@ReonID",
                                                            new { Vidkorid = request.Vidkorid, LokacijaID = request.LokacijaID, KorisnikID = request.KorisnikID, ReonID = request.ReonID }).FirstOrDefault();
 
@@ -123,10 +124,10 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                                    Vlez,
                                                                    Stan,
                                                                    Naziv1
-                                                            FROM FinknJpk.dbo.Sifrarnik
+                                                            FROM FinknJpk_old.dbo.Sifrarnik
                                                             WHERE ID=@KorisnikId", new { KorisnikId = request.KorisnikID }).FirstOrDefault();
 
-                var result = Connection.Execute(@"INSERT INTO [dbo].[SostojbaFizicki]
+                var result = Connection.Execute(@"INSERT INTO [Komunalecjpk].[dbo].[SostojbaFizicki]
                                                                        ([Vidkorid]
                                                                        ,[KorisnikID]
                                                                        ,[LokacijaID]

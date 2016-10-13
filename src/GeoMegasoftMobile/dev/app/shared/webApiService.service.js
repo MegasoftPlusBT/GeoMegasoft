@@ -15,7 +15,7 @@
       self.downladReonData = downladReonDataCallback;
       self.sendData = sendDataCallback;
 
-      function downladReonDataCallback(reonId) {
+      function downladReonDataCallback(reonId, selectedYear, selectedMonth) {
         // TODO add code to download data from online API service and add it to the database
         var url = WebAPIurl + 'api/v1/Reons/ReonData?ReonId=' + reonId;
         return $http.get(url, {
@@ -23,7 +23,9 @@
             'Authorization': 'Bearer ' + $window.localStorage['access_token']
           },
           params: {
-            ReonId: reonId
+            ReonId: reonId,
+            Year: selectedYear,
+            Month: selectedMonth
           }
         }).then(function(resp) {
           var data = {};

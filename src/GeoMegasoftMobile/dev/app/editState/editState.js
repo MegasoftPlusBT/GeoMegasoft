@@ -179,7 +179,7 @@
           VidKorID: $stateParams.vidkorid,
           KorisnikId: $stateParams.korisnikID,
           LokacijaId: $stateParams.lokacijaID,
-          Broilo: $stateParams.broilo,
+          Broilo: vm.brShasija,
           SostojbaStara: 0,
           SostojbaNova: parseInt(vm.state.new),
           SlikaSostojba: vm.state.slika,

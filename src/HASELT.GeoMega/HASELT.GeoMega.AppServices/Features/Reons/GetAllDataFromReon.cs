@@ -10,6 +10,8 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
         public class Query : BaseRequest<Response>
         {
             public int ReonId { get; set; }
+            public string Month { get; set; }
+            public string Year { get; set; }
         }
 
         public class Response : BaseResponse
@@ -82,6 +84,8 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
             public Validator()
             {
                 RuleFor(x => x.ReonId).NotEmpty();
+                RuleFor(x => x.Month).NotEmpty();
+                RuleFor(x => x.Year).NotEmpty();
             }
         }
 
@@ -102,13 +106,13 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
                 Vlez,
                 Stan,
                 Naziv1
-                FROM Sifrarnik AS sf
-                INNER JOIN LokacijaFizickiLica AS lf ON lf.ReonID = @ReonId AND sf.ID = lf.KorisnikID ";
+                FROM FinknJpk_old.dbo.Sifrarnik AS sf
+                INNER JOIN Komunalecjpk.dbo.LokacijaFizickiLica AS lf ON lf.ReonID = @ReonId AND sf.ID = lf.KorisnikID ";
 
                 var customers = Connection.Query<Response.CustomerListItem>(_queryCustomers, new { ReonId = request.ReonId }).AsList();
 
                 var _queryWaterCounters = @"
-                    Select  
+                   Select  
                           bfl.VidKorID as VidKorID, 
                           bfl.KorisnikID as KorisnikId, 
                           bfl.LokacijaID as LokacijaId,
@@ -120,35 +124,43 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
                           k.Ulica as Ulica, 
                           k.Broj as Broj,
 	                    (
-	                    SELECT TOP 1 sf.SostojbaNova from SostojbaFizicki sf
+	                    SELECT TOP 1 sf.SostojbaStara from Komunalecjpk.dbo.SostojbaFizicki sf
 		                    Where sf.Vidkorid=bfl.VidKorID 
 		                    and sf.KorisnikID=bfl.KorisnikID
 		                    and sf.LokacijaID=bfl.LokacijaID 
-		                    and sf.Broilo=bfl.Broilo
-		                    Order by sf.Mesec desc
+		                    and sf.Broilo=bfl.Broilo 
+							 AND sf.Mesec = @YearMonth
 	                    ) as SostojbaNova,
                         (
-	                    SELECT TOP 1 sf.Mesec from SostojbaFizicki sf
+	                    SELECT TOP 1 sf.Mesec from Komunalecjpk.dbo.SostojbaFizicki sf
 		                    Where sf.Vidkorid=bfl.VidKorID 
 		                    and sf.KorisnikID=bfl.KorisnikID
 		                    and sf.LokacijaID=bfl.LokacijaID 
-		                    and sf.Broilo=bfl.Broilo
-		                    Order by sf.Mesec desc
+		                    and sf.Broilo=bfl.Broilo 
+							 AND sf.Mesec = @YearMonth
 	                    ) as Mesec
 
-                          From BroilaFizickiLica bfl
-                          left join LokacijaFizickiLica lfl on 
+                          From Komunalecjpk.dbo.BroilaFizickiLica bfl
+                          left JOIN Komunalecjpk.dbo.LokacijaFizickiLica lfl on 
                           lfl.VidKorID=bfl.VidKorID AND 
                           lfl.LokacijaID=bfl.LokacijaID AND 
                           lfl.KorisnikID=bfl.KorisnikID AND
                           lfl.ReonID=bfl.ReonID
-                          inner join Korisnici k on bfl.KorisnikID=k.KorisnikID
+                          inner join Komunalecjpk.dbo.Korisnici k on bfl.KorisnikID=k.KorisnikID
                           where lfl.Aktiven=1 
 	                      AND 
                           bfl.Status=1
-	                      AND bfl.ReonID = @ReonId";
+	                      AND bfl.ReonID = @ReonId
+						  AND bfl.Broilo IN (
+						  
+						  SELECT sf.Broilo from Komunalecjpk.dbo.SostojbaFizicki sf
+		                    Where sf.Mesec = @YearMonth
+                            And sf.SostojbaNova = '0'
+	                    )                  
 
-                var waterCounters = Connection.Query<Response.WaterCounterListItem>(_queryWaterCounters, new { ReonId = request.ReonId }).AsList();
+                        ";
+
+                var waterCounters = Connection.Query<Response.WaterCounterListItem>(_queryWaterCounters, new { ReonId = request.ReonId, YearMonth = $"{request.Year}/{request.Month}" }).AsList();
 
                 return new Response
                 {

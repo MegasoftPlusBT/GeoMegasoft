@@ -43,7 +43,7 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
         {
             public override async Task<Response> Handle(Request request)
             {
-                var items = Connection.Query<Response.Item>(@"SELECT * FROM Reoni WHERE Zabeleska <> ' '").AsList();
+                var items = Connection.Query<Response.Item>(@"SELECT * FROM Komunalecjpk.dbo.Reoni WHERE Zabeleska <> ' '").AsList();
                 return new Response
                 {
                     Items = items

@@ -113,7 +113,7 @@ namespace HASELT.GeoMega.AppServices.Features.Customers
                                                                    Vlez,
                                                                    Stan,
                                                                    Naziv1
-                                                            FROM FinknJpk.dbo.Sifrarnik
+                                                            FROM FinknJpk_old.dbo.Sifrarnik
                                                             WHERE ID=@KorisnikId", new { KorisnikId = request.KorisnikID }).FirstOrDefault();
                 var response = new Response();
 
