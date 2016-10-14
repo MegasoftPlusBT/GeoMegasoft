@@ -205,6 +205,7 @@
 // $window.localStorage['isInSynchronizationMode'] - if it has value we are synching right now
 // SynchronizationMode will be ongoing on getReon View
 
+// $window.localStorage['localDataMesec'] - if it has value we have local data
 (function() {
     'use strict';
 angular.module('starter.shared')
@@ -272,7 +273,7 @@ angular.module('starter.shared')
 
 /* globals _, ionic */
 /*jshint -W083, -W069, -W041 */
-(function() {
+(function () {
   'use strict';
   angular.module('starter.shared')
     .factory('LocalDataService', localDataService);
@@ -292,7 +293,7 @@ angular.module('starter.shared')
       self.setReonFromAPI = SetReonFromAPICallback;
       self.uploadAllChangesToApi = UploadAllChangesToApiCallback;
 
-      function SetReonFromAPICallback(dataFromAPI, selectedArea) {
+      function SetReonFromAPICallback(dataFromAPI, selectedArea, selectedMonth) {
         var q = $q.defer();
 
         //TODO  check if has changes waiting..
@@ -313,6 +314,7 @@ angular.module('starter.shared')
         for (var i = 0; i < dataFromAPI.waterCounters.length; i++) {
           //dataFromAPI.waterCounters[i]
           $window.localStorage['localReonId'] = selectedArea;
+          $window.localStorage['localDataMesec'] = selectedMonth;
           var waterCounterParameters = [
             dataFromAPI.waterCounters[i].reonId,
             dataFromAPI.waterCounters[i].vidKorID,
@@ -353,25 +355,25 @@ angular.module('starter.shared')
           // ]);
         }
 
-        $ionicPlatform.ready(function() {
+        $ionicPlatform.ready(function () {
           // $cordovaSQLite.execute($window.db, query, parameters)
           $cordovaSQLite.insertCollection($window.db, waterCounterInsertQuery,
-            waterCountersToInsert).then(function(res) {
-            //q.resolve(res);
+            waterCountersToInsert).then(function (res) {
+              //q.resolve(res);
 
-            //TODO add another insertCollection call for the customers inside here
-            $cordovaSQLite.insertCollection($window.db, customersInsertQuery,
-              customersToInsert).then(function(resultCustomers) {
-              $window.localStorage['localReonId'] = selectedArea;
-              q.resolve(res);
-            }, function(err) {
-              console.error(err);
-              q.reject(err);
+              //TODO add another insertCollection call for the customers inside here
+              $cordovaSQLite.insertCollection($window.db, customersInsertQuery,
+                customersToInsert).then(function (resultCustomers) {
+                  $window.localStorage['localReonId'] = selectedArea;
+                  q.resolve(res);
+                }, function (err) {
+                  console.error(err);
+                  q.reject(err);
+                });
+            }, function (error) {
+              console.error(error);
+              q.reject(error);
             });
-          }, function(error) {
-            console.error(error);
-            q.reject(error);
-          });
 
         });
 
@@ -381,19 +383,19 @@ angular.module('starter.shared')
       function CleanLocalReonData() {
         var q = $q.defer();
         $window.localStorage.removeItem("localReonId");
+        $window.localStorage.removeItem("localDataMesec");
 
-
-        $cordovaSQLite.execute($window.db, "DELETE FROM customers;").then(function(res1) {
-          $cordovaSQLite.execute($window.db, "DELETE FROM waterCounters;").then(function(res2) {
-            $cordovaSQLite.execute($window.db, "DELETE FROM LocalDataChanges;").then(function(res3) {
+        $cordovaSQLite.execute($window.db, "DELETE FROM customers;").then(function (res1) {
+          $cordovaSQLite.execute($window.db, "DELETE FROM waterCounters;").then(function (res2) {
+            $cordovaSQLite.execute($window.db, "DELETE FROM LocalDataChanges;").then(function (res3) {
               q.resolve(res3);
-            }, function(error) {
+            }, function (error) {
               q.reject(errror);
             });
-          }, function(error) {
+          }, function (error) {
             q.reject(errror);
           });
-        }, function(error) {
+        }, function (error) {
           q.reject(errror);
         });
 
@@ -411,8 +413,8 @@ angular.module('starter.shared')
         //TODO make calls one by one, verify update and clear from queue
         //in the meantime display ionicLoading
         var getAllChangesToUploadToAPI = "SELECT * FROM LocalDataChanges WHERE IsSentToAPI = 'false' ORDER BY LocalDataChangeId ASC";
-        $ionicPlatform.ready(function() {
-          $cordovaSQLite.execute($window.db, getAllChangesToUploadToAPI).then(function(res) {
+        $ionicPlatform.ready(function () {
+          $cordovaSQLite.execute($window.db, getAllChangesToUploadToAPI).then(function (res) {
             var listOfLocalChanges = [];
             for (var i = 0; i < res.rows.length; i++) {
               listOfLocalChanges.push(res.rows.item(i));
@@ -421,16 +423,34 @@ angular.module('starter.shared')
             if (listOfLocalChanges.length == 0) {
               console.log('No local changes, we can go on and finish cleaningLocalData');
               //on the end clear local Data
-              CleanLocalReonData().then(function(res) {
+              CleanLocalReonData().then(function (res) {
                 q.resolve('noLocalChanges'); //
-              }, function(error) {
+              }, function (error) {
                 q.reject('couldNotReadDatabase');
               });
             } else {
               //we have API calls that we need to make
+              var uniqueListOfLocalChanges = [];
+
+              listOfLocalChanges.forEach(function (item) {
+                var indexInUnique = uniqueListOfLocalChanges.findIndex(function (b) {
+                  return b.Broilo == item.Broilo;
+                });
+
+                if (indexInUnique == -1) {
+                  uniqueListOfLocalChanges.push(item);
+                }
+                else {
+                  // Setting latest changes to send to API
+                  uniqueListOfLocalChanges[indexInUnique].SostojbaNova = item.SostojbaNova;
+                  uniqueListOfLocalChanges[indexInUnique].SlikaSostojba = item.SlikaSostojba;
+                }
+              });
+              
+              listOfLocalChanges = uniqueListOfLocalChanges;
 
               // begin: internetConnectionCheck
-              CordovaNetworkService.isOnline().then(function(isConnected) {
+              CordovaNetworkService.isOnline().then(function (isConnected) {
                 if (isConnected) {
                   console.log('we have internetConnection available');
 
@@ -442,15 +462,15 @@ angular.module('starter.shared')
                   //   q.reject(errorAPICals);
                   // });
 
-                  MakeAPICallsAsOne(listOfLocalChanges).then(function(resultApiCalls) {
+                  MakeAPICallsAsOne(listOfLocalChanges).then(function (resultApiCalls) {
 
-                    CleanLocalReonData().then(function(res) {
+                    CleanLocalReonData().then(function (res) {
                       q.resolve(resultApiCalls); //
-                    }, function(error) {
+                    }, function (error) {
                       q.reject('couldNotReadDatabase');
                     });
 
-                  }, function(errorAPICals) {
+                  }, function (errorAPICals) {
                     q.reject(errorAPICals);
                   });
 
@@ -460,13 +480,13 @@ angular.module('starter.shared')
                 } else {
                   q.reject('noInternetConnection');
                 }
-              }).catch(function() {
+              }).catch(function () {
                 q.reject('noInternetConnection');
               });
               // end: internetConnectionCheck
 
             }
-          }, function(err) {
+          }, function (err) {
             console.error(err);
             q.reject('couldNotReadDatabase');
           });
@@ -486,7 +506,7 @@ angular.module('starter.shared')
         var q = $q.defer();
         var listToSend = listOfLocalChanges.map(function (dataToSend) {
           var typeOfAction = 1;
-          if(dataToSend.TypeOfAPICall =="updateState"){
+          if (dataToSend.TypeOfAPICall == "updateState") {
             typeOfAction = 0;
           }
           var data = {
@@ -508,7 +528,8 @@ angular.module('starter.shared')
 
         var url = WebAPIurl + 'api/v1/watercounters/sync';
         $http.defaults.headers.post['Authorization'] = "Bearer " + $window.localStorage['access_token'];
-        $http.post(url, {ItemsToSave: listToSend}).then(function(resp) {
+        var mesecToSend = $window.localStorage['localDataMesec'];
+        $http.post(url, { ItemsToSave: listToSend, Mesec: mesecToSend }).then(function (resp) {
           if (resp.data.isSucces === true) {
             console.log("Успешно зачувана состојба!");
             q.resolve("Успешно зачувана состојба!");
@@ -517,7 +538,7 @@ angular.module('starter.shared')
             //q.reject("Неуспешен повик");
             q.resolve("Испратена состојба!");
           }
-        }, function(err) {
+        }, function (err) {
           if (err.status == 401) {
             q.reject('NotAuthorized');
           } else {
@@ -528,7 +549,7 @@ angular.module('starter.shared')
         });
         return q.promise;
       }
-      
+
       // end: synchronization functions
       // ------------------------------------------------------------------
 
@@ -560,14 +581,14 @@ angular.module('starter.shared')
 
         var getCustomerInfoQuery = "SELECT SifTipID, ID, Naziv, UlicaID, Adresa,  Broj, Mesto, Drzava, Vlez, Stan, Naziv1  FROM customers  WHERE ID=" + korisnikID;
 
-        $ionicPlatform.ready(function() {
-          $cordovaSQLite.execute($window.db, getCustomerInfoQuery).then(function(res) {
+        $ionicPlatform.ready(function () {
+          $cordovaSQLite.execute($window.db, getCustomerInfoQuery).then(function (res) {
             var output = [];
             for (var i = 0; i < res.rows.length; i++) {
               output.push(res.rows.item(i));
             }
             q.resolve(output);
-          }, function(err) {
+          }, function (err) {
             console.error(err);
             q.reject(err);
           });
@@ -595,14 +616,14 @@ angular.module('starter.shared')
 
         searchQuery += " ORDER BY Naziv ";
 
-        $ionicPlatform.ready(function() {
-          $cordovaSQLite.execute($window.db, searchQuery).then(function(res) {
+        $ionicPlatform.ready(function () {
+          $cordovaSQLite.execute($window.db, searchQuery).then(function (res) {
             var output = [];
             for (var i = 0; i < res.rows.length; i++) {
               output.push(res.rows.item(i));
             }
             q.resolve(output);
-          }, function(err) {
+          }, function (err) {
             console.error(err);
             q.reject(err);
           });
@@ -641,21 +662,21 @@ angular.module('starter.shared')
           1 //HasBeenUpdatedLocally integer
         ];
 
-        var dataToSave = Object.keys(data).map(function(key) {
+        var dataToSave = Object.keys(data).map(function (key) {
           return data[key];
         });
 
-        $ionicPlatform.ready(function() {
-          $cordovaSQLite.execute($window.db, addNewWaterCounterToLocalChangesQuery, dataToSave).then(function(res) {
+        $ionicPlatform.ready(function () {
+          $cordovaSQLite.execute($window.db, addNewWaterCounterToLocalChangesQuery, dataToSave).then(function (res) {
 
-            $cordovaSQLite.execute($window.db, waterCounterInsertQuery, itemToSaveInWaterCounters).then(function(result) {
+            $cordovaSQLite.execute($window.db, waterCounterInsertQuery, itemToSaveInWaterCounters).then(function (result) {
               q.resolve(result);
-            }, function(error) {
+            }, function (error) {
               console.error(error);
               q.reject(error);
             });
 
-          }, function(err) {
+          }, function (err) {
             console.error(err);
             q.reject(err);
           });
@@ -680,19 +701,19 @@ angular.module('starter.shared')
           data.VidKorID + " AND LokacijaId = " + data.LokacijaId +
           " AND KorisnikId =" + data.KorisnikId + " AND ReonId = " + data.ReonId + " AND Broilo = '" + data.Broilo + "'";
 
-        var dataToSave = Object.keys(data).map(function(key) {
+        var dataToSave = Object.keys(data).map(function (key) {
           return data[key];
         });
 
-        $ionicPlatform.ready(function() {
-          $cordovaSQLite.execute($window.db, newWaterCounterStateInsertQuery, dataToSave).then(function(res) {
-            $cordovaSQLite.execute($window.db, updateStateInWaterCountersQuery, null).then(function(result) {
+        $ionicPlatform.ready(function () {
+          $cordovaSQLite.execute($window.db, newWaterCounterStateInsertQuery, dataToSave).then(function (res) {
+            $cordovaSQLite.execute($window.db, updateStateInWaterCountersQuery, null).then(function (result) {
               q.resolve(result);
-            }, function(error) {
+            }, function (error) {
               console.error(error);
               q.reject(error);
             });
-          }, function(err) {
+          }, function (err) {
             console.log(err);
             q.reject(err);
           });
@@ -706,14 +727,14 @@ angular.module('starter.shared')
         var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 AND VidKorId = " + vidkorid + " AND LokacijaId = " + lokacijaID +
           " AND KorisnikId =" + korisnikID + " AND ReonId = " + reonID + " AND Broilo = '" + broilo + "'";
 
-        $ionicPlatform.ready(function() {
-          $cordovaSQLite.execute($window.db, searchQuery).then(function(res) {
+        $ionicPlatform.ready(function () {
+          $cordovaSQLite.execute($window.db, searchQuery).then(function (res) {
             var output = [];
             for (var i = 0; i < res.rows.length; i++) {
               output.push(res.rows.item(i));
             }
             q.resolve(output);
-          }, function(err) {
+          }, function (err) {
             console.error(err);
             q.reject(err);
           });
@@ -727,14 +748,14 @@ angular.module('starter.shared')
         var q = $q.defer();
         var searchQuery = "SELECT * from waterCounters WHERE Aktive = 1 AND KorisnikId = " + korisnikId + " ORDER BY Naziv ";
 
-        $ionicPlatform.ready(function() {
-          $cordovaSQLite.execute($window.db, searchQuery).then(function(res) {
+        $ionicPlatform.ready(function () {
+          $cordovaSQLite.execute($window.db, searchQuery).then(function (res) {
             var output = [];
             for (var i = 0; i < res.rows.length; i++) {
               output.push(res.rows.item(i));
             }
             q.resolve(output);
-          }, function(err) {
+          }, function (err) {
             console.log(err);
             q.reject(err);
           });
@@ -996,7 +1017,7 @@ angular.module('starter.shared')
       self.downladReonData = downladReonDataCallback;
       self.sendData = sendDataCallback;
 
-      function downladReonDataCallback(reonId) {
+      function downladReonDataCallback(reonId, selectedYear, selectedMonth) {
         // TODO add code to download data from online API service and add it to the database
         var url = WebAPIurl + 'api/v1/Reons/ReonData?ReonId=' + reonId;
         return $http.get(url, {
@@ -1004,7 +1025,9 @@ angular.module('starter.shared')
             'Authorization': 'Bearer ' + $window.localStorage['access_token']
           },
           params: {
-            ReonId: reonId
+            ReonId: reonId,
+            Year: selectedYear,
+            Month: selectedMonth
           }
         }).then(function(resp) {
           var data = {};
@@ -1211,7 +1234,7 @@ angular.module('starter.shared')
           VidKorID: $stateParams.vidkorid,
           KorisnikId: $stateParams.korisnikID,
           LokacijaId: $stateParams.lokacijaID,
-          Broilo: $stateParams.broilo,
+          Broilo: vm.brShasija,
           SostojbaStara: 0,
           SostojbaNova: parseInt(vm.state.new),
           SlikaSostojba: vm.state.slika,
@@ -1326,7 +1349,7 @@ angular.module('starter.shared')
 })();
 
 /* jshint -W069, -W041 */
-(function() {
+(function () {
   'use strict';
   angular.module('starter')
     .controller('GetAreaCtrl', GetAreaController);
@@ -1336,6 +1359,25 @@ angular.module('starter.shared')
   function GetAreaController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl, WebAPIService, LocalDataService) {
     var vm = this;
     initVariables();
+    vm.months =
+      [
+        { display: 1, value: "01" },
+        { display: 2, value: "02" },
+        { display: 3, value: "03" },
+        { display: 4, value: "04" },
+        { display: 5, value: "05" },
+        { display: 6, value: "06" },
+        { display: 7, value: "07" },
+        { display: 8, value: "08" },
+        { display: 9, value: "09" },
+        { display: 10, value: "10" },
+        { display: 11, value: "11" },
+        { display: 12, value: "12" }
+      ];
+    vm.years = [2015, 2016, 2017, 2018, 2019, 2020, 2021]; //TODO, if it is not necessary remove 2015
+
+    vm.selectedMonth = vm.months[0];
+    vm.selectedYear = 2016;
 
     function initVariables() {
       vm.hasReonsList = false;
@@ -1349,7 +1391,7 @@ angular.module('starter.shared')
     $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
     $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
-    vm.goToSearch = function() {
+    vm.goToSearch = function () {
 
       if (vm.data.selectArea == null || vm.data.selectArea == undefined) {
         vm.errors = {
@@ -1363,13 +1405,13 @@ angular.module('starter.shared')
       }
     };
 
-    vm.downloadReonData = function() {
-      if(vm.data.selectArea == null){
+    vm.downloadReonData = function () {
+      if (vm.data.selectArea == null) {
         vm.errors.required = "Одберете реон за преземање.";
         return;
       }
 
-      if (( $window.localStorage['localReonId'] != null && $window.localStorage['localReonId'] != undefined)) {
+      if (($window.localStorage['localReonId'] != null && $window.localStorage['localReonId'] != undefined)) {
         vm.errors.required = "Недозволена акција, направете синхронизација.";
         return;
       }
@@ -1381,10 +1423,16 @@ angular.module('starter.shared')
         showDelay: 0
       });
 
-      WebAPIService.downladReonData(vm.data.selectArea).then(function(data) {
-        LocalDataService.setReonFromAPI(data, vm.data.selectArea).then(function(result) {
+      WebAPIService.downladReonData(vm.data.selectArea, vm.selectedYear, vm.selectedMonth.value).then(function (data) {
+        if(data.waterCounters == undefined || data.waterCounters == null || data.waterCounters.length == 0){
+          vm.errors.required = "Не постојат броила за селектираните опции.";
+          $ionicLoading.hide();
+          return;
+        }
+
+        LocalDataService.setReonFromAPI(data, vm.data.selectArea, ""+vm.selectedYear+"/"+vm.selectedMonth.value).then(function (result) {
           console.log('Data is inserted in local DB');
-            $ionicLoading.hide();
+          $ionicLoading.hide();
           $state.go("main.search", {
             'selecetedArea': $window.localStorage['localReonId']
           });
@@ -1414,11 +1462,11 @@ angular.module('starter.shared')
         // console.log('all data is uploaded and cleared');
         vm.errors.required = "Успешно завршена синхронизација";
         $ionicLoading.hide();
-      },function (err) {
-        if(err == "noInternetConnection"){
+      }, function (err) {
+        if (err == "noInternetConnection") {
           vm.errors.required = "Поврзете се на интернет";
         }
-        console.log('there was an error',err);
+        console.log('there was an error', err);
         $ionicLoading.hide();
       });
     };
@@ -1437,12 +1485,12 @@ angular.module('starter.shared')
         headers: {
           'Authorization': 'Bearer ' + $window.localStorage['access_token']
         }
-      }).then(function(resp) {
+      }).then(function (resp) {
         //console.log('Success', resp);
         vm.data.items = resp.data.items;
         vm.hasReonsList = true;
         // For JSON responses, resp.data contains the result
-      }, function(err) {
+      }, function (err) {
         if (err.status == 401) {
           $window.localStorage.clear();
           $state.go("main.login");
@@ -1461,7 +1509,7 @@ angular.module('starter.shared')
       // }
     }
 
-    function onAfterLeave() {}
+    function onAfterLeave() { }
 
   }
 
@@ -1893,8 +1941,8 @@ angular.module('starter.shared')
 
 })();
 
-angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=Состојба content=\"\" scroll=false><ion-content class=has-header style=padding-top:10px; content=\"\" scroll=true><div style=\"margin-left: 10%;margin-top: 20px;margin-bottom: 20px;color: red;margin-right: 10%;\" ng-if=\"vm.HasBeenUpdatedLocally == 1\"><p>Внимание, за ова броило имате внесено податок за овој месец.</p></div><div class=\"row row-center\" style=\"width:80%;margin-left: 10%; margin-right: 10%;\"><div class=col><ion-item class=item-stable style=max-height:70%><div class=rowFull><b>Име/назив</b> :{{vm.imeNaziv}}</div><div class=rowFull><b>Броило</b>: {{vm.broilo}}</div><div class=rowFull><b>Стара состојба</b>: {{vm.state.before}}<ion-checkbox ng-model=vm.newCounter class=new-counter-checkbox></ion-checkbox></div></ion-item></div></div><div class=\"row row-center\"><div class=col><div class=list><div class=\"item item-input inputElement\" ng-show=vm.newCounter><input ng-model=vm.brShasija type=text placeholder=\"Број на шасија\"></div><div class=\"item item-input inputElement\"><input ng-model=vm.state.new type=number min=1 placeholder=\"Нова состојба\" required=\"\"></div><input type=hidden ng-model=vm.state.slika><div style=\"margin-left: 10%; color:red\"><p>{{vm.errors.required}}</p></div><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button><p>{{errorMessage}}</p></div></div></div><div class=\"row row-center\" ng-if=\"vm.state.slika !== undefined&&vm.state.slika!=null\"><div class=\"col col-75\"><div class=list><div class=\"item item-thumbnail-left\" href=# style=margin-left:13.25%><img ng-show=\"vm.state.slika !== undefined\" ng-src={{vm.state.slika}}><h2>{{vm.state.mesec}}</h2></div></div></div><div class=\"col col-25\"><div class=list><button class=\"button button-positive\" ng-click=vm.removImage()><i class=\"icon ion-android-close\"></i></button></div></div></div><div class=\"row row-center\"><div class=col><div class=list><button class=\"submitButton button button-balanced\" ng-click=vm.saveNewState()><!--ui-sref=\"main.results\">-->ВНЕСИ</button></div></div></div></ion-content></ion-view>");
-$templateCache.put("./templates/getarea.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=Реони overflow-scroll=false><ion-content class=has-header style=padding-top:20%; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><select name=selectArea id=selectArea ng-model=vm.data.selectArea class=\"form-control incheck\"><option value=\"\">Реон...</option><!--not selected / blank option--><option ng-repeat=\"option in vm.data.items\" value={{option.reonID}}>{{option.reonID}} - {{option.zabeleska}}</option></select><br></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.downloadReonData() ng-enabled=vm.hasReonsList>Преземи податоци</button></div><div class=row><button class=\"submitButton button button-energized\" ng-click=vm.synchronize()>Синхронизирај</button></div><div class=row><div style=\"margin-left: 10%; margin-top:20px;color:red\"><p>{{vm.errors.required}}</p></div></div></ion-content></ion-view>");
+angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=Состојба content=\"\" scroll=false><ion-content class=has-header style=padding-top:10px; content=\"\" scroll=true><div style=\"margin-left: 10%;margin-top: 20px;margin-bottom: 20px;color: red;margin-right: 10%;\" ng-if=\"vm.HasBeenUpdatedLocally == 1\" ng-hide=vm.newCounter><p>Внимание, за ова броило имате внесено податок за овој месец.</p></div><div class=\"row row-center\" style=\"width:80%;margin-left: 10%; margin-right: 10%;\"><div class=col><ion-item class=item-stable style=max-height:70%><div class=rowFull><b>Име/назив</b> :{{vm.imeNaziv}}</div><div class=rowFull><b>Броило</b>: {{vm.broilo}}</div><div class=rowFull><b>Стара состојба</b>: {{vm.state.before}}<ion-checkbox ng-model=vm.newCounter class=new-counter-checkbox></ion-checkbox></div><div class=rowFull><b>Месец</b>: {{vm.state.mesec}}</div></ion-item></div></div><div class=\"row row-center\"><div class=col><div class=list><div class=\"item item-input inputElement\" ng-show=vm.newCounter><input ng-model=vm.brShasija type=text placeholder=\"Број на шасија\"></div><div class=\"item item-input inputElement\"><input ng-model=vm.state.new type=number min=1 placeholder=\"Нова состојба\" required=\"\"></div><input type=hidden ng-model=vm.state.slika><div style=\"margin-left: 10%; color:red\"><p>{{vm.errors.required}}</p></div><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button><p>{{errorMessage}}</p></div></div></div><div class=\"row row-center\" ng-if=\"vm.state.slika !== undefined&&vm.state.slika!=null\"><div class=\"col col-75\"><div class=list><div class=\"item item-thumbnail-left\" href=# style=margin-left:13.25%><img ng-show=\"vm.state.slika !== undefined\" ng-src={{vm.state.slika}}><h2>{{vm.state.mesec}}</h2></div></div></div><div class=\"col col-25\"><div class=list><button class=\"button button-positive\" ng-click=vm.removImage()><i class=\"icon ion-android-close\"></i></button></div></div></div><div class=\"row row-center\"><div class=col><div class=list><button class=\"submitButton button button-balanced\" ng-click=vm.saveNewState()><!--ui-sref=\"main.results\">-->ВНЕСИ</button></div></div></div></ion-content></ion-view>");
+$templateCache.put("./templates/getarea.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=Реони overflow-scroll=false><ion-content class=has-header style=padding-top:20%; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><select name=selectArea id=selectArea ng-model=vm.data.selectArea class=\"form-control incheck\"><option value=\"\">Реон...</option><!--not selected / blank option--><option ng-repeat=\"option in vm.data.items\" value={{option.reonID}}>{{option.reonID}} - {{option.zabeleska}}</option></select><br></div></div></div><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><label class=\"item item-input item-select form-control\"><div class=input-label style=\"height: 100%;height: 100%;line-height: 100%;padding: 14px 7px;margin: auto 0;\">Месец</div><select ng-options=\"month.display for month in vm.months\" ng-model=vm.selectedMonth></select></label> <label class=\"item item-input item-select form-control\"><div class=input-label style=\"height: 100%;height: 100%;line-height: 100%;padding: 14px 7px;margin: auto 0;\">Година</div><select ng-options=\"year for year in vm.years\" ng-model=vm.selectedYear></select></label></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.downloadReonData() ng-enabled=vm.hasReonsList>Преземи податоци</button></div><div class=row><button class=\"submitButton button button-energized\" ng-click=vm.synchronize()>Синхронизирај</button></div><div class=row><div style=\"margin-left: 10%; margin-top:20px;color:red\"><p>{{vm.errors.required}}</p></div></div></ion-content></ion-view>");
 $templateCache.put("./templates/internetConnection.html","<ion-view view-title=\"\" class=hs-view-internetConnection><ion-content scroll=false class=white-bg><div class=card><div class=\"item item-text-wrap\">{{vm.message}}</div></div></ion-content></ion-view>");
 $templateCache.put("./templates/login.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=Логин content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\"><div class=col><div class=list><label class=\"item item-input inputElement\"><input type=text ng-model=vm.user.username placeholder=\"Корисничко Име\"></label> <label class=\"item item-input inputElement\"><input type=password ng-model=vm.user.password placeholder=Лозинка></label><div style=\"margin-left: 10%; color: red\"><p>{{vm.errors.required}}</p></div></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.login()>ЛОГИРАЈ СЕ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/menu.html","<ion-side-menus enable-menu-with-back-views=false><ion-side-menu-content><ion-nav-bar align-title=center class=\"bar-calm bar-header-with-logo never-hide-inline\"><ion-nav-back-button class=button-clear><i class=ion-android-arrow-back ng-if=\"mainVm.checkArea() && !mainVm.check()\"></i></ion-nav-back-button><ion-nav-title ng-click=\"mainVm.navigateToState(\'main.login\',{})\"><div class=page-title></div></ion-nav-title><ion-nav-buttons side=left><!--<button class=\"button button-icon button-clear ion-navicon\" menu-toggle=\"left\" ng-if=\"!mainVm.check()\"></button>--><button class=\"button icon ion-log-out\" ng-click=mainVm.logOut() ng-if=!mainVm.checkArea()></button></ion-nav-buttons><ion-nav-buttons side=right><button class=\"button icon ion-home\" ng-click=mainVm.area() ng-if=!mainVm.check()></button> <button class=\"button icon ion-search\" ng-click=mainVm.search() ng-if=!mainVm.check()></button></ion-nav-buttons></ion-nav-bar><ion-nav-view name=subview></ion-nav-view></ion-side-menu-content></ion-side-menus>");

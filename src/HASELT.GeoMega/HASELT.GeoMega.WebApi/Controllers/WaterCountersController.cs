@@ -51,7 +51,8 @@ namespace HASELT.GeoMega.WebApi.Controllers
                             SlikaSostojba = item.SlikaSostojba,
                             SostojbaNova = item.SostojbaNova,
                             SostojbaStara = item.SostojbaStara,
-                            Vidkorid = item.Vidkorid
+                            Vidkorid = item.Vidkorid,
+                            Mesec = request.Mesec
 
                         }).Wait();
                     }
@@ -73,7 +74,8 @@ namespace HASELT.GeoMega.WebApi.Controllers
                             ReonID = item.ReonID,
                             SlikaSostojba = item.SlikaSostojba,
                             Sostojba = item.SostojbaNova,
-                            Vidkorid = item.Vidkorid
+                            Vidkorid = item.Vidkorid,
+                            Mesec = request.Mesec
                         }).Wait();
                     }
                     catch (Exception ex)
@@ -81,7 +83,10 @@ namespace HASELT.GeoMega.WebApi.Controllers
                     }
                 }
             }
-            return Handle(new SynchronizeDataFromMobile.Request());
+            return Handle(new SynchronizeDataFromMobile.Request()
+            {
+                 Mesec = request.Mesec
+            });
 
         }
     }

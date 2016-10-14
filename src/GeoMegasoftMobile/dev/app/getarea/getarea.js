@@ -1,5 +1,5 @@
 /* jshint -W069, -W041 */
-(function() {
+(function () {
   'use strict';
   angular.module('starter')
     .controller('GetAreaCtrl', GetAreaController);
@@ -9,6 +9,25 @@
   function GetAreaController($scope, $state, $timeout, $stateParams, $window, $ionicLoading, CordovaNetworkService, $ionicPopup, $rootScope, $http, WebAPIurl, WebAPIService, LocalDataService) {
     var vm = this;
     initVariables();
+    vm.months =
+      [
+        { display: 1, value: "01" },
+        { display: 2, value: "02" },
+        { display: 3, value: "03" },
+        { display: 4, value: "04" },
+        { display: 5, value: "05" },
+        { display: 6, value: "06" },
+        { display: 7, value: "07" },
+        { display: 8, value: "08" },
+        { display: 9, value: "09" },
+        { display: 10, value: "10" },
+        { display: 11, value: "11" },
+        { display: 12, value: "12" }
+      ];
+    vm.years = [2015, 2016, 2017, 2018, 2019, 2020, 2021]; //TODO, if it is not necessary remove 2015
+
+    vm.selectedMonth = vm.months[0];
+    vm.selectedYear = 2016;
 
     function initVariables() {
       vm.hasReonsList = false;
@@ -22,7 +41,7 @@
     $scope.$on('$ionicView.beforeEnter', OnBeforeEnter);
     $scope.$on('$ionicView.afterLeave', onAfterLeave);
 
-    vm.goToSearch = function() {
+    vm.goToSearch = function () {
 
       if (vm.data.selectArea == null || vm.data.selectArea == undefined) {
         vm.errors = {
@@ -36,13 +55,13 @@
       }
     };
 
-    vm.downloadReonData = function() {
-      if(vm.data.selectArea == null){
+    vm.downloadReonData = function () {
+      if (vm.data.selectArea == null) {
         vm.errors.required = "Одберете реон за преземање.";
         return;
       }
 
-      if (( $window.localStorage['localReonId'] != null && $window.localStorage['localReonId'] != undefined)) {
+      if (($window.localStorage['localReonId'] != null && $window.localStorage['localReonId'] != undefined)) {
         vm.errors.required = "Недозволена акција, направете синхронизација.";
         return;
       }
@@ -54,10 +73,16 @@
         showDelay: 0
       });
 
-      WebAPIService.downladReonData(vm.data.selectArea).then(function(data) {
-        LocalDataService.setReonFromAPI(data, vm.data.selectArea).then(function(result) {
+      WebAPIService.downladReonData(vm.data.selectArea, vm.selectedYear, vm.selectedMonth.value).then(function (data) {
+        if(data.waterCounters == undefined || data.waterCounters == null || data.waterCounters.length == 0){
+          vm.errors.required = "Не постојат броила за селектираните опции.";
+          $ionicLoading.hide();
+          return;
+        }
+
+        LocalDataService.setReonFromAPI(data, vm.data.selectArea, ""+vm.selectedYear+"/"+vm.selectedMonth.value).then(function (result) {
           console.log('Data is inserted in local DB');
-            $ionicLoading.hide();
+          $ionicLoading.hide();
           $state.go("main.search", {
             'selecetedArea': $window.localStorage['localReonId']
           });
@@ -87,11 +112,11 @@
         // console.log('all data is uploaded and cleared');
         vm.errors.required = "Успешно завршена синхронизација";
         $ionicLoading.hide();
-      },function (err) {
-        if(err == "noInternetConnection"){
+      }, function (err) {
+        if (err == "noInternetConnection") {
           vm.errors.required = "Поврзете се на интернет";
         }
-        console.log('there was an error',err);
+        console.log('there was an error', err);
         $ionicLoading.hide();
       });
     };
@@ -110,12 +135,12 @@
         headers: {
           'Authorization': 'Bearer ' + $window.localStorage['access_token']
         }
-      }).then(function(resp) {
+      }).then(function (resp) {
         //console.log('Success', resp);
         vm.data.items = resp.data.items;
         vm.hasReonsList = true;
         // For JSON responses, resp.data contains the result
-      }, function(err) {
+      }, function (err) {
         if (err.status == 401) {
           $window.localStorage.clear();
           $state.go("main.login");
@@ -134,7 +159,7 @@
       // }
     }
 
-    function onAfterLeave() {}
+    function onAfterLeave() { }
 
   }
 

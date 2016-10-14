@@ -24,6 +24,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 
             }
             public IEnumerable<RequestItem> ItemsToSave { get; set; }
+            public string Mesec { get; set; }
         }
 
         public class RequestItem 
@@ -47,12 +48,13 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 
             public string Long { get; set; }
             public int TypeOfAction { get; set; }
+            public string Mesec { get; set; }
         }
         public class Validator : AbstractValidator<Request>
         {
             public Validator()
             {
-
+                RuleFor(x => x.Mesec).NotEmpty();
             }
         }
 

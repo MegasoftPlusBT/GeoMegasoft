@@ -20,3 +20,5 @@
 // $window.localStorage['localReonId'] - if it has value we have local data
 // $window.localStorage['isInSynchronizationMode'] - if it has value we are synching right now
 // SynchronizationMode will be ongoing on getReon View
+
+// $window.localStorage['localDataMesec'] - if it has value we have local data

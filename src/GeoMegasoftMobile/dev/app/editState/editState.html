@@ -1,6 +1,6 @@
 <ion-view class="hs-view-home has-header bar-calm" view-title="Состојба" content scroll="false">
   <ion-content class="has-header" style="padding-top:10px;" content scroll="true">
-    <div style="margin-left: 10%;margin-top: 20px;margin-bottom: 20px;color: red;margin-right: 10%;" ng-if="vm.HasBeenUpdatedLocally == 1">
+    <div style="margin-left: 10%;margin-top: 20px;margin-bottom: 20px;color: red;margin-right: 10%;" ng-if="vm.HasBeenUpdatedLocally == 1" ng-hide="vm.newCounter">
       <p>Внимание, за ова броило имате внесено податок за овој месец.</p>
     </div>
     <div class="row row-center" style="width:80%;margin-left: 10%;      margin-right: 10%;">
@@ -15,6 +15,9 @@
           <div class="rowFull">
             <b>Стара состојба</b>: {{vm.state.before}}
             <ion-checkbox ng-model="vm.newCounter" class="new-counter-checkbox"></ion-checkbox>
+          </div>
+          <div class="rowFull">
+            <b>Месец</b>: {{vm.state.mesec}}
           </div>
         </ion-item>
       </div>
