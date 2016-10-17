@@ -160,8 +160,11 @@
               var uniqueListOfLocalChanges = [];
 
               listOfLocalChanges.forEach(function (item) {
-                var indexInUnique = uniqueListOfLocalChanges.findIndex(function (b) {
-                  return b.Broilo == item.Broilo;
+                var indexInUnique = -1;
+                uniqueListOfLocalChanges.map(function (broilo, indexOfBroilo) {
+                  if(broilo.Broilo == item.Broilo){
+                  	indexInUnique = indexOfBroilo;
+                  }
                 });
 
                 if (indexInUnique == -1) {

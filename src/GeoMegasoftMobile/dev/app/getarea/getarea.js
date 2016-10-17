@@ -47,6 +47,7 @@
         vm.errors = {
           required: "* Изберете реон"
         };
+        vm.successMessage = "";
       } else {
         $state.go("main.search", {
           'selecetedArea': vm.data.selectArea
@@ -58,11 +59,13 @@
     vm.downloadReonData = function () {
       if (vm.data.selectArea == null) {
         vm.errors.required = "Одберете реон за преземање.";
+        vm.successMessage = "";
         return;
       }
 
       if (($window.localStorage['localReonId'] != null && $window.localStorage['localReonId'] != undefined)) {
         vm.errors.required = "Недозволена акција, направете синхронизација.";
+        vm.successMessage = "";
         return;
       }
       $ionicLoading.show({
@@ -76,6 +79,7 @@
       WebAPIService.downladReonData(vm.data.selectArea, vm.selectedYear, vm.selectedMonth.value).then(function (data) {
         if(data.waterCounters == undefined || data.waterCounters == null || data.waterCounters.length == 0){
           vm.errors.required = "Не постојат броила за селектираните опции.";
+          vm.successMessage = "";
           $ionicLoading.hide();
           return;
         }
@@ -97,6 +101,7 @@
 
       if ($window.localStorage['localReonId'] == null && $window.localStorage['localReonId'] == undefined) {
         vm.errors.required = "Симнете податоци за реон";
+        vm.successMessage = "";
         return;
       }
 
@@ -110,11 +115,13 @@
 
       LocalDataService.uploadAllChangesToApi().then(function (result) {
         // console.log('all data is uploaded and cleared');
-        vm.errors.required = "Успешно завршена синхронизација";
+        vm.errors.required = "";
+        vm.successMessage = "Успешно завршена синхронизација";
         $ionicLoading.hide();
       }, function (err) {
         if (err == "noInternetConnection") {
           vm.errors.required = "Поврзете се на интернет";
+          vm.successMessage = "";
         }
         console.log('there was an error', err);
         $ionicLoading.hide();
@@ -127,6 +134,7 @@
       vm.errors = {
         required: ""
       };
+      vm.successMessage = "";
     }
 
     function getReonsList() {
