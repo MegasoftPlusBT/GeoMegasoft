@@ -1,5 +1,5 @@
 ﻿
-(function() {
+(function () {
   'use strict';
   angular.module('starter')
     .controller('editStateCtrl', editStateController);
@@ -32,7 +32,7 @@
         $stateParams.korisnikID,
         $stateParams.reonID,
         $stateParams.broilo
-      ).then(function(res) {
+      ).then(function (res) {
         console.log(res);
         vm.imeNaziv = res[0].Naziv;
         vm.broilo = res[0].Broilo;
@@ -42,14 +42,14 @@
           mesec: res[0].Mesec
         };
         vm.HasBeenUpdatedLocally = res[0].HasBeenUpdatedLocally;
-      }, function(err) {
+      }, function (err) {
         console.log(err);
       });
     }
 
-    function OnBeforeEnter() {}
+    function OnBeforeEnter() { }
 
-    function onAfterLeave() {}
+    function onAfterLeave() { }
 
     function submitSaveNewState() {
       if (vm.state.new == null || vm.state.new < vm.state.before) {
@@ -80,52 +80,85 @@
       var longValue = "0";
       var result = $cordovaGeolocation
         .getCurrentPosition(posOptions)
-        .then(function(position) {
+        .then(function (position) {
           latValue = position.coords.latitude;
           longValue = position.coords.longitude;
-        }, function(err) {
+
+          var updatedWaterCounterStateData = {
+            ReonId: $stateParams.reonID,
+            VidKorID: $stateParams.vidkorid,
+            KorisnikId: $stateParams.korisnikID,
+            LokacijaId: $stateParams.lokacijaID,
+            Broilo: $stateParams.broilo,
+            SostojbaStara: parseInt(vm.state.before),
+            SostojbaNova: parseInt(vm.state.new),
+            SlikaSostojba: vm.state.slika,
+            lat: latValue,
+            long: longValue,
+            DateCreated: (new Date()).toJSON(),
+            TypeOfAPICall: 'updateState',
+            IsSentToAPI: false
+          };
+
+          LocalDataService.updateWaterCounterState(updatedWaterCounterStateData).then(function (result) {
+            $ionicLoading.hide();
+            $ionicLoading.show({
+              template: "Успешно зачувана состојба!",
+              noBackdrop: true,
+              duration: 2000
+            });
+            $timeout(function () {
+              $ionicLoading.hide();
+              $state.go("main.search", {
+                'selecetedArea': $stateParams.reonID
+              });
+            }, 3000);
+          }, function (error) {
+            $ionicLoading.hide();
+            vm.errors = {
+              required: "грешка при зачувување."
+            };
+          });
+        }, function (err) {
           // error
           //console.log(err);
-        });
-      $timeout(function() {
-        var updatedWaterCounterStateData = {
-          ReonId: $stateParams.reonID,
-          VidKorID: $stateParams.vidkorid,
-          KorisnikId: $stateParams.korisnikID,
-          LokacijaId: $stateParams.lokacijaID,
-          Broilo: $stateParams.broilo,
-          SostojbaStara: parseInt(vm.state.before),
-          SostojbaNova: parseInt(vm.state.new),
-          SlikaSostojba: vm.state.slika,
-          lat: latValue,
-          long: longValue,
-          DateCreated: (new Date()).toJSON(),
-          TypeOfAPICall: 'updateState',
-          IsSentToAPI: false
-        };
 
-        LocalDataService.updateWaterCounterState(updatedWaterCounterStateData).then(function(result) {
-          $ionicLoading.hide();
-          $ionicLoading.show({
-            template: "Успешно зачувана состојба!",
-            noBackdrop: true,
-            duration: 2000
-          });
-          $timeout(function() {
-            $ionicLoading.hide();
-            $state.go("main.search", {
-              'selecetedArea': $stateParams.reonID
-            });
-          }, 3000);
-        }, function(error) {
-          $ionicLoading.hide();
-          vm.errors = {
-            required: "грешка при зачувување."
+          var updatedWaterCounterStateData = {
+            ReonId: $stateParams.reonID,
+            VidKorID: $stateParams.vidkorid,
+            KorisnikId: $stateParams.korisnikID,
+            LokacijaId: $stateParams.lokacijaID,
+            Broilo: $stateParams.broilo,
+            SostojbaStara: parseInt(vm.state.before),
+            SostojbaNova: parseInt(vm.state.new),
+            SlikaSostojba: vm.state.slika,
+            lat: latValue,
+            long: longValue,
+            DateCreated: (new Date()).toJSON(),
+            TypeOfAPICall: 'updateState',
+            IsSentToAPI: false
           };
+
+          LocalDataService.updateWaterCounterState(updatedWaterCounterStateData).then(function (result) {
+            $ionicLoading.hide();
+            $ionicLoading.show({
+              template: "Успешно зачувана состојба!",
+              noBackdrop: true,
+              duration: 2000
+            });
+            $timeout(function () {
+              $ionicLoading.hide();
+              $state.go("main.search", {
+                'selecetedArea': $stateParams.reonID
+              });
+            }, 3000);
+          }, function (error) {
+            $ionicLoading.hide();
+            vm.errors = {
+              required: "грешка при зачувување."
+            };
+          });
         });
-
-
-      }, 1000);
     }
 
     function submitNewCounter() {
@@ -152,67 +185,82 @@
       var longValue = "0";
       var result = $cordovaGeolocation
         .getCurrentPosition(posOptions)
-        .then(function(position) {
+        .then(function (position) {
           latValue = position.coords.latitude;
           longValue = position.coords.longitude;
-        }, function(err) {
-          // error
-          //console.log(err);
-        });
-      $timeout(function() {
 
-        // var data = {
-        //   "Vidkorid": $stateParams.vidkorid,
-        //   "LokacijaID": $stateParams.lokacijaID,
-        //   "KorisnikID": $stateParams.korisnikID,
-        //   "ReonID": $stateParams.reonID,
-        //   "Broilo": vm.brShasija,
-        //   "Sostojba": parseInt(vm.state.new),
-        //   "SlikaSostojba": vm.state.slika,
-        //   "Lat": lat,
-        //   "Long": long
-        // };
-        // var newValue = parseInt(vm.state.new);
-
-        var updatedWaterCounterStateData = {
-          ReonId: $stateParams.reonID,
-          VidKorID: $stateParams.vidkorid,
-          KorisnikId: $stateParams.korisnikID,
-          LokacijaId: $stateParams.lokacijaID,
-          Broilo: vm.brShasija,
-          SostojbaStara: 0,
-          SostojbaNova: parseInt(vm.state.new),
-          SlikaSostojba: vm.state.slika,
-          lat: latValue,
-          long: longValue,
-          DateCreated: (new Date()).toJSON(),
-          TypeOfAPICall: 'newWaterCounter',
-          IsSentToAPI: false
-        };
-
-        LocalDataService.addNewWaterCounter(updatedWaterCounterStateData,vm.imeNaziv,vm.brShasija).then(function(result) {
-          $ionicLoading.hide();
-          $ionicLoading.show({
-            template: "Успешна промена!",
-            noBackdrop: true,
-            duration: 2000
-          });
-          $timeout(function() {
-            $ionicLoading.hide();
-            $state.go("main.search", {
-              'selecetedArea': $stateParams.reonID
-            });
-          }, 3000);
-        }, function(error) {
-          $ionicLoading.hide();
-          vm.errors = {
-            required: "грешка при зачувување."
+          var updatedWaterCounterStateData = {
+            ReonId: $stateParams.reonID,
+            VidKorID: $stateParams.vidkorid,
+            KorisnikId: $stateParams.korisnikID,
+            LokacijaId: $stateParams.lokacijaID,
+            Broilo: vm.brShasija,
+            SostojbaStara: 0,
+            SostojbaNova: parseInt(vm.state.new),
+            SlikaSostojba: vm.state.slika,
+            lat: latValue,
+            long: longValue,
+            DateCreated: (new Date()).toJSON(),
+            TypeOfAPICall: 'newWaterCounter',
+            IsSentToAPI: false
           };
+
+          LocalDataService.addNewWaterCounter(updatedWaterCounterStateData, vm.imeNaziv, vm.brShasija).then(function (result) {
+            $ionicLoading.hide();
+            $ionicLoading.show({
+              template: "Успешна промена!",
+              noBackdrop: true,
+              duration: 2000
+            });
+            $timeout(function () {
+              $ionicLoading.hide();
+              $state.go("main.search", {
+                'selecetedArea': $stateParams.reonID
+              });
+            }, 3000);
+          }, function (error) {
+            $ionicLoading.hide();
+            vm.errors = {
+              required: "грешка при зачувување."
+            };
+          });
+        }, function (err) {
+          var updatedWaterCounterStateData = {
+            ReonId: $stateParams.reonID,
+            VidKorID: $stateParams.vidkorid,
+            KorisnikId: $stateParams.korisnikID,
+            LokacijaId: $stateParams.lokacijaID,
+            Broilo: vm.brShasija,
+            SostojbaStara: 0,
+            SostojbaNova: parseInt(vm.state.new),
+            SlikaSostojba: vm.state.slika,
+            lat: latValue,
+            long: longValue,
+            DateCreated: (new Date()).toJSON(),
+            TypeOfAPICall: 'newWaterCounter',
+            IsSentToAPI: false
+          };
+
+          LocalDataService.addNewWaterCounter(updatedWaterCounterStateData, vm.imeNaziv, vm.brShasija).then(function (result) {
+            $ionicLoading.hide();
+            $ionicLoading.show({
+              template: "Успешна промена!",
+              noBackdrop: true,
+              duration: 2000
+            });
+            $timeout(function () {
+              $ionicLoading.hide();
+              $state.go("main.search", {
+                'selecetedArea': $stateParams.reonID
+              });
+            }, 3000);
+          }, function (error) {
+            $ionicLoading.hide();
+            vm.errors = {
+              required: "грешка при зачувување."
+            };
+          });
         });
-
-
-
-      }, 1000);
 
     }
 
@@ -232,7 +280,7 @@
         return false;
       }
     }
-    vm.saveNewState = function() {
+    vm.saveNewState = function () {
       if (vm.newCounter == true) {
         if (validateNewCounter() == false) {
           return;
@@ -244,10 +292,10 @@
       }
     };
 
-    vm.removImage = function() {
+    vm.removImage = function () {
       vm.state.slika = null;
     };
-    vm.takePhoto = function() {
+    vm.takePhoto = function () {
       var options = {
         quality: 75,
         destinationType: Camera.DestinationType.DATA_URL,
@@ -260,14 +308,14 @@
         saveToPhotoAlbum: false
       };
 
-      $cordovaCamera.getPicture(options).then(function(imageData) {
+      $cordovaCamera.getPicture(options).then(function (imageData) {
         vm.state.slika = "data:image/jpeg;base64," + imageData;
-      }, function(err) {
+      }, function (err) {
         //console.log("error taking photo", err);
       });
     };
 
-    vm.choosePhoto = function() {
+    vm.choosePhoto = function () {
       var options = {
         quality: 75,
         destinationType: Camera.DestinationType.DATA_URL,
@@ -280,9 +328,9 @@
         saveToPhotoAlbum: false
       };
 
-      $cordovaCamera.getPicture(options).then(function(imageData) {
+      $cordovaCamera.getPicture(options).then(function (imageData) {
         vm.state.slika = "data:image/jpeg;base64," + imageData;
-      }, function(err) {
+      }, function (err) {
         //console.log("error choosing photo", err);
       });
     };

@@ -1057,7 +1057,7 @@ angular.module('starter.shared')
 })();
 
 
-(function() {
+(function () {
   'use strict';
   angular.module('starter')
     .controller('editStateCtrl', editStateController);
@@ -1090,7 +1090,7 @@ angular.module('starter.shared')
         $stateParams.korisnikID,
         $stateParams.reonID,
         $stateParams.broilo
-      ).then(function(res) {
+      ).then(function (res) {
         console.log(res);
         vm.imeNaziv = res[0].Naziv;
         vm.broilo = res[0].Broilo;
@@ -1100,14 +1100,14 @@ angular.module('starter.shared')
           mesec: res[0].Mesec
         };
         vm.HasBeenUpdatedLocally = res[0].HasBeenUpdatedLocally;
-      }, function(err) {
+      }, function (err) {
         console.log(err);
       });
     }
 
-    function OnBeforeEnter() {}
+    function OnBeforeEnter() { }
 
-    function onAfterLeave() {}
+    function onAfterLeave() { }
 
     function submitSaveNewState() {
       if (vm.state.new == null || vm.state.new < vm.state.before) {
@@ -1138,52 +1138,85 @@ angular.module('starter.shared')
       var longValue = "0";
       var result = $cordovaGeolocation
         .getCurrentPosition(posOptions)
-        .then(function(position) {
+        .then(function (position) {
           latValue = position.coords.latitude;
           longValue = position.coords.longitude;
-        }, function(err) {
+
+          var updatedWaterCounterStateData = {
+            ReonId: $stateParams.reonID,
+            VidKorID: $stateParams.vidkorid,
+            KorisnikId: $stateParams.korisnikID,
+            LokacijaId: $stateParams.lokacijaID,
+            Broilo: $stateParams.broilo,
+            SostojbaStara: parseInt(vm.state.before),
+            SostojbaNova: parseInt(vm.state.new),
+            SlikaSostojba: vm.state.slika,
+            lat: latValue,
+            long: longValue,
+            DateCreated: (new Date()).toJSON(),
+            TypeOfAPICall: 'updateState',
+            IsSentToAPI: false
+          };
+
+          LocalDataService.updateWaterCounterState(updatedWaterCounterStateData).then(function (result) {
+            $ionicLoading.hide();
+            $ionicLoading.show({
+              template: "Успешно зачувана состојба!",
+              noBackdrop: true,
+              duration: 2000
+            });
+            $timeout(function () {
+              $ionicLoading.hide();
+              $state.go("main.search", {
+                'selecetedArea': $stateParams.reonID
+              });
+            }, 3000);
+          }, function (error) {
+            $ionicLoading.hide();
+            vm.errors = {
+              required: "грешка при зачувување."
+            };
+          });
+        }, function (err) {
           // error
           //console.log(err);
-        });
-      $timeout(function() {
-        var updatedWaterCounterStateData = {
-          ReonId: $stateParams.reonID,
-          VidKorID: $stateParams.vidkorid,
-          KorisnikId: $stateParams.korisnikID,
-          LokacijaId: $stateParams.lokacijaID,
-          Broilo: $stateParams.broilo,
-          SostojbaStara: parseInt(vm.state.before),
-          SostojbaNova: parseInt(vm.state.new),
-          SlikaSostojba: vm.state.slika,
-          lat: latValue,
-          long: longValue,
-          DateCreated: (new Date()).toJSON(),
-          TypeOfAPICall: 'updateState',
-          IsSentToAPI: false
-        };
 
-        LocalDataService.updateWaterCounterState(updatedWaterCounterStateData).then(function(result) {
-          $ionicLoading.hide();
-          $ionicLoading.show({
-            template: "Успешно зачувана состојба!",
-            noBackdrop: true,
-            duration: 2000
-          });
-          $timeout(function() {
-            $ionicLoading.hide();
-            $state.go("main.search", {
-              'selecetedArea': $stateParams.reonID
-            });
-          }, 3000);
-        }, function(error) {
-          $ionicLoading.hide();
-          vm.errors = {
-            required: "грешка при зачувување."
+          var updatedWaterCounterStateData = {
+            ReonId: $stateParams.reonID,
+            VidKorID: $stateParams.vidkorid,
+            KorisnikId: $stateParams.korisnikID,
+            LokacijaId: $stateParams.lokacijaID,
+            Broilo: $stateParams.broilo,
+            SostojbaStara: parseInt(vm.state.before),
+            SostojbaNova: parseInt(vm.state.new),
+            SlikaSostojba: vm.state.slika,
+            lat: latValue,
+            long: longValue,
+            DateCreated: (new Date()).toJSON(),
+            TypeOfAPICall: 'updateState',
+            IsSentToAPI: false
           };
+
+          LocalDataService.updateWaterCounterState(updatedWaterCounterStateData).then(function (result) {
+            $ionicLoading.hide();
+            $ionicLoading.show({
+              template: "Успешно зачувана состојба!",
+              noBackdrop: true,
+              duration: 2000
+            });
+            $timeout(function () {
+              $ionicLoading.hide();
+              $state.go("main.search", {
+                'selecetedArea': $stateParams.reonID
+              });
+            }, 3000);
+          }, function (error) {
+            $ionicLoading.hide();
+            vm.errors = {
+              required: "грешка при зачувување."
+            };
+          });
         });
-
-
-      }, 1000);
     }
 
     function submitNewCounter() {
@@ -1210,67 +1243,82 @@ angular.module('starter.shared')
       var longValue = "0";
       var result = $cordovaGeolocation
         .getCurrentPosition(posOptions)
-        .then(function(position) {
+        .then(function (position) {
           latValue = position.coords.latitude;
           longValue = position.coords.longitude;
-        }, function(err) {
-          // error
-          //console.log(err);
-        });
-      $timeout(function() {
 
-        // var data = {
-        //   "Vidkorid": $stateParams.vidkorid,
-        //   "LokacijaID": $stateParams.lokacijaID,
-        //   "KorisnikID": $stateParams.korisnikID,
-        //   "ReonID": $stateParams.reonID,
-        //   "Broilo": vm.brShasija,
-        //   "Sostojba": parseInt(vm.state.new),
-        //   "SlikaSostojba": vm.state.slika,
-        //   "Lat": lat,
-        //   "Long": long
-        // };
-        // var newValue = parseInt(vm.state.new);
-
-        var updatedWaterCounterStateData = {
-          ReonId: $stateParams.reonID,
-          VidKorID: $stateParams.vidkorid,
-          KorisnikId: $stateParams.korisnikID,
-          LokacijaId: $stateParams.lokacijaID,
-          Broilo: vm.brShasija,
-          SostojbaStara: 0,
-          SostojbaNova: parseInt(vm.state.new),
-          SlikaSostojba: vm.state.slika,
-          lat: latValue,
-          long: longValue,
-          DateCreated: (new Date()).toJSON(),
-          TypeOfAPICall: 'newWaterCounter',
-          IsSentToAPI: false
-        };
-
-        LocalDataService.addNewWaterCounter(updatedWaterCounterStateData,vm.imeNaziv,vm.brShasija).then(function(result) {
-          $ionicLoading.hide();
-          $ionicLoading.show({
-            template: "Успешна промена!",
-            noBackdrop: true,
-            duration: 2000
-          });
-          $timeout(function() {
-            $ionicLoading.hide();
-            $state.go("main.search", {
-              'selecetedArea': $stateParams.reonID
-            });
-          }, 3000);
-        }, function(error) {
-          $ionicLoading.hide();
-          vm.errors = {
-            required: "грешка при зачувување."
+          var updatedWaterCounterStateData = {
+            ReonId: $stateParams.reonID,
+            VidKorID: $stateParams.vidkorid,
+            KorisnikId: $stateParams.korisnikID,
+            LokacijaId: $stateParams.lokacijaID,
+            Broilo: vm.brShasija,
+            SostojbaStara: 0,
+            SostojbaNova: parseInt(vm.state.new),
+            SlikaSostojba: vm.state.slika,
+            lat: latValue,
+            long: longValue,
+            DateCreated: (new Date()).toJSON(),
+            TypeOfAPICall: 'newWaterCounter',
+            IsSentToAPI: false
           };
+
+          LocalDataService.addNewWaterCounter(updatedWaterCounterStateData, vm.imeNaziv, vm.brShasija).then(function (result) {
+            $ionicLoading.hide();
+            $ionicLoading.show({
+              template: "Успешна промена!",
+              noBackdrop: true,
+              duration: 2000
+            });
+            $timeout(function () {
+              $ionicLoading.hide();
+              $state.go("main.search", {
+                'selecetedArea': $stateParams.reonID
+              });
+            }, 3000);
+          }, function (error) {
+            $ionicLoading.hide();
+            vm.errors = {
+              required: "грешка при зачувување."
+            };
+          });
+        }, function (err) {
+          var updatedWaterCounterStateData = {
+            ReonId: $stateParams.reonID,
+            VidKorID: $stateParams.vidkorid,
+            KorisnikId: $stateParams.korisnikID,
+            LokacijaId: $stateParams.lokacijaID,
+            Broilo: vm.brShasija,
+            SostojbaStara: 0,
+            SostojbaNova: parseInt(vm.state.new),
+            SlikaSostojba: vm.state.slika,
+            lat: latValue,
+            long: longValue,
+            DateCreated: (new Date()).toJSON(),
+            TypeOfAPICall: 'newWaterCounter',
+            IsSentToAPI: false
+          };
+
+          LocalDataService.addNewWaterCounter(updatedWaterCounterStateData, vm.imeNaziv, vm.brShasija).then(function (result) {
+            $ionicLoading.hide();
+            $ionicLoading.show({
+              template: "Успешна промена!",
+              noBackdrop: true,
+              duration: 2000
+            });
+            $timeout(function () {
+              $ionicLoading.hide();
+              $state.go("main.search", {
+                'selecetedArea': $stateParams.reonID
+              });
+            }, 3000);
+          }, function (error) {
+            $ionicLoading.hide();
+            vm.errors = {
+              required: "грешка при зачувување."
+            };
+          });
         });
-
-
-
-      }, 1000);
 
     }
 
@@ -1290,7 +1338,7 @@ angular.module('starter.shared')
         return false;
       }
     }
-    vm.saveNewState = function() {
+    vm.saveNewState = function () {
       if (vm.newCounter == true) {
         if (validateNewCounter() == false) {
           return;
@@ -1302,10 +1350,10 @@ angular.module('starter.shared')
       }
     };
 
-    vm.removImage = function() {
+    vm.removImage = function () {
       vm.state.slika = null;
     };
-    vm.takePhoto = function() {
+    vm.takePhoto = function () {
       var options = {
         quality: 75,
         destinationType: Camera.DestinationType.DATA_URL,
@@ -1318,14 +1366,14 @@ angular.module('starter.shared')
         saveToPhotoAlbum: false
       };
 
-      $cordovaCamera.getPicture(options).then(function(imageData) {
+      $cordovaCamera.getPicture(options).then(function (imageData) {
         vm.state.slika = "data:image/jpeg;base64," + imageData;
-      }, function(err) {
+      }, function (err) {
         //console.log("error taking photo", err);
       });
     };
 
-    vm.choosePhoto = function() {
+    vm.choosePhoto = function () {
       var options = {
         quality: 75,
         destinationType: Camera.DestinationType.DATA_URL,
@@ -1338,9 +1386,9 @@ angular.module('starter.shared')
         saveToPhotoAlbum: false
       };
 
-      $cordovaCamera.getPicture(options).then(function(imageData) {
+      $cordovaCamera.getPicture(options).then(function (imageData) {
         vm.state.slika = "data:image/jpeg;base64," + imageData;
-      }, function(err) {
+      }, function (err) {
         //console.log("error choosing photo", err);
       });
     };
@@ -1953,7 +2001,7 @@ angular.module('starter.shared')
 })();
 
 angular.module("starter").run(["$templateCache", function($templateCache) {$templateCache.put("./templates/editState.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=Состојба content=\"\" scroll=false><ion-content class=has-header style=padding-top:10px; content=\"\" scroll=true><div style=\"margin-left: 10%;margin-top: 20px;margin-bottom: 20px;color: red;margin-right: 10%;\" ng-if=\"vm.HasBeenUpdatedLocally == 1\" ng-hide=vm.newCounter><p>Внимание, за ова броило имате внесено податок за овој месец.</p></div><div class=\"row row-center\" style=\"width:80%;margin-left: 10%; margin-right: 10%;\"><div class=col><ion-item class=item-stable style=max-height:70%><div class=rowFull><b>Име/назив</b> :{{vm.imeNaziv}}</div><div class=rowFull><b>Броило</b>: {{vm.broilo}}</div><div class=rowFull><b>Стара состојба</b>: {{vm.state.before}}<ion-checkbox ng-model=vm.newCounter class=new-counter-checkbox></ion-checkbox></div><div class=rowFull><b>Месец</b>: {{vm.state.mesec}}</div></ion-item></div></div><div class=\"row row-center\"><div class=col><div class=list><div class=\"item item-input inputElement\" ng-show=vm.newCounter><input ng-model=vm.brShasija type=text placeholder=\"Број на шасија\"></div><div class=\"item item-input inputElement\"><input ng-model=vm.state.new type=number min=1 placeholder=\"Нова состојба\" required=\"\"></div><input type=hidden ng-model=vm.state.slika><div style=\"margin-left: 10%; color:red\"><p>{{vm.errors.required}}</p></div><button class=\"button icon-right ion-camera\" style=\"width: 80%;text-align: center;margin-left: 10%;margin-bottom:20px;\" ng-click=vm.takePhoto()>Направи фотографија</button> <button class=\"button icon-right ion-image\" style=\"width: 80%;text-align: center;margin-left: 10%;\" ng-click=vm.choosePhoto()>Прикачи фотографија</button><p>{{errorMessage}}</p></div></div></div><div class=\"row row-center\" ng-if=\"vm.state.slika !== undefined&&vm.state.slika!=null\"><div class=\"col col-75\"><div class=list><div class=\"item item-thumbnail-left\" href=# style=margin-left:13.25%><img ng-show=\"vm.state.slika !== undefined\" ng-src={{vm.state.slika}}><h2>{{vm.state.mesec}}</h2></div></div></div><div class=\"col col-25\"><div class=list><button class=\"button button-positive\" ng-click=vm.removImage()><i class=\"icon ion-android-close\"></i></button></div></div></div><div class=\"row row-center\"><div class=col><div class=list><button class=\"submitButton button button-balanced\" ng-click=vm.saveNewState()><!--ui-sref=\"main.results\">-->ВНЕСИ</button></div></div></div></ion-content></ion-view>");
-$templateCache.put("./templates/getarea.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=Реони overflow-scroll=false><ion-content class=has-header style=padding-top:20%; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><select name=selectArea id=selectArea ng-model=vm.data.selectArea class=\"form-control incheck\"><option value=\"\">Реон...</option><!--not selected / blank option--><option ng-repeat=\"option in vm.data.items\" value={{option.reonID}}>{{option.reonID}} - {{option.zabeleska}}</option></select><br></div></div></div><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><label class=\"item item-input item-select form-control\"><div class=input-label style=\"height: 100%;height: 100%;line-height: 100%;padding: 14px 7px;margin: auto 0;\">Месец</div><select ng-options=\"month.display for month in vm.months\" ng-model=vm.selectedMonth></select></label> <label class=\"item item-input item-select form-control\"><div class=input-label style=\"height: 100%;height: 100%;line-height: 100%;padding: 14px 7px;margin: auto 0;\">Година</div><select ng-options=\"year for year in vm.years\" ng-model=vm.selectedYear></select></label></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.downloadReonData() ng-enabled=vm.hasReonsList>Преземи податоци</button></div><div class=row><button class=\"submitButton button button-energized\" ng-click=vm.synchronize()>Синхронизирај</button></div><div class=row><div style=\"margin-left: 10%; margin-top:20px;color:red\"><p>{{vm.errors.required}}</p></div><div style=\"margin-left: 10%; margin-top:20px;color:green\"><p>{{vm.successMessage}}</p></div></div></ion-content></ion-view>");
+$templateCache.put("./templates/getarea.html","<ion-view class=\"hs-view-home has-header bar-calm\" title=Реони overflow-scroll=false><ion-content class=has-header style=padding-top:20%; content=\"\" scroll=false><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><select name=selectArea id=selectArea ng-model=vm.data.selectArea class=\"form-control incheck\"><option value=\"\">Реон...</option><!--not selected / blank option--><option ng-repeat=\"option in vm.data.items\" value={{option.reonID}}>{{option.reonID}} - {{option.zabeleska}}</option></select><br></div></div></div><div class=\"row row-center\" style=max-height:70%;><div class=col><div class=list><label class=\"item item-input item-select form-control\"><div class=input-label style=\"height: 100%;height: 100%;line-height: 100%;padding: 14px 7px;margin: auto 0;\">Месец</div><select ng-options=\"month.display for month in vm.months\" ng-model=vm.selectedMonth></select></label> <label class=\"item item-input item-select form-control\"><div class=input-label style=\"height: 100%;height: 100%;line-height: 100%;padding: 14px 7px;margin: auto 0;\">Година</div><select ng-options=\"year for year in vm.years\" ng-model=vm.selectedYear></select></label></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.downloadReonData() ng-enabled=vm.hasReonsList>Преземи податоци</button></div><div class=row><button class=\"submitButton button button-energized\" ng-click=vm.synchronize()>Синхронизирај</button></div><div class=row><div style=\"margin-left: 10%; margin-top:20px;color:red\"><p>{{vm.errors.required}}</p></div><div style=margin-top:20px;color:green><p>{{vm.successMessage}}</p></div></div></ion-content></ion-view>");
 $templateCache.put("./templates/internetConnection.html","<ion-view view-title=\"\" class=hs-view-internetConnection><ion-content scroll=false class=white-bg><div class=card><div class=\"item item-text-wrap\">{{vm.message}}</div></div></ion-content></ion-view>");
 $templateCache.put("./templates/login.html","<ion-view class=\"hs-view-home has-header bar-calm\" view-title=Логин content=\"\" scroll=false><ion-content class=has-header style=padding-top:30px; content=\"\" scroll=false><div class=\"row row-center\"><div class=col><div class=list><label class=\"item item-input inputElement\"><input type=text ng-model=vm.user.username placeholder=\"Корисничко Име\"></label> <label class=\"item item-input inputElement\"><input type=password ng-model=vm.user.password placeholder=Лозинка></label><div style=\"margin-left: 10%; color: red\"><p>{{vm.errors.required}}</p></div></div></div></div><div class=row><button class=\"submitButton button button-calm\" ng-click=vm.login()>ЛОГИРАЈ СЕ</button></div></ion-content></ion-view>");
 $templateCache.put("./templates/menu.html","<ion-side-menus enable-menu-with-back-views=false><ion-side-menu-content><ion-nav-bar align-title=center class=\"bar-calm bar-header-with-logo never-hide-inline\"><ion-nav-back-button class=button-clear><i class=ion-android-arrow-back ng-if=\"mainVm.checkArea() && !mainVm.check()\"></i></ion-nav-back-button><ion-nav-title ng-click=\"mainVm.navigateToState(\'main.login\',{})\"><div class=page-title></div></ion-nav-title><ion-nav-buttons side=left><!--<button class=\"button button-icon button-clear ion-navicon\" menu-toggle=\"left\" ng-if=\"!mainVm.check()\"></button>--><button class=\"button icon ion-log-out\" ng-click=mainVm.logOut() ng-if=!mainVm.checkArea()></button></ion-nav-buttons><ion-nav-buttons side=right><button class=\"button icon ion-home\" ng-click=mainVm.area() ng-if=!mainVm.check()></button> <button class=\"button icon ion-search\" ng-click=mainVm.search() ng-if=!mainVm.check()></button></ion-nav-buttons></ion-nav-bar><ion-nav-view name=subview></ion-nav-view></ion-side-menu-content></ion-side-menus>");
