@@ -42,7 +42,7 @@ namespace HASELT.GeoMega.AppServices.Features.Users
         {
             public override async Task<Response> Handle(Request request)
             {
-                var response = Connection.Query<Response>(@"SELECT * FROM [Komunalecjpk].[dbo].[Users] WHERE UserName = @user and Lozinka=@lozinka", new { user = request.UserName, lozinka=request.Password }).FirstOrDefault();
+                var response = Connection.Query<Response>(@"SELECT * FROM [KomunalecJPK].[dbo].[ViewNajava] WHERE UserName = @user and Lozinka=@lozinka", new { user = request.UserName, lozinka=request.Password }).FirstOrDefault();
                 return response;
             }
         }

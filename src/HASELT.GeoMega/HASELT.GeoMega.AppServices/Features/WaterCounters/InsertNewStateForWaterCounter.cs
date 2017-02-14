@@ -113,7 +113,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                                        ,@Lat
                                                                        ,@Long)";
             private readonly string waterCounterListItemQuery = @"
-                Select  
+               Select  
                           bfl.VidKorID as VidKorID, 
                           bfl.KorisnikID as KorisnikId, 
                           bfl.LokacijaID as LokacijaId,
@@ -122,10 +122,10 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                           bfl.Broilo as Broilo,
                           lfl.Aktiven as Aktive,
                           k.Naziv as Naziv, 
-                          k.Ulica as Ulica, 
+                          k.Adresa as Ulica, 
                           k.Broj as Broj,
 	                    (
-	                    SELECT TOP 1 sf.SostojbaNova from Komunalecjpk.dbo.SostojbaFizicki sf
+	                    SELECT TOP 1 sf.SostojbaStara from Komunalecjpk.dbo.SostojbaFizicki sf
 		                    Where sf.Vidkorid=bfl.VidKorID 
 		                    and sf.KorisnikID=bfl.KorisnikID
 		                    and sf.LokacijaID=bfl.LokacijaID 
@@ -147,7 +147,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                           lfl.LokacijaID=bfl.LokacijaID AND 
                           lfl.KorisnikID=bfl.KorisnikID AND
                           lfl.ReonID=bfl.ReonID
-                          inner join Komunalecjpk.dbo.Korisnici k on bfl.KorisnikID=k.KorisnikID
+                          inner join Komunalecjpk.dbo.Sifrarnik k on bfl.KorisnikID=k.ID and bfl.vidkorid = k.siftipid
                           where lfl.Aktiven=1 
 	                      AND 
                           bfl.Status=1
@@ -156,12 +156,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 						  
 						  SELECT sf.Broilo from Komunalecjpk.dbo.SostojbaFizicki sf
 		                    Where sf.Mesec = @YearMonth
-							AND
-							sf.Vidkorid=@VidKorID 
-		                    and sf.KorisnikID=@KorisnikID
-		                    and sf.LokacijaID=@LokacijaID 
-		                    and sf.Broilo=@Broilo 
-	                    )                  
+                            And sf.SostojbaNova = '0'
+	                    )               
             ";
             private readonly string waterCounterUpdateQuery = @"
                 UPDATE  [Komunalecjpk].[dbo].[SostojbaFizicki]
@@ -195,10 +191,9 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                                    Mesto,
                                                                    Drzava,
                                                                    Vlez,
-                                                                   Stan,
-                                                                   Naziv1
-                                                            FROM FinknJpk_old.dbo.Sifrarnik
-                                                            WHERE ID=@KorisnikId";
+                                                                   Stan
+                                                                   FROM Finknjpk.dbo.Sifrarnik
+                                                                   WHERE ID=@KorisnikId";
 
             public override async Task<Response> Handle(Request request)
             {
@@ -224,7 +219,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                     Broilo = request.Broilo
                 }).FirstOrDefault();
 
-                if(waterCounterItem != null && waterCounterItem.SostojbaNova != "0")
+                if(waterCounterItem != null && (waterCounterItem.SostojbaNova != "0" && waterCounterItem.SostojbaNova != null))
                 {
                     response.Message = "Состојбата не е зачувана бидејќи веќе постои за овој месец";
                     return response;
@@ -237,29 +232,28 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                 else
                 {
                     var korisnikInfo = Connection.Query<KorisnikInfo>(korisnikInfoQuery, new { KorisnikId = request.KorisnikID }).FirstOrDefault();
-
-                    var result = Connection.Execute(waterCounterUpdateQuery
-                                                                           , new
-                                                                           {
-                                                                               Vidkorid = request.Vidkorid,
-                                                                               KorisnikID = request.KorisnikID,
-                                                                               LokacijaID = request.LokacijaID,
-                                                                               Broilo = request.Broilo,
-                                                                               Mesec = composeMesec,
-                                                                               SostojbaStara = request.SostojbaStara,
-                                                                               SostojbaNova = request.SostojbaNova,
-                                                                               Razlika = razlika.ToString(),
-                                                                               ReonID = request.ReonID,
-                                                                               UlicaID = korisnikInfo != null ? korisnikInfo.UlicaID : 1,
-                                                                               Broj = korisnikInfo != null ? korisnikInfo.Broj.ToString() : "0",
-                                                                               Vlez = korisnikInfo != null ? korisnikInfo.Vlez : "0",
-                                                                               stan = korisnikInfo != null ? korisnikInfo.Broj.ToString() : "0",
-                                                                               BrClenovi = brojClenovi != null ? brojClenovi : 0,
-                                                                               Datum = DateTime.UtcNow,
-                                                                               SlikaSostojba = request.SlikaSostojba,
-                                                                               Lat = request.Lat,
-                                                                               Long = request.Long
-                                                                           });
+                    var parameters = new
+                    {
+                        Vidkorid = request.Vidkorid,
+                        KorisnikID = request.KorisnikID,
+                        LokacijaID = request.LokacijaID,
+                        Broilo = request.Broilo,
+                        Mesec = composeMesec,
+                        SostojbaStara = request.SostojbaStara,
+                        SostojbaNova = request.SostojbaNova,
+                        Razlika = razlika.ToString(),
+                        ReonID = request.ReonID,
+                        UlicaID = korisnikInfo != null ? korisnikInfo.UlicaID : 1,
+                        Broj = korisnikInfo != null ? korisnikInfo.Broj.ToString() : "0",
+                        Vlez = korisnikInfo != null ? korisnikInfo.Vlez : "0",
+                        stan = korisnikInfo != null ? korisnikInfo.Broj.ToString() : "0",
+                        BrClenovi = brojClenovi != null ? brojClenovi : 0,
+                        Datum = DateTime.UtcNow,
+                        SlikaSostojba = "'"+request.SlikaSostojba+"'",
+                        Lat = request.Lat,
+                        Long = request.Long
+                    };
+                    var result = Connection.Execute(waterCounterUpdateQuery, parameters);
 
                     response.IsSucces = result == 1;
                 }

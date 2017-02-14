@@ -57,7 +57,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 														   k.Naziv as ImeNaziv
                                                             
                                                           FROM SostojbaFizicki as sf
-														  inner join Korisnici k on sf.KorisnikID=k.KorisnikID
+														  inner join Sifrarnik k on sf.KorisnikID=k.ID
 
                                                           WHERE sf.Vidkorid=@Vidkorid and sf.LokacijaID=@LokacijaID and sf.KorisnikID=@KorisnikID and sf.ReonID=@ReonID and sf.Broilo=@Broilo
                                                           ORDER BY sf.Broilo, sf.Mesec, sf.Datum",
