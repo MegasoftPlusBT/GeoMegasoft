@@ -161,7 +161,7 @@
         name: "geoMegaSoft.db",
         location: 'default'
       });
-      var createCustomersTableQuery = "CREATE TABLE IF NOT EXISTS customers (ID integer, SifTipID integer, Naziv text, UlicaID integer,  Adresa text, Broj integer, Mesto text, Drzava text, Vlez text, Stan text, Naziv1 text ); ";
+      var createCustomersTableQuery = "CREATE TABLE IF NOT EXISTS customers (ID integer, SifTipID integer, Naziv text, UlicaID integer,  Adresa text, Broj integer, Mesto text, Drzava text, Vlez text, Stan text); ";
       var createWaterCountersTableQuery = "CREATE TABLE IF NOT EXISTS waterCounters (ReonId integer, VidKorId integer, KorisnikId integer, LokacijaId integer, UlicaId integer, Broilo text, Aktive int, Naziv text, Ulica text, Broj text, SostojbaNova text, Mesec text, SlikaSostojba text, HasBeenUpdatedLocally integer); ";
       var createLocalChangesTableQuery = "CREATE TABLE IF NOT EXISTS LocalDataChanges (LocalDataChangeId  integer primary key,ReonId integer, VidKorID integer, KorisnikId integer,  LokacijaId integer,  Broilo text, SostojbaStara text, SostojbaNova text, SlikaSostojba text, lat text, long text, DateCreated text, TypeOfAPICall text, IsSentToAPI text ); ";
       $cordovaSQLite.execute($window.db, createCustomersTableQuery);
@@ -192,7 +192,7 @@
 (function () {
     'use strict';
     angular.module('starter.constants', [])
-      .constant('WebAPIurl', 'http://geomegasoft.dev.haselt.net/')
+      .constant('WebAPIurl', 'http://localhost:8011/')
     ;
 })();
 
@@ -310,7 +310,7 @@ angular.module('starter.shared')
         var customersToInsert = [];
 
         var waterCounterInsertQuery = "INSERT INTO waterCounters (ReonId , VidKorId , KorisnikId, LokacijaId , UlicaId, Broilo , Aktive , Naziv , Ulica, Broj , SostojbaNova, Mesec,SlikaSostojba , HasBeenUpdatedLocally ) VALUES (?, ? , ?, ?, ?, ? , ?, ?, ?, ? , ?, ?,?,?)";
-        var customersInsertQuery = "INSERT INTO customers (ID , SifTipID , Naziv , UlicaID ,  Adresa , Broj , Mesto , Drzava , Vlez , Stan , Naziv1 ) VALUES (? , ?, ? , ?,  ? , ? , ? , ?, ? , ?, ? )";
+        var customersInsertQuery = "INSERT INTO customers (ID , SifTipID , Naziv , UlicaID ,  Adresa , Broj , Mesto , Drzava , Vlez , Stan ) VALUES (? , ?, ? , ?,  ? , ? , ? , ?, ? , ? )";
         for (var i = 0; i < dataFromAPI.waterCounters.length; i++) {
           //dataFromAPI.waterCounters[i]
           $window.localStorage['localReonId'] = selectedArea;
@@ -346,7 +346,6 @@ angular.module('starter.shared')
             dataFromAPI.customers[j].drzava,
             dataFromAPI.customers[j].vlez,
             dataFromAPI.customers[j].stan,
-            dataFromAPI.customers[j].naziv1
           ];
           customersToInsert.push(customerParameters);
           // customersQueries.push([
@@ -582,7 +581,7 @@ angular.module('starter.shared')
         //Grad
         //}
 
-        var getCustomerInfoQuery = "SELECT SifTipID, ID, Naziv, UlicaID, Adresa,  Broj, Mesto, Drzava, Vlez, Stan, Naziv1  FROM customers  WHERE ID=" + korisnikID;
+        var getCustomerInfoQuery = "SELECT SifTipID, ID, Naziv, UlicaID, Adresa,  Broj, Mesto, Drzava, Vlez, Stan FROM customers  WHERE ID=" + korisnikID;
 
         $ionicPlatform.ready(function () {
           $cordovaSQLite.execute($window.db, getCustomerInfoQuery).then(function (res) {
@@ -1638,56 +1637,6 @@ angular.module('starter.shared')
 })();
 
 /* globals _,ionic */
-/* jshint -W098 */
-(function() {
-  'use strict';
-
-  angular.module('starter')
-    .controller('InternetConnectionCtrl', InternetConnectionController);
-
-  InternetConnectionController.$inject = ['$log', '$scope', '$interval', '$timeout', '$rootScope', '$q', '$state', '$ionicPopup',  '$ionicHistory', 'CordovaNetworkService'];
-
-  function InternetConnectionController($log, $scope, $interval, $timeout, $rootScope, $q, $state, $ionicPopup,  $ionicHistory, CordovaNetworkService) {
-    var vm = this;
-    vm.message = "NO INTERNET MESSAGE HERE";
-    $scope.$on("$destroy", ViewOnDestroy);
-    vm.intervalPromise = undefined;
-
-    function ViewOnDestroy(event) {
-      if (vm.intervalPromise !== undefined) {
-        $interval.cancel(vm.intervalPromise);
-      }
-      vm.intervalPromise = undefined;
-    }
-
-    $scope.$on('$ionicView.enter', function() {
-      vm.intervalPromise = $interval(function() {
-        //set interval to try and get content
-        CheckInternetConnection();
-      }, 4000);
-    });
-
-    function CheckInternetConnection() {
-      vm.message = "...";
-      CordovaNetworkService.isOnline().then(isOnlineSuccess).catch(isOnlineFail);
-    }
-
-    function isOnlineFail() {
-      vm.message = "PLEASE CONNECT MESSAGE HERE";
-    }
-
-    function isOnlineSuccess(isConnected) {
-      if (isConnected) {
-        vm.message = "...";
-        $state.go('main.gotodefault');
-      }
-    }
-
-  }
-
-})();
-
-/* globals _,ionic */
 /* jshint -W098, -W069 */
 (function () {
     'use strict';
@@ -1738,6 +1687,56 @@ angular.module('starter.shared')
             $state.go("main.getarea");
         };
     }
+})();
+
+/* globals _,ionic */
+/* jshint -W098 */
+(function() {
+  'use strict';
+
+  angular.module('starter')
+    .controller('InternetConnectionCtrl', InternetConnectionController);
+
+  InternetConnectionController.$inject = ['$log', '$scope', '$interval', '$timeout', '$rootScope', '$q', '$state', '$ionicPopup',  '$ionicHistory', 'CordovaNetworkService'];
+
+  function InternetConnectionController($log, $scope, $interval, $timeout, $rootScope, $q, $state, $ionicPopup,  $ionicHistory, CordovaNetworkService) {
+    var vm = this;
+    vm.message = "NO INTERNET MESSAGE HERE";
+    $scope.$on("$destroy", ViewOnDestroy);
+    vm.intervalPromise = undefined;
+
+    function ViewOnDestroy(event) {
+      if (vm.intervalPromise !== undefined) {
+        $interval.cancel(vm.intervalPromise);
+      }
+      vm.intervalPromise = undefined;
+    }
+
+    $scope.$on('$ionicView.enter', function() {
+      vm.intervalPromise = $interval(function() {
+        //set interval to try and get content
+        CheckInternetConnection();
+      }, 4000);
+    });
+
+    function CheckInternetConnection() {
+      vm.message = "...";
+      CordovaNetworkService.isOnline().then(isOnlineSuccess).catch(isOnlineFail);
+    }
+
+    function isOnlineFail() {
+      vm.message = "PLEASE CONNECT MESSAGE HERE";
+    }
+
+    function isOnlineSuccess(isConnected) {
+      if (isConnected) {
+        vm.message = "...";
+        $state.go('main.gotodefault');
+      }
+    }
+
+  }
+
 })();
 
 (function() {

@@ -72,11 +72,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                        ,[Dimenzii]
                        ,[vbro]
                        ,[UlicaID]
-                       ,[MestoID]
-                       ,[Broi]
-                       ,[Tip]
-                       ,[DatumIns]
-                       ,[DatumBaz])
+                        )
                  VALUES
                        (@VidKorId
                        ,@KorisnikId
@@ -87,12 +83,8 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                        ,null
                        ,1
                        ,null
-                       ,1
-                       ,1
-                       ,1
-                       ,null
-                       ,null
-		               )
+                       
+                        )
                 ";
 
                 var createCounterResult = Connection.Execute(createQuery,
@@ -122,10 +114,9 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                                                    Mesto,
                                                                    Drzava,
                                                                    Vlez,
-                                                                   Stan,
-                                                                   Naziv1
-                                                            FROM FinknJpk_old.dbo.Sifrarnik
-                                                            WHERE ID=@KorisnikId", new { KorisnikId = request.KorisnikID }).FirstOrDefault();
+                                                                   Stan
+                                                                   FROM Finknjpk.dbo.Sifrarnik
+                                                                   WHERE ID=@KorisnikId", new { KorisnikId = request.KorisnikID }).FirstOrDefault();
 
                 var result = Connection.Execute(@"INSERT INTO [Komunalecjpk].[dbo].[SostojbaFizicki]
                                                                        ([Vidkorid]
@@ -214,7 +205,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
 
             public string Stan { get; set; }
 
-            public string Naziv1 { get; set; }
+
         }
     }
 }

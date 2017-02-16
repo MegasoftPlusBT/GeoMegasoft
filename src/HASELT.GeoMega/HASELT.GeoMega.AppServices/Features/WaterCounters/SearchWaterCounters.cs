@@ -73,7 +73,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                     bfl.Broilo as Broilo,
                                     lfl.Aktiven as Aktive,
                                     k.Naziv as Naziv, 
-                                    k.Ulica as Ulica, 
+                                    k.Adresa as Ulica, 
                                     k.Broj as Broj,
 									(
 									SELECT TOP 1 sf.SostojbaNova from SostojbaFizicki sf
@@ -86,7 +86,7 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                     lfl.LokacijaID=bfl.LokacijaID AND 
                                     lfl.KorisnikID=bfl.KorisnikID AND
                                     lfl.ReonID=bfl.ReonID
-                                    inner join Korisnici k on bfl.KorisnikID=k.KorisnikID
+                                    inner join Sifrarnik k on bfl.KorisnikID=k.ID and bfl.vidkorid = k.siftipid
                                     where lfl.Aktiven=1 AND bfl.Status=1");
                 var sbSqlPravni = new StringBuilder(@"Select 
                                     lpl.VidKorID as VidKorID, 
@@ -96,28 +96,29 @@ namespace HASELT.GeoMega.AppServices.Features.WaterCounters
                                     bpl.Broilo as Broilo, 
                                     lpl.Aktiven as Aktiven, 
                                     k.Naziv as Naziv, 
-                                    k.Ulica as Ulica, 
+                                    k.Adresa as Ulica, 
                                     k.Broj as Broj,
 									(
 									SELECT TOP 1 sp.SostojbaNova from SostojbaPravni sp
-									Where sp.KorisnikID=bpl.KorisnikID and sp.LokacijaID=bpl.LokacijaID and sp.Broilo=bpl.Broilo
+									Where  sp.Vidkorid=bpl.VidKorID and sp.KorisnikID=bpl.KorisnikID and sp.LokacijaID=bpl.LokacijaID and sp.Broilo=bpl.Broilo
 									Order by sp.Mesec desc
 									) as NovaSostojba
-                                    From BroilaPravniLica bpl
+                                    From BroilaFizickiLica bpl
                                     left join LokacijaPravniLica lpl on 
-                                    bpl.LokacijaID=bpl.LokacijaID AND 
-                                    bpl.KorisnikID=bpl.KorisnikID AND
-                                    bpl.ReonID=bpl.ReonID
-                                    inner join Korisnici k on bpl.KorisnikID=k.KorisnikID
-                                    where lpl.Aktiven=1  ");
+									lpl.vidkorid=bpl.vidkorid and
+									lpl.LokacijaID=bpl.LokacijaID AND 
+                                    lpl.KorisnikID=bpl.KorisnikID AND
+                                    lpl.ReonID=bpl.ReonID
+                                    inner join Sifrarnik k on bpl.KorisnikID=k.ID 
+                                    where lpl.Aktiven=1");
 
                 sbSqlFizicki.Append(@" AND bfl.ReonID = @ReonId");
                 sbSqlPravni.Append(@" AND bpl.ReonID = @ReonId");
 
                 if (!string.IsNullOrEmpty(request.Location))
                 {
-                    sbSqlFizicki.Append(@" AND (k.Ulica like @Location or k.Broj like @Location or (k.Ulica+' '+k.Broj) like @Location)");
-                    sbSqlPravni.Append(@" AND (k.Ulica like @Location or k.Broj like @Location or (k.Ulica+' '+k.Broj) like @Location)");
+                    sbSqlFizicki.Append(@" AND (k.Adresa like @Location or k.Broj like @Location or (k.Adresa+' '+k.Broj) like @Location)");
+                    sbSqlPravni.Append(@" AND (k.Adresa like @Location or k.Broj like @Location or (k.Adresa+' '+k.Broj) like @Location)");
                 }
 
                 if (!string.IsNullOrEmpty(request.FirstLastName))

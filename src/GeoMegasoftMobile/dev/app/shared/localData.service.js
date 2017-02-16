@@ -37,7 +37,7 @@
         var customersToInsert = [];
 
         var waterCounterInsertQuery = "INSERT INTO waterCounters (ReonId , VidKorId , KorisnikId, LokacijaId , UlicaId, Broilo , Aktive , Naziv , Ulica, Broj , SostojbaNova, Mesec,SlikaSostojba , HasBeenUpdatedLocally ) VALUES (?, ? , ?, ?, ?, ? , ?, ?, ?, ? , ?, ?,?,?)";
-        var customersInsertQuery = "INSERT INTO customers (ID , SifTipID , Naziv , UlicaID ,  Adresa , Broj , Mesto , Drzava , Vlez , Stan , Naziv1 ) VALUES (? , ?, ? , ?,  ? , ? , ? , ?, ? , ?, ? )";
+        var customersInsertQuery = "INSERT INTO customers (ID , SifTipID , Naziv , UlicaID ,  Adresa , Broj , Mesto , Drzava , Vlez , Stan ) VALUES (? , ?, ? , ?,  ? , ? , ? , ?, ? , ? )";
         for (var i = 0; i < dataFromAPI.waterCounters.length; i++) {
           //dataFromAPI.waterCounters[i]
           $window.localStorage['localReonId'] = selectedArea;
@@ -73,7 +73,6 @@
             dataFromAPI.customers[j].drzava,
             dataFromAPI.customers[j].vlez,
             dataFromAPI.customers[j].stan,
-            dataFromAPI.customers[j].naziv1
           ];
           customersToInsert.push(customerParameters);
           // customersQueries.push([
@@ -309,7 +308,7 @@
         //Grad
         //}
 
-        var getCustomerInfoQuery = "SELECT SifTipID, ID, Naziv, UlicaID, Adresa,  Broj, Mesto, Drzava, Vlez, Stan, Naziv1  FROM customers  WHERE ID=" + korisnikID;
+        var getCustomerInfoQuery = "SELECT SifTipID, ID, Naziv, UlicaID, Adresa,  Broj, Mesto, Drzava, Vlez, Stan FROM customers  WHERE ID=" + korisnikID;
 
         $ionicPlatform.ready(function () {
           $cordovaSQLite.execute($window.db, getCustomerInfoQuery).then(function (res) {

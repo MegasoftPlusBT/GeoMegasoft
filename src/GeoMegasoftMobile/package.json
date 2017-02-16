@@ -24,6 +24,11 @@
     "shelljs": "^0.3.0"
   },
   "cordovaPlugins": [
+    "cordova-plugin-compat",
+    {
+      "locator": "https://github.com/brodysoft/Cordova-SQLitePlugin.git",
+      "id": "cordova-sqlite-storage"
+    },
     "cordova-plugin-device",
     "cordova-plugin-console",
     "cordova-plugin-whitelist",
@@ -34,14 +39,9 @@
     "cordova-plugin-file",
     "cordova-plugin-file-transfer",
     "cordova-plugin-camera",
-    "cordova-plugin-geolocation",
-    {
-      "locator": "https://github.com/brodysoft/Cordova-SQLitePlugin.git",
-      "id": "cordova-sqlite-storage"
-    }
+    "cordova-plugin-geolocation"
   ],
   "cordovaPlatforms": [
-    "android",
     {
       "platform": "android",
       "version": "",

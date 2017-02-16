@@ -111,9 +111,8 @@ namespace HASELT.GeoMega.AppServices.Features.Customers
                                                                    Mesto,
                                                                    Drzava,
                                                                    Vlez,
-                                                                   Stan,
-                                                                   Naziv1
-                                                            FROM FinknJpk_old.dbo.Sifrarnik
+                                                                   Stan
+                                                                   FROM Finknjpk.dbo.Sifrarnik
                                                             WHERE ID=@KorisnikId", new { KorisnikId = request.KorisnikID }).FirstOrDefault();
                 var response = new Response();
 
@@ -141,7 +140,7 @@ namespace HASELT.GeoMega.AppServices.Features.Customers
                                     bfl.Broilo as Broilo,
                                     lfl.Aktiven as Aktive,
                                     k.Naziv as Naziv, 
-                                    k.Ulica as Ulica, 
+                                    k.Adresa as Ulica, 
                                     k.Broj as Broj,
 									(
 									SELECT TOP 1 sf.SostojbaNova from SostojbaFizicki sf
@@ -154,7 +153,7 @@ namespace HASELT.GeoMega.AppServices.Features.Customers
                                     lfl.LokacijaID=bfl.LokacijaID AND 
                                     lfl.KorisnikID=bfl.KorisnikID AND
                                     lfl.ReonID=bfl.ReonID
-                                    inner join Korisnici k on bfl.KorisnikID=k.KorisnikID
+                                    inner join Sifrarnik k on bfl.KorisnikID=k.ID and bfl.vidkorid = k.siftipid
                                     where lfl.Aktiven=1 AND bfl.Status=1 
                                     AND bfl.KorisnikID = @KorisnikId";
 

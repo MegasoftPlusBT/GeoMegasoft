@@ -38,7 +38,7 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
 
                 public string Adresa { get; set; }
 
-                public int Broj { get; set; }
+                public string Broj { get; set; }
 
                 public string Mesto { get; set; }
 
@@ -98,16 +98,15 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
                 SifTipID, 
                 ID,
                 Naziv,
-                UlicaID,
-                Adresa, 
-                Broj, 
-                Mesto,
+                sf.UlicaID,
+                sf.Adresa, 
+                sf.Broj, 
+                sf.Mesto,
                 Drzava,
-                Vlez,
-                Stan,
-                Naziv1
-                FROM FinknJpk_old.dbo.Sifrarnik AS sf
-                INNER JOIN Komunalecjpk.dbo.LokacijaFizickiLica AS lf ON lf.ReonID = @ReonId AND sf.ID = lf.KorisnikID ";
+                sf.Vlez,
+                sf.Stan                
+                FROM Finknjpk.dbo.Sifrarnik AS sf
+                INNER JOIN Komunalecjpk.dbo.LokacijaFizickiLica AS lf ON lf.ReonID = @ReonId AND sf.ID = lf.KorisnikID";
 
                 var customers = Connection.Query<Response.CustomerListItem>(_queryCustomers, new { ReonId = request.ReonId }).AsList();
 
@@ -121,7 +120,7 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
                           bfl.Broilo as Broilo,
                           lfl.Aktiven as Aktive,
                           k.Naziv as Naziv, 
-                          k.Ulica as Ulica, 
+                          k.Adresa as Ulica, 
                           k.Broj as Broj,
 	                    (
 	                    SELECT TOP 1 sf.SostojbaStara from Komunalecjpk.dbo.SostojbaFizicki sf
@@ -146,7 +145,7 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
                           lfl.LokacijaID=bfl.LokacijaID AND 
                           lfl.KorisnikID=bfl.KorisnikID AND
                           lfl.ReonID=bfl.ReonID
-                          inner join Komunalecjpk.dbo.Korisnici k on bfl.KorisnikID=k.KorisnikID
+                          inner join Komunalecjpk.dbo.Sifrarnik k on bfl.KorisnikID=k.ID and bfl.vidkorid = k.siftipid
                           where lfl.Aktiven=1 
 	                      AND 
                           bfl.Status=1
@@ -156,7 +155,7 @@ namespace HASELT.GeoMega.AppServices.Features.Reons
 						  SELECT sf.Broilo from Komunalecjpk.dbo.SostojbaFizicki sf
 		                    Where sf.Mesec = @YearMonth
                             And sf.SostojbaNova = '0'
-	                    )                  
+	                    )                 
 
                         ";
 
